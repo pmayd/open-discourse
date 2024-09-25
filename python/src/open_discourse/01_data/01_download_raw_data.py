@@ -3,8 +3,9 @@ import zipfile
 
 import regex
 import requests
+from tqdm import tqdm
 
-import open_discourse.definitions.path_definitions as path_definitions
+from open_discourse.definitions import path_definitions
 
 # output directory
 RAW_XML = path_definitions.RAW_XML
@@ -30,8 +31,7 @@ zip_links = [
     "https://www.bundestag.de/resource/blob/487966/4078f01fb3198dc3cee8945d6db3b231/pp01-data.zip",
 ]
 
-
-for link in zip_links:
+for link in tqdm(zip_links, desc="Download & unzip election period data..."):
     # Extract election period from URL
     electoral_term_str = "electoral_term_" + regex.search(
         r"(?<=pp)\d+(?=-data\.zip)", link
@@ -46,20 +46,7 @@ for link in zip_links:
         save_path.mkdir(parents=True, exist_ok=True)
         z.extractall(save_path)
 
-    print("Done.")
+assert RAW_XML.exists()
+assert len(list(RAW_XML.glob("*"))) == len(zip_links)
 
-
-# Download MDB Stammdaten.
-mp_base_data_link = "https://www.bundestag.de/resource/blob/472878/7d4d417dbb7f7bd44508b3dc5de08ae2/MdB-Stammdaten-data.zip"
-
-print("Download & unzip 'MP_BASE_DATA'...", end="", flush=True)
-
-r = requests.get(mp_base_data_link)
-
-with zipfile.ZipFile(io.BytesIO(r.content)) as z:
-    mp_base_data_path = path_definitions.DATA_RAW / "MP_BASE_DATA"
-    mp_base_data_path.mkdir(parents=True, exist_ok=True)
-
-    z.extractall(mp_base_data_path)
-
-print("Done.")
+print("Script 01_01 done.")

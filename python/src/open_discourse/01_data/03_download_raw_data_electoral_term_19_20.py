@@ -66,3 +66,6 @@ for election_period in election_periods:
                     regex.sub("<sub>", "", page.content.decode("utf-8")),
                 )
             )
+
+assert OUTPUT_PATH.exists()
+assert len(list(ELECTORAL_TERM_19_20_OUTPUT.glob("*"))) == len(election_periods)

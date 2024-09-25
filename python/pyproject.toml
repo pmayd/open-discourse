@@ -17,14 +17,19 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["ruff>=0.5.2"]
+dev = [
+    "ruff>=0.5.2",
+    "pytest>=7.0.1",
+    "pytest-cov>=3.0.0",
+    "pytest-mock>=3.7.0"
+]
 
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-where = ["."]
+where = ["src"]
 include = ["open_discourse*"]
 
 [tool.setuptools.package-data]
