@@ -3,10 +3,10 @@ import xml.etree.ElementTree as et
 
 import dicttoxml
 import regex
+from tqdm import tqdm
 
 import open_discourse.definitions.path_definitions as path_definitions
 from open_discourse.helper_functions.clean_text import clean
-from open_discourse.helper_functions.progressbar import progressbar
 
 # input directory
 RAW_XML = path_definitions.RAW_XML
@@ -16,17 +16,21 @@ RAW_TXT = path_definitions.RAW_TXT
 RAW_TXT.mkdir(parents=True, exist_ok=True)
 
 # Open every xml plenar file in every legislature period.
-for folder_path in sorted(RAW_XML.iterdir()):
+for folder_path in [sorted(RAW_XML.iterdir())]:
     # Skip e.g. the .DS_Store file.
     if not folder_path.is_dir():
         continue
 
-    term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+    term_number = regex.search(r"(?<=electoral_term_pp)\d{2}", folder_path.stem)
     if term_number is None:
+        print(f"No term number found in {folder_path.stem}.")
         continue
     term_number = int(term_number.group(0))
 
-    if not (3 <= term_number <= 18):
+    if not (3 <= term_number <= 19):
+        print(
+            f"Term number {term_number} is not in range [3, 19]. Skipping for this script"
+        )
         continue
 
     begin_pattern_electoral_term = regex.compile(
@@ -40,8 +44,8 @@ for folder_path in sorted(RAW_XML.iterdir()):
         if str(term_number) not in sys.argv:
             continue
 
-    for xml_file_path in progressbar(
-        folder_path.iterdir(), f"Parsing term {term_number:>2}..."
+    for xml_file_path in tqdm(
+        folder_path.iterdir(), desc=f"Parsing term {term_number:>2}..."
     ):
         if xml_file_path.suffix == ".xml":
             tree = et.parse(xml_file_path)
@@ -214,3 +218,8 @@ for folder_path in sorted(RAW_XML.iterdir()):
 
             with open(save_path / "meta_data.xml", "wb") as result_file:
                 result_file.write(dicttoxml.dicttoxml(meta_data))
+
+assert RAW_TXT.exists(), f"Output directory {RAW_TXT}does not exist."
+assert len(list(RAW_TXT.glob("*_pp*"))) == 19 - 3 + 1
+
+print("Script 02_04 done.")

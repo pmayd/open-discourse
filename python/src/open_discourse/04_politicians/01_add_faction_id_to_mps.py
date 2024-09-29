@@ -5,6 +5,7 @@ import open_discourse.definitions.path_definitions as path_definitions
 # input directory
 POLITICIANS_INPUT = path_definitions.POLITICIANS_STAGE_01
 FACTIONS_INPUT = path_definitions.DATA_FINAL
+
 # output directory
 POLITICIANS_OUTPUT = path_definitions.POLITICIANS_STAGE_02
 POLITICIANS_OUTPUT.mkdir(parents=True, exist_ok=True)
@@ -18,3 +19,5 @@ for faction_name, faction_id in zip(factions["faction_name"], factions["id"]):
     mps.loc[mps["institution_name"] == faction_name, "faction_id"] = faction_id
 
 mps.to_pickle(POLITICIANS_OUTPUT / "mps.pkl")
+
+print("Script 04_01 done.")

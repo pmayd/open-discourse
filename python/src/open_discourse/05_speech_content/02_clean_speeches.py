@@ -3,10 +3,10 @@ import sys
 import numpy as np
 import pandas as pd
 import regex
+from tqdm import tqdm
 
 import open_discourse.definitions.path_definitions as path_definitions
 from open_discourse.helper_functions.clean_text import clean_name_headers
-from open_discourse.helper_functions.progressbar import progressbar
 
 # input directory
 SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_01
@@ -18,37 +18,41 @@ SPEECH_CONTENT_OUTPUT = path_definitions.SPEECH_CONTENT_STAGE_02
 factions = pd.read_pickle(FACTIONS / "factions.pkl")
 
 faction_patterns = {
-    "Bündnis 90/Die Grünen": r"(?:BÜNDNIS\s*(?:90)?/?(?:\s*D[1I]E)?|Bündnis\s*90/(?:\s*D[1I]E)?)?\s*[GC]R[UÜ].?\s*[ÑN]EN?(?:/Bündnis 90)?|Bündnis 90/Die Grünen",
-    "CDU/CSU": r"(?:Gast|-)?(?:\s*C\s*[DSMU]\s*S?[DU]\s*(?:\s*[/,':!.-]?)*\s*(?:\s*C+\s*[DSs]?\s*[UÙ]?\s*)?)(?:-?Hosp\.|-Gast|1)?",
-    "BP": r"^BP",
-    "DA": r"^DA",
-    "DP": r"^DP",
-    "DIE LINKE.": r"DIE LINKE",
-    "DPB": r"(?:^DPB)",
-    "DRP": r"DRP(\-Hosp\.)?|SRP",
-    "FDP": r"\s*F\.?\s*[PDO][.']?[DP]\.?",
-    "Fraktionslos": r"(?:fraktionslos|Parteilos|parteilos)",
-    "FU": r"^FU",
-    "FVP": r"^FVP",
-    "Gast": r"Gast",
-    "GB/BHE": r"(?:GB[/-]\s*)?BHE(?:-DG)?",
-    "KPD": r"^KPD",
-    "PDS": r"(?:Gruppe\s*der\s*)?PDS(?:/(?:LL|Linke Liste))?",
-    "SPD": r"\s*'?S(?:PD|DP)(?:\.|-Gast)?",
-    "SSW": r"^SSW",
-    "SRP": r"^SRP",
-    "WAV": r"^WAV",
-    "Z": r"^Z$",
-    "DBP": r"^DBP$",
-    "NR": r"^NR$",
+    "Bündnis 90/Die Grünen": regex.compile(
+        "(?:BÜNDNIS\s*(?:90)?/?(?:\s*D[1I]E)?|Bündnis\s*90/(?:\s*D[1I]E)?)?\s*[GC]R[UÜ].?\s*[ÑN]EN?(?:/Bündnis 90)?|Bündnis 90/Die Grünen"
+    ),
+    "CDU/CSU": regex.compile(
+        "(?:Gast|-)?(?:\s*C\s*[DSMU]\s*S?[DU]\s*(?:\s*[/,':!.-]?)*\s*(?:\s*C+\s*[DSs]?\s*[UÙ]?\s*)?)(?:-?Hosp\.|-Gast|1)?"
+    ),
+    "BP": regex.compile("^BP"),
+    "DA": regex.compile("^DA"),
+    "DP": regex.compile("^DP"),
+    "DIE LINKE.": regex.compile("DIE LINKE"),
+    "DPB": regex.compile("(?:^DPB)"),
+    "DRP": regex.compile("DRP(\-Hosp\.)?|SRP"),
+    "FDP": regex.compile("\s*F\.?\s*[PDO][.']?[DP]\.?"),
+    "Fraktionslos": regex.compile("(?:fraktionslos|Parteilos|parteilos)"),
+    "FU": regex.compile("^FU"),
+    "FVP": regex.compile("^FVP"),
+    "Gast": regex.compile("Gast"),
+    "GB/BHE": regex.compile("(?:GB[/-]\s*)?BHE(?:-DG)?"),
+    "KPD": regex.compile("^KPD"),
+    "PDS": regex.compile("(?:Gruppe\s*der\s*)?PDS(?:/(?:LL|Linke Liste))?"),
+    "SPD": regex.compile("\s*'?S(?:PD|DP)(?:\.|-Gast)?"),
+    "SSW": regex.compile("^SSW"),
+    "SRP": regex.compile("^SRP"),
+    "WAV": regex.compile("^WAV"),
+    "Z": regex.compile("^Z$"),
+    "DBP": regex.compile("^DBP$"),
+    "NR": regex.compile("^NR$"),
 }
 
 
-def get_faction_abbrev(faction, faction_patterns):
+def get_faction_abbrev(faction, faction_patterns: dict[str, regex.Pattern]):
     """matches the given faction and returns an id"""
 
     for faction_abbrev, faction_pattern in faction_patterns.items():
-        if regex.search(faction_pattern, faction):
+        if faction_pattern.search(faction):
             return faction_abbrev
     return None
 
@@ -101,7 +105,7 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
     if not folder_path.is_dir():
         continue
 
-    term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+    term_number = regex.search(r"(?<=electoral_term_pp)\d{2}", folder_path.stem)
     if term_number is None:
         continue
     term_number = int(term_number.group(0))
@@ -114,9 +118,9 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
     save_path.mkdir(parents=True, exist_ok=True)
 
     # iterate over every speech_content file
-    for speech_content_file in progressbar(
+    for speech_content_file in tqdm(
         folder_path.glob("*.pkl"),
-        f"Clean speeches (term {term_number:>2})...",
+        desc=f"Clean speeches (term {term_number:>2})...",
     ):
         # read the spoken content csv
         speech_content = pd.read_pickle(speech_content_file)
@@ -232,3 +236,9 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
 
         speech_content = speech_content.drop(columns=["position_raw", "name_raw"])
         speech_content.to_pickle(save_path / speech_content_file.name)
+
+assert len(list(SPEECH_CONTENT_INPUT.glob("*_pp*"))) == len(
+    list(SPEECH_CONTENT_OUTPUT.glob("*_pp*"))
+)
+
+print("Script 05_02 done.")

@@ -74,3 +74,5 @@ for abbrev, id in zip(unique_abbreviations, faction_ids):
 
 # save the dataframe
 factions.to_pickle(DATA_FINAL / "factions.pkl")
+
+print("Script 03_02 done.")

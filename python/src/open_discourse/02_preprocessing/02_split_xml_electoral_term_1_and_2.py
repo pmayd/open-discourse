@@ -2,10 +2,10 @@ import xml.etree.ElementTree as et
 
 import dicttoxml
 import regex
+from tqdm import tqdm
 
 import open_discourse.definitions.path_definitions as path_definitions
 from open_discourse.helper_functions.clean_text import clean
-from open_discourse.helper_functions.progressbar import progressbar
 
 # input directory
 RAW_XML = path_definitions.RAW_XML
@@ -20,7 +20,7 @@ for folder_path in sorted(RAW_XML.iterdir()):
     if not folder_path.is_dir():
         continue
 
-    term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+    term_number = regex.search(r"(?<=electoral_term_pp)\d{2}", folder_path.stem)
     if term_number is None:
         continue
     term_number = int(term_number.group(0))
@@ -33,8 +33,8 @@ for folder_path in sorted(RAW_XML.iterdir()):
     )
     appendix_pattern = regex.compile(r"\(Schluß.*?Sitzung.*?Uhr.*?\)")
 
-    for xml_file_path in progressbar(
-        folder_path.iterdir(), f"Parsing term {term_number:>2}..."
+    for xml_file_path in tqdm(
+        folder_path.iterdir(), desc=f"Parsing term {term_number:>2}..."
     ):
         if xml_file_path.suffix == ".xml":
             tree = et.parse(xml_file_path)
@@ -87,3 +87,10 @@ for folder_path in sorted(RAW_XML.iterdir()):
 
             with open(save_path / "meta_data.xml", "wb") as result_file:
                 result_file.write(dicttoxml.dicttoxml(meta_data))
+
+assert RAW_TXT.exists(), f"Output directory {RAW_TXT}does not exist."
+assert (
+    len(list(RAW_TXT.glob("*_pp*"))) == len(list(RAW_XML.glob("*.zip")))
+), "Number of directories in output directory is not equal to number of directories in input directory minus 2"
+
+print("Script 02_05 done.")

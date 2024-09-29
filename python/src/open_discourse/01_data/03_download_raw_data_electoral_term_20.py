@@ -1,25 +1,22 @@
+import time
+
 import regex
 import requests
 from bs4 import BeautifulSoup
+from tqdm import tqdm
 
 import open_discourse.definitions.path_definitions as path_definitions
-from open_discourse.helper_functions.progressbar import progressbar
 
 # output directory
-ELECTORAL_TERM_19_20_OUTPUT = path_definitions.ELECTORAL_TERM_19_20_STAGE_01
-ELECTORAL_TERM_19_20_OUTPUT.mkdir(parents=True, exist_ok=True)
+OUTPUT_PATH = path_definitions.DATA_CACHE / "electoral_term_20" / "stage_01"
+OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
 
 election_periods = [
-    {
-        "election_period": 19,
-        "url": "https://www.bundestag.de/ajax/filterlist/de/services/opendata/543410-543410?offset={}",
-    },
     {
         "election_period": 20,
         "url": "https://www.bundestag.de/ajax/filterlist/de/services/opendata/866354-866354?offset={}",
     },
 ]
-
 
 for election_period in election_periods:
     print(
@@ -27,11 +24,6 @@ for election_period in election_periods:
         end="",
         flush=True,
     )
-
-    OUTPUT_PATH = ELECTORAL_TERM_19_20_OUTPUT / "electoral_term_{}".format(
-        election_period["election_period"]
-    )
-    OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
 
     offset = 0
     xml_links = []
@@ -50,9 +42,9 @@ for election_period in election_periods:
 
     print("Done.")
 
-    for link in progressbar(
+    for link in tqdm(
         xml_links,
-        f"Download XML-files for term {election_period['election_period']}...",
+        desc=f"Download XML-files for term {election_period['election_period']}...",
     ):
         url = "https://www.bundestag.de" + link.get("href")
         page = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
@@ -66,6 +58,11 @@ for election_period in election_periods:
                     regex.sub("<sub>", "", page.content.decode("utf-8")),
                 )
             )
+        time.sleep(1)
 
 assert OUTPUT_PATH.exists()
-assert len(list(ELECTORAL_TERM_19_20_OUTPUT.glob("*"))) == len(election_periods)
+assert (
+    len(list(OUTPUT_PATH.glob("*.xml"))) > 0
+), "At least one XML file should be downloaded."
+
+print("Script 01_03 done.")

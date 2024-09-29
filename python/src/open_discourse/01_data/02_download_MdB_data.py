@@ -18,3 +18,5 @@ with zipfile.ZipFile(io.BytesIO(r.content)) as z:
     z.extractall(mp_base_data_path)
 
 assert (mp_base_data_path / "MDB_STAMMDATEN.XML").exists()
+
+print("Script 01_02 done.")

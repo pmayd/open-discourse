@@ -145,3 +145,5 @@ for div in main_section.find_all("div", recursive=False):
 mgs = pd.DataFrame(mgs)
 save_path = POLITICIANS_STAGE_01 / "mgs.pkl"
 mgs.to_pickle(save_path)
+
+print("Script 04_02 done.")

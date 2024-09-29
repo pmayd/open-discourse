@@ -29,3 +29,5 @@ unique_factions = pd.DataFrame(unique_factions, columns=["faction_name"])
 
 save_path_factions = FACTIONS_STAGE_01 / "factions.pkl"
 unique_factions.to_pickle(save_path_factions)
+
+print("Script 03_01 done.")

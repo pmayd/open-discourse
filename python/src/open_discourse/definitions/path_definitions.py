@@ -55,11 +55,6 @@ CONTRIBUTIONS_SIMPLIFIED = FINAL
 # ELECTORAL_TERMS __________________________________________________________________________________
 ELECTORAL_TERMS = FINAL
 
-# ELECTORAL_TERM_19_20 _____________________________________________________________________________
-ELECTORAL_TERM_19_20 = DATA_CACHE / "electoral_term_19_20"
-ELECTORAL_TERM_19_20_STAGE_01 = ELECTORAL_TERM_19_20 / "stage_01"
-ELECTORAL_TERM_19_20_STAGE_02 = ELECTORAL_TERM_19_20 / "stage_02"
-ELECTORAL_TERM_19_20_STAGE_03 = ELECTORAL_TERM_19_20 / "stage_03"
 
 # TOPIC_MODELLING __________________________________________________________________________________
 TOPIC_MODELLING = DATA_CACHE / "topic_modelling"

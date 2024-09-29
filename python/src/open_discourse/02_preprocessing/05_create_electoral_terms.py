@@ -46,3 +46,5 @@ electoral_terms = [
 
 save_path = ELECTORAL_TERMS / "electoral_terms.csv"
 pd.DataFrame(electoral_terms).to_csv(save_path, index=False)
+
+print("Script 02_08 done.")

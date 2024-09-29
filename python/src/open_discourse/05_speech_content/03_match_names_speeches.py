@@ -1,11 +1,11 @@
 import pandas as pd
 import regex
+from tqdm import tqdm
 
 import open_discourse.definitions.path_definitions as path_definitions
 from open_discourse.helper_functions.match_names import (
     insert_politician_id_into_speech_content,
 )
-from open_discourse.helper_functions.progressbar import progressbar
 
 # input directory
 SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_02
@@ -52,11 +52,10 @@ politicians["profession"] = politicians["profession"].str.lower()
 
 # iterate over all electoral_term_folders __________________________________________________
 for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
-    working = []
     if not folder_path.is_dir():
         continue
 
-    term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+    term_number = regex.search(r"(?<=electoral_term_pp)\d{2}", folder_path.stem)
     if term_number is None:
         continue
     term_number = int(term_number.group(0))
@@ -73,8 +72,9 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
     ]
 
     # iterate over every speech_content file
-    for speech_content_file in progressbar(
-        folder_path.glob("*.pkl"), f"Match speaker names (term {term_number:>2})..."
+    for speech_content_file in tqdm(
+        folder_path.glob("*.pkl"),
+        desc=f"Match speaker names (term {term_number:>2})...",
     ):
         # read the spoken content pickle file
         speech_content = pd.read_pickle(speech_content_file)
@@ -84,3 +84,8 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
         )
 
         speech_content_matched.to_pickle(save_path / speech_content_file.name)
+
+assert len(list(SPEECH_CONTENT_INPUT.glob("*_pp*"))) == len(
+    list(SPEECH_CONTENT_OUTPUT.glob("*_pp*"))
+)
+print("Script 05_03 done.")
