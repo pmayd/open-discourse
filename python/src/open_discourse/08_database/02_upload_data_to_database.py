@@ -16,14 +16,9 @@ PEOPLE = path_definitions.DATA_FINAL / "politicians.csv"
 CONTRIBUTIONS_SIMPLIFIED = (
     path_definitions.CONTRIBUTIONS_SIMPLIFIED / "contributions_simplified.pkl"
 )
-CONTRIBUTIONS_SIMPLIFIED_WP19 = (
-    path_definitions.CONTRIBUTIONS_SIMPLIFIED
-    / "electoral_term_19"
-    / "contributions_simplified.pkl"
-)
 CONTRIBUTIONS_SIMPLIFIED_WP20 = (
     path_definitions.CONTRIBUTIONS_SIMPLIFIED
-    / "electoral_term_20"
+    / "electoral_term_pp20"
     / "contributions_simplified.pkl"
 )
 ELECTORAL_TERMS = path_definitions.ELECTORAL_TERMS / "electoral_terms.csv"
@@ -206,10 +201,6 @@ print("Done.")
 print("Upload contributions_simplified...", end="", flush=True)
 
 contributions_simplified = pd.read_pickle(CONTRIBUTIONS_SIMPLIFIED)
-
-contributions_simplified_electoral_term_19 = pd.read_pickle(
-    CONTRIBUTIONS_SIMPLIFIED_WP19
-)
 contributions_simplified_electoral_term_20 = pd.read_pickle(
     CONTRIBUTIONS_SIMPLIFIED_WP20
 )
@@ -217,7 +208,6 @@ contributions_simplified_electoral_term_20 = pd.read_pickle(
 contributions_simplified = pd.concat(
     [
         contributions_simplified,
-        contributions_simplified_electoral_term_19,
         contributions_simplified_electoral_term_20,
     ],
     sort=False,

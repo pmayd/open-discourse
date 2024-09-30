@@ -8,7 +8,7 @@ from tqdm import tqdm
 import open_discourse.definitions.path_definitions as path_definitions
 
 # output directory
-OUTPUT_PATH = path_definitions.DATA_CACHE / "electoral_term_20" / "stage_01"
+OUTPUT_PATH = path_definitions.DATA_CACHE / "electoral_term_pp20" / "stage_01"
 OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
 
 election_periods = [

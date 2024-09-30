@@ -6,10 +6,10 @@ from tqdm import tqdm
 import open_discourse.definitions.path_definitions as path_definitions
 
 # input directory
-INPUT_PATH = path_definitions.DATA_CACHE / "electoral_term_20" / "stage_01"
+INPUT_PATH = path_definitions.DATA_CACHE / "electoral_term_pp20" / "stage_01"
 
 # output directory
-OUTPUT_PATH = path_definitions.DATA_CACHE / "electoral_term_20" / "stage_02"
+OUTPUT_PATH = path_definitions.DATA_CACHE / "electoral_term_pp20" / "stage_02"
 
 for xml_file_path in tqdm(sorted(INPUT_PATH.glob("*.xml")), desc="Parsing term 20..."):
     # read data

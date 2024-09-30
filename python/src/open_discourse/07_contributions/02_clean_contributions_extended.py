@@ -6,7 +6,7 @@ import regex
 
 import open_discourse.definitions.path_definitions as path_definitions
 from open_discourse.helper_functions.clean_text import clean_name_headers
-from open_discourse.helper_functions.progressbar import progressbar
+from tqdm import tqdm
 
 # Disabling pandas warnings.
 pd.options.mode.chained_assignment = None
@@ -63,7 +63,7 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
     if not folder_path.is_dir():
         continue
 
-    term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+    term_number = regex.search(r"(?<=electoral_term_pp)\d{2}", folder_path.stem)
     if term_number is None:
         continue
     term_number = int(term_number.group(0))
@@ -76,9 +76,9 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
     save_path.mkdir(parents=True, exist_ok=True)
 
     # iterate over every contributions_extended file
-    for contrib_ext_file_path in progressbar(
+    for contrib_ext_file_path in tqdm(
         folder_path.glob("*.pkl"),
-        f"Clean contributions (term {term_number:>2})...",
+        desc=f"Clean contributions (term {term_number:>2})...",
     ):
         # read the spoken content csv
         contributions_extended = pd.read_pickle(contrib_ext_file_path)
@@ -163,15 +163,15 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
         # Get the first and last name based on the amount of elements.
         for index, first_last in enumerate(first_last_titles):
             if len(first_last) == 1:
-                contributions_extended["first_name"].iloc[index] = []
-                contributions_extended["last_name"].iloc[index] = first_last[0]
+                contributions_extended.at[index, "first_name"] = []
+                contributions_extended.at[index, "last_name"] = first_last[0]
             # elif len(first_last) == 2:
             elif len(first_last) >= 2:
-                contributions_extended["first_name"].iloc[index] = first_last[:-1]
-                contributions_extended["last_name"].iloc[index] = first_last[-1]
+                contributions_extended.at[index, "first_name"] = first_last[:-1]
+                contributions_extended.at[index, "last_name"] = first_last[-1]
             else:
-                contributions_extended["first_name"].iloc[index] = []
-                contributions_extended["last_name"].iloc[index] = ""
+                contributions_extended.at[index, "first_name"] = []
+                contributions_extended.at[index, "last_name"] = ""
 
         # look for parties in the faction column and replace them with a
         # standardized faction name
@@ -196,3 +196,8 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
 
         contributions_extended.drop(columns=["name_raw"])
         contributions_extended.to_pickle(save_path / contrib_ext_file_path.name)
+
+assert len(list(CONTRIBUTIONS_EXTENDED_INPUT.glob("*_pp*"))) == len(
+    list(CONTRIBUTIONS_EXTENDED_OUTPUT.glob("*_pp*"))
+)
+print("Script 07_02 done.")

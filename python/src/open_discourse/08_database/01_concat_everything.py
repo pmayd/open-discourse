@@ -12,10 +12,7 @@ import open_discourse.definitions.path_definitions as path_definitions
 RAW_XML = path_definitions.RAW_XML
 SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_04
 SPEECH_CONTENT_INPUT_2 = (
-    path_definitions.ELECTORAL_TERM_19_20_STAGE_03 / "electoral_term_19"
-)
-SPEECH_CONTENT_INPUT_3 = (
-    path_definitions.ELECTORAL_TERM_19_20_STAGE_03 / "electoral_term_20"
+    path_definitions.DATA_CACHE / "electoral_term_pp20" / "stage_03" / "speech_content"
 )
 CONTRIBUTIONS_EXTENDED_INPUT = path_definitions.CONTRIBUTIONS_EXTENDED_STAGE_03
 
@@ -77,7 +74,7 @@ for folder_path in sorted(RAW_XML.iterdir()):
     if not folder_path.is_dir():
         continue
 
-    term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+    term_number = regex.search(r"(?<=electoral_term_pp)\d{2}", folder_path.stem)
     if term_number is None:
         continue
     term_number = int(term_number.group(0))
@@ -210,7 +207,7 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
     if not folder_path.is_dir():
         continue
 
-    term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+    term_number = regex.search(r"(?<=electoral_term_pp)\d{2}", folder_path.stem)
     if term_number is None:
         continue
     term_number = int(term_number.group(0))

@@ -10,13 +10,15 @@ import open_discourse.definitions.path_definitions as path_definitions
 from open_discourse.helper_functions.extract_contributions import extract
 
 # input directory
-ELECTORAL_TERM_20_INPUT = path_definitions.DATA_CACHE / "electoral_term_20" / "stage_02"
+ELECTORAL_TERM_20_INPUT = (
+    path_definitions.DATA_CACHE / "electoral_term_pp20" / "stage_02"
+)
 FACTIONS = path_definitions.DATA_FINAL
 politicians = path_definitions.DATA_FINAL
 
 # output directory
 ELECTORAL_TERM_20_OUTPUT = (
-    path_definitions.DATA_CACHE / "electoral_term_20" / " stage_03"
+    path_definitions.DATA_CACHE / "electoral_term_pp20" / "stage_03"
 )
 CONTRIBUTIONS_SIMPLIFIED = path_definitions.CONTRIBUTIONS_SIMPLIFIED
 CONTRIBUTIONS_EXTENDED = path_definitions.CONTRIBUTIONS_EXTENDED_STAGE_01
@@ -157,8 +159,8 @@ politicians["first_name"] = politicians["first_name"].apply(str.split)
 
 
 term_spoken_content = ELECTORAL_TERM_20_OUTPUT / "speech_content"
-contributions_extended_output = CONTRIBUTIONS_EXTENDED / "electoral_term_20"
-contributions_simplified_output = CONTRIBUTIONS_SIMPLIFIED / "electoral_term_20"
+contributions_extended_output = CONTRIBUTIONS_EXTENDED / "electoral_term_pp20"
+contributions_simplified_output = CONTRIBUTIONS_SIMPLIFIED / "electoral_term_pp20"
 
 contributions_extended_output.mkdir(parents=True, exist_ok=True)
 term_spoken_content.mkdir(parents=True, exist_ok=True)
@@ -171,8 +173,8 @@ contributions_simplified = []
 politicians_electoral_term = politicians.loc[politicians["electoral_term"] == "20"]
 
 for session_path in tqdm(
-    folder_path.iterdir(),
-    desc=f"Extract speeches (term {term_number:>2})...",
+    ELECTORAL_TERM_20_INPUT.iterdir(),
+    desc="Extract speeches (term 20)...",
 ):
     if not session_path.is_dir():
         continue

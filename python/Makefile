@@ -48,7 +48,7 @@ database:
 data: \
 	data/01_raw/xml/01_01.done \
 	data/01_raw/MP_BASE_DATA/01_02.done \
-	data/02_cached/electoral_term_20/stage_01/01_03.done
+	data/02_cached/electoral_term_pp20/stage_01/01_03.done
 
 data/01_raw/xml/01_01.done: $(INSTALL_STAMP)
 	$(MAKE) clean-data && $(PYTHON) src/$(NAME)/01_data/01_download_raw_data.py
@@ -58,15 +58,15 @@ data/01_raw/MP_BASE_DATA/01_02.done: $(INSTALL_STAMP)
 	$(PYTHON) src/$(NAME)/01_data/02_download_MdB_data.py
 	touch data/01_raw/MP_BASE_DATA/01_02.done
 
-data/02_cached/electoral_term_20/stage_01/01_03.done: $(INSTALL_STAMP)
+data/02_cached/electoral_term_pp20/stage_01/01_03.done: $(INSTALL_STAMP)
 	$(PYTHON) src/$(NAME)/01_data/03_download_raw_data_electoral_term_20.py
-	touch data/02_cached/electoral_term_20/stage_01/01_03.done
+	touch data/02_cached/electoral_term_pp20/stage_01/01_03.done
 
 .PHONY: process
 process: \
 	data/01_raw/txt/02_01.done \
 	data/01_raw/txt/02_02.done \
-	data/02_cached/electoral_term_20/stage_02/02_03.done \
+	data/02_cached/electoral_term_pp20/stage_02/02_03.done \
 	data/02_cached/politicians/stage_01/02_04.done \
 	data/03_final/02_05.done
 
@@ -79,9 +79,9 @@ data/01_raw/txt/02_02.done: data/01_raw/xml/01_01.done
 	$(PYTHON) src/$(NAME)/02_preprocessing/05_split_xml_electoral_term_1_and_2.py
 	touch data/01_raw/txt/02_02.done
 
-data/02_cached/electoral_term_20/stage_02/02_03.done: data/02_cached/electoral_term_20/stage_01/01_03.done
+data/02_cached/electoral_term_pp20/stage_02/02_03.done: data/02_cached/electoral_term_20/stage_01/01_03.done
 	$(PYTHON) src/$(NAME)/02_preprocessing/06_split_xml_electoral_term_20.py
-	touch data/02_cached/electoral_term_20/stage_02/02_03.done
+	touch data/02_cached/electoral_term_pp20/stage_02/02_03.done
 
 data/02_cached/politicians/stage_01/02_04.done: data/01_raw/MP_BASE_DATA/01_02.done
 	$(PYTHON) src/$(NAME)/02_preprocessing/07_extract_mps_from_mp_base_data.py
@@ -142,8 +142,33 @@ data/02_cached/speech_content/stage_03/05_03.done: data/02_cached/speech_content
 	touch data/02_cached/speech_content/stage_03/05_03.done
 
 .PHONY: process_term_20
+process_term_20: \
+	data/02_cached/electoral_term_pp20/stage_03/06_01.done \
+	data/03_final/06_01.done \
+	data/02_cached/contributions_extended/stage_01/06_01.done
 
+data/02_cached/electoral_term_pp20/stage_03/06_01.done data/03_final/06_01.done data/02_cached/contributions_extended/stage_01/06_01.done: data/02_cached/electoral_term_pp20/stage_02/02_03.done data/03_final/03_02.done
+	$(PYTHON) src/$(NAME)/06_electoral_term_20/01_extract_speeches_and_contributions_electoral_term_20.py
+	touch data/02_cached/electoral_term_pp20/stage_03/06_01.done
+	touch data/03_final/06_01.done
+	touch data/02_cached/contributions_extended/stage_01/06_01.done
 
+.PHONY: contributions
+contributions: \
+	data/02_cached/speech_content/stage_04/07_01.done \
+	data/02_cached/contributions_extended/stage_01/07_01.done \
+	data/03_final/07_01.done \
+	data/02_cached/contributions_extended/stage_02/07_02.done
+
+data/02_cached/speech_content/stage_04/07_01.done data/02_cached/contributions_extended/stage_01/07_01.done data/03_final/07_01.done: data/02_cached/speech_content/stage_03/05_03.done data/03_final/03_02.done
+	$(PYTHON) src/$(NAME)/07_contributions/01_extract_contributions.py
+	touch data/02_cached/speech_content/stage_04/07_01.done
+	touch data/02_cached/contributions_extended/stage_01/07_01.done
+	touch data/03_final/07_01.done
+
+data/02_cached/contributions_extended/stage_02/07_02.done: data/02_cached/contributions_extended/stage_01/07_01.done data/03_final/03_02.done
+	$(PYTHON) src/$(NAME)/07_contributions/02_clean_contributions_extended.py
+	touch data/02_cached/contributions_extended/stage_02/07_02.done
 
 .PHONY: clean
 clean:

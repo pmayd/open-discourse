@@ -2,10 +2,10 @@ import sys
 
 import pandas as pd
 import regex
+from tqdm import tqdm
 
 import open_discourse.definitions.path_definitions as path_definitions
 from open_discourse.helper_functions.extract_contributions import extract
-from open_discourse.helper_functions.progressbar import progressbar
 
 # input directory
 SPEECH_CONTENT_INPUT = path_definitions.SPEECH_CONTENT_STAGE_03
@@ -25,7 +25,7 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
     if not folder_path.is_dir():
         continue
 
-    term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+    term_number = regex.search(r"(?<=electoral_term_pp)\d{2}", folder_path.stem)
     if term_number is None:
         continue
     term_number = int(term_number.group(0))
@@ -41,9 +41,9 @@ for folder_path in sorted(SPEECH_CONTENT_INPUT.iterdir()):
     extended_output.mkdir(parents=True, exist_ok=True)
 
     # iterate over every speech_content file
-    for speech_content_file_path in progressbar(
+    for speech_content_file_path in tqdm(
         folder_path.glob("*.pkl"),
-        f"Extract contributions (term {term_number:>2})...",
+        desc=f"Extract contributions (term {term_number:>2})...",
     ):
         # read the spoken content csv
         speech_content = pd.read_pickle(speech_content_file_path)
@@ -96,3 +96,9 @@ contributions_simplified = pd.concat(simplified_list, sort=False)
 contributions_simplified.to_pickle(
     CONTRIBUTIONS_SIMPLIFIED / "contributions_simplified.pkl"
 )
+
+assert len(list(SPEECH_CONTENT_INPUT.glob("*_pp*"))) == len(
+    list(SPEECH_CONTENT_OUTPUT.glob("*_pp*"))
+)
+
+print("Script 07_01 done.")
