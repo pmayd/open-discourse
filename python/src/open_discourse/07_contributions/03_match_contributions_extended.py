@@ -7,7 +7,7 @@ import open_discourse.definitions.path_definitions as path_definitions
 from open_discourse.helper_functions.match_names import (
     insert_politician_id_into_contributions_extended,
 )
-from open_discourse.helper_functions.progressbar import progressbar
+from tqdm import tqdm
 
 # input directory
 CONTRIBUTIONS_EXTENDED_INPUT = path_definitions.CONTRIBUTIONS_EXTENDED_STAGE_02
@@ -75,9 +75,9 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
 
     working = []
     # iterate over every contributions_extended file
-    for contrib_ext_file_path in progressbar(
+    for contrib_ext_file_path in tqdm(
         folder_path.glob("*.pkl"),
-        f"Match contributions (term {term_number:>2})...",
+        desc=f"Match contributions (term {term_number:>2})...",
     ):
         # read the contributions_extended pickle file
         contributions_extended = pd.read_pickle(contrib_ext_file_path)
@@ -92,3 +92,8 @@ for folder_path in sorted(CONTRIBUTIONS_EXTENDED_INPUT.iterdir()):
         )
 
         contributions_extended.to_pickle(save_path / contrib_ext_file_path.name)
+
+assert len(list(CONTRIBUTIONS_EXTENDED_INPUT.glob("*_pp*"))) == len(
+    list(CONTRIBUTIONS_EXTENDED_OUTPUT.glob("*_pp*"))
+)
+print("Script 07_03 done.")

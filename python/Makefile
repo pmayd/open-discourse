@@ -123,7 +123,6 @@ data/03_final/04_03.done: data/02_cached/politicians/stage_02/04_01.done data/02
 	touch data/03_final/04_03.done
 
 .PHONY: speeches
-
 speeches: \
 	data/02_cached/speech_content/stage_01/05_01.done \
 	data/02_cached/speech_content/stage_02/05_02.done \
@@ -158,7 +157,8 @@ contributions: \
 	data/02_cached/speech_content/stage_04/07_01.done \
 	data/02_cached/contributions_extended/stage_01/07_01.done \
 	data/03_final/07_01.done \
-	data/02_cached/contributions_extended/stage_02/07_02.done
+	data/02_cached/contributions_extended/stage_02/07_02.done \
+	data/02_cached/contributions_extended/stage_03/07_03.done
 
 data/02_cached/speech_content/stage_04/07_01.done data/02_cached/contributions_extended/stage_01/07_01.done data/03_final/07_01.done: data/02_cached/speech_content/stage_03/05_03.done data/03_final/03_02.done
 	$(PYTHON) src/$(NAME)/07_contributions/01_extract_contributions.py
@@ -169,6 +169,10 @@ data/02_cached/speech_content/stage_04/07_01.done data/02_cached/contributions_e
 data/02_cached/contributions_extended/stage_02/07_02.done: data/02_cached/contributions_extended/stage_01/07_01.done data/03_final/03_02.done
 	$(PYTHON) src/$(NAME)/07_contributions/02_clean_contributions_extended.py
 	touch data/02_cached/contributions_extended/stage_02/07_02.done
+
+data/02_cached/contributions_extended/stage_03/07_03.done: data/02_cached/contributions_extended/stage_02/07_02.done data/03_final/04_03.done
+	$(PYTHON) src/$(NAME)/07_contributions/03_match_contributions_extended.py
+	touch data/02_cached/contributions_extended/stage_03/07_03.done
 
 .PHONY: clean
 clean:
