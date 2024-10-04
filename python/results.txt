@@ -1,0 +1,15 @@
+make upload
+/Users/miay/git/github/open-discourse/open-discourse/python/.venv/bin/python src/open_discourse/08_database/02_upload_data_to_database.py
+Upload electoral_terms...(20, 3)
+Done.
+Upload politicians...(4405, 11)
+Done.
+Upload factions...(30, 3)
+Done.
+Upload speeches...(969955, 12)
+Done.
+Upload contributions_extended...(2855567, 9)
+Done.
+Upload contributions_simplified...(2373956, 4)
+Done.
+touch data/03_final/08_02.done
