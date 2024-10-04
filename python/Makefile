@@ -79,7 +79,7 @@ data/01_raw/txt/02_02.done: data/01_raw/xml/01_01.done
 	$(PYTHON) src/$(NAME)/02_preprocessing/05_split_xml_electoral_term_1_and_2.py
 	touch data/01_raw/txt/02_02.done
 
-data/02_cached/electoral_term_pp20/stage_02/02_03.done: data/02_cached/electoral_term_20/stage_01/01_03.done
+data/02_cached/electoral_term_pp20/stage_02/02_03.done: data/02_cached/electoral_term_pp20/stage_01/01_03.done
 	$(PYTHON) src/$(NAME)/02_preprocessing/06_split_xml_electoral_term_20.py
 	touch data/02_cached/electoral_term_pp20/stage_02/02_03.done
 
@@ -173,6 +173,20 @@ data/02_cached/contributions_extended/stage_02/07_02.done: data/02_cached/contri
 data/02_cached/contributions_extended/stage_03/07_03.done: data/02_cached/contributions_extended/stage_02/07_02.done data/03_final/04_03.done
 	$(PYTHON) src/$(NAME)/07_contributions/03_match_contributions_extended.py
 	touch data/02_cached/contributions_extended/stage_03/07_03.done
+
+.PHONY: upload
+upload: data/03_final/08_01.done \
+data/03_final/08_02.done
+
+
+data/03_final/08_01.done: data/01_raw/xml/01_01.done data/02_cached/speech_content/stage_04/07_01.done data/02_cached/electoral_term_pp20/stage_03/06_01.done data/02_cached/contributions_extended/stage_03/07_03.done
+	$(PYTHON) src/$(NAME)/08_database/01_concat_everything.py
+	touch data/03_final/08_01.done
+
+data/03_final/08_02.done: data/03_final/08_01.done
+	$(PYTHON) src/$(NAME)/08_database/02_upload_data_to_database.py
+	touch data/03_final/08_02.done
+
 
 .PHONY: clean
 clean:
