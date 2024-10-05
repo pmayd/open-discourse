@@ -72,23 +72,23 @@ process: \
 
 
 data/01_raw/txt/02_01.done: data/01_raw/xml/01_01.done
-	$(PYTHON) src/$(NAME)/02_preprocessing/04_split_xml.py
+	$(PYTHON) src/$(NAME)/02_preprocessing/01_split_xml.py
 	touch data/01_raw/txt/02_01.done
 
 data/01_raw/txt/02_02.done: data/01_raw/xml/01_01.done
-	$(PYTHON) src/$(NAME)/02_preprocessing/05_split_xml_electoral_term_1_and_2.py
+	$(PYTHON) src/$(NAME)/02_preprocessing/02_split_xml_electoral_term_1_and_2.py
 	touch data/01_raw/txt/02_02.done
 
 data/02_cached/electoral_term_pp20/stage_02/02_03.done: data/02_cached/electoral_term_pp20/stage_01/01_03.done
-	$(PYTHON) src/$(NAME)/02_preprocessing/06_split_xml_electoral_term_20.py
+	$(PYTHON) src/$(NAME)/02_preprocessing/03_split_xml_electoral_term_20.py
 	touch data/02_cached/electoral_term_pp20/stage_02/02_03.done
 
 data/02_cached/politicians/stage_01/02_04.done: data/01_raw/MP_BASE_DATA/01_02.done
-	$(PYTHON) src/$(NAME)/02_preprocessing/07_extract_mps_from_mp_base_data.py
+	$(PYTHON) src/$(NAME)/02_preprocessing/04_extract_mps_from_mp_base_data.py
 	touch data/02_cached/politicians/stage_01/02_04.done
 
 data/03_final/02_05.done: $(INSTALL_STAMP)
-	$(PYTHON) src/$(NAME)/02_preprocessing/08_create_electoral_terms.py
+	$(PYTHON) src/$(NAME)/02_preprocessing/05_create_electoral_terms.py
 	touch data/03_final/02_05.done
 
 .PHONY: factions
@@ -187,6 +187,8 @@ data/03_final/08_02.done: data/03_final/08_01.done
 	$(PYTHON) src/$(NAME)/08_database/02_upload_data_to_database.py
 	touch data/03_final/08_02.done
 
+.PHONY: full-run
+full-run: data process factions politicians speeches process_term_20 contributions upload
 
 .PHONY: clean
 clean:

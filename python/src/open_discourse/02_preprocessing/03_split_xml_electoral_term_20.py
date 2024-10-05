@@ -44,4 +44,4 @@ for xml_file_path in tqdm(sorted(INPUT_PATH.glob("*.xml")), desc="Parsing term 2
 assert len(list(INPUT_PATH.glob("*.xml"))) == len(
     list(d for d in OUTPUT_PATH.iterdir() if d.is_dir())
 )
-print("Script 02_06 done.")
+print("Script 02_03 done.")

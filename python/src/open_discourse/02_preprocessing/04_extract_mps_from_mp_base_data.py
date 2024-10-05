@@ -114,4 +114,4 @@ mps = mps.astype(dtype={"ui": "int64", "birth_date": "str", "death_date": "str"}
 
 mps.to_pickle(save_path)
 
-print("Script 02_07 done.")
+print("Script 02_04 done.")

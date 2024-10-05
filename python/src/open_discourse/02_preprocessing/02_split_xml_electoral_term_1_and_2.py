@@ -93,4 +93,4 @@ assert (
     len(list(RAW_TXT.glob("*_pp*"))) == len(list(RAW_XML.glob("*.zip")))
 ), "Number of directories in output directory is not equal to number of directories in input directory minus 2"
 
-print("Script 02_05 done.")
+print("Script 02_02 done.")

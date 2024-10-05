@@ -16,7 +16,7 @@ RAW_TXT = path_definitions.RAW_TXT
 RAW_TXT.mkdir(parents=True, exist_ok=True)
 
 # Open every xml plenar file in every legislature period.
-for folder_path in [sorted(RAW_XML.iterdir())]:
+for folder_path in sorted(RAW_XML.iterdir()):
     # Skip e.g. the .DS_Store file.
     if not folder_path.is_dir():
         continue
@@ -222,4 +222,4 @@ for folder_path in [sorted(RAW_XML.iterdir())]:
 assert RAW_TXT.exists(), f"Output directory {RAW_TXT}does not exist."
 assert len(list(RAW_TXT.glob("*_pp*"))) == 19 - 3 + 1
 
-print("Script 02_04 done.")
+print("Script 02_01 done.")

@@ -1,5 +1,6 @@
 import datetime
 
+import numpy as np
 import pandas as pd
 from sqlalchemy import create_engine
 
@@ -161,24 +162,29 @@ factions = pd.DataFrame(
 )
 factions["id"] = factions["id"].astype(int)
 
-factions.to_sql(
-    "factions", engine, if_exists="append", schema="open_discourse", index=False
-)
+# factions.to_sql(
+#     "factions", engine, if_exists="append", schema="open_discourse", index=False
+# )
 print("Done.")
 
 print("Upload speeches...", end="", flush=True)
 
-speeches = pd.read_pickle(SPOKEN_CONTENT)
+speeches: pd.DataFrame = pd.read_pickle(SPOKEN_CONTENT)
 
 speeches["date"] = speeches["date"].apply(convert_date_speeches)
 
 speeches = speeches.where((pd.notnull(speeches)), None)
-speeches["position_long"].replace([r"^\s*$"], [None], regex=True, inplace=True)
-speeches["politician_id"] = speeches.apply(check_politicians, axis=1)
-
-speeches.to_sql(
-    "speeches", engine, if_exists="append", schema="open_discourse", index=False
+speeches = speeches.replace({"position_long": {r"^\s*$": None}}, regex=True)
+speeches["politician_id"] = np.where(
+    speeches["politician_id"].isin(politicians["id"]),
+    speeches["politician_id"],
+    np.ones(len(speeches)) * -1,
 )
+
+# speeches.to_sql(
+#     "speeches", engine, if_exists="append", schema="open_discourse", index=False
+# )
+print(speeches.shape)
 print("Done.")
 
 print("Upload contributions_extended...", end="", flush=True)
