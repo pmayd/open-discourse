@@ -6,7 +6,7 @@ The folders and the files are mostly sorted in the order of execution.
 
 For the correct order of execution, please use our execution graph:
 
-![Execution Graph](./ExecutionGraph.png "Execution Graph")
+![Execution Graph](ExecutionGraph.drawio.png)
 
 The Input and Output paths start at the project root
 
@@ -94,282 +94,313 @@ Attributes:
 - Output:
   - `./data/02_cached/electoral_term_pp20/stage_02/*`
 
-### 6. [Extract MPs from personal details](./od_lib/01_preprocessing/06_extract_mps_from_mp_base_data.py)
+### 4. [Extract MPs from personal details](./02_preprocessing/04_extract_mps_from_mp_base_data.py)
 
-- Function:
+Function:
 
-  - Parses the personal details into a Dataframe
+- Parses the personal details into a Dataframe
 
-- Attributes:
-  - Input: `./data/01_raw/MP_BASE_DATA/MDB_STAMMDATEN.XML`
-  - Output: `./data/02_cached/politicians/stage_01/mps.pkl`
+Attributes:
 
-### 7. [Create Electoral Terms](./od_lib/01_preprocessing/07_create_electoral_terms.py)
+- Input:
+  - `./data/01_raw/MP_BASE_DATA/MDB_STAMMDATEN.XML`
+- Output:
+  - `./data/02_cached/politicians/stage_01/mps.pkl`
 
-- Function:
+### 5. [Create Electoral Terms](./02_preprocessing/05_create_electoral_terms.py)
 
-  - Creates the Electoral Terms Dataframe
+Function:
 
-- Attributes:
-  - Input: `None`
-  - Output: `./data/03_final/electoral_terms.csv`
+- Creates the Electoral Terms Dataframe
+
+Attributes:
+
+- Input:
+  - `None`
+- Output:
+  - `./data/03_final/electoral_terms.csv`
 
 ## Factions
 
-### 1. [Create Factions](./od_lib/02_factions/01_create_factions.py)
+### 1. [Create Factions](./03_factions/01_create_factions.py)
 
-- Function:
+Function:
 
-  - Uses the `mps` Dataframe to extract unique factions and manually adds factions that show up in the speeches but not in the Dataframe
+- Uses the `mps` Dataframe to extract unique factions and manually adds factions that show up in the speeches but not in the Dataframe
 
-- Attributes:
-  - Input: `./data/02_cached/politicians/stage_01/mps.pkl`
-  - Output: `./data/02_cached/factions/stage_01/factions.pkl`
+Attributes:
 
-### 2. [Add Abbreviations](./od_lib/02_factions/02_add_abbreviations_and_ids.py)
+- Input:
+  - `./data/02_cached/politicians/stage_01/mps.pkl`
+- Output:
+  - `./data/02_cached/factions/stage_01/factions.pkl`
 
-- Function:
+### 2. [Add Abbreviations](./03_factions/02_add_abbreviations_and_ids.py)
 
-  - Add Abbreviations to the factions Dataframe
+Function:
 
-- Attributes:
-  - Input: `./data/02_cached/factions/stage_01/factions.pkl`
-  - Output: `./data/03_final/factions.pkl`
+- Add Abbreviations to the factions Dataframe
+
+Attributes:
+
+- Input:
+  - `./data/02_cached/factions/stage_01/factions.pkl`
+- Output:
+  - `./data/03_final/factions.pkl`
 
 ## Politicians
 
-### 1. [Add Faction IDs to MPs](./od_lib/03_politicians/01_add_faction_id_to_mps.py)
+### 1. [Add Faction IDs to MPs](./04_politicians/01_add_faction_id_to_mps.py)
 
-- Function:
+Function:
 
-  - Assigns the according faction id to every politician
+- Assigns the according faction id to every politician
 
-- Attributes:
-  - Input:
-    - `./data/02_cached/politicians/stage_01/mps.pkl`
-    - `./data/03_final/factions.pkl`
-  - Output: `./data/02_cached/politicians/stage_02/mps.pkl`
+Attributes:
 
-### 2. [Scrape the Government Members](./od_lib/03_politicians/02_scrape_mgs.py)
+- Input:
+  - `./data/02_cached/politicians/stage_01/mps.pkl`
+  - `./data/03_final/factions.pkl`
+- Output:
+  - `./data/02_cached/politicians/stage_02/mps.pkl`
 
-- Function:
+### 2. [Scrape the Government Members](./04_politicians/02_scrape_mgs.py)
 
-  - Scrapes every Government Member off of Wikipedia
+Function:
 
-- Attributes:
-  - Input: `None`
-  - Output: `./data/02_cached/politicians/stage_01/mgs.pkl`
+- Scrapes every Government Member off of Wikipedia
 
-### 3. [Merge Politicians](./od_lib/03_politicians/03_merge_politicians.py)
+Attributes:
 
-- Function:
+- Input:
+  - `None`
+- Output:
+  - `./data/02_cached/politicians/stage_01/mgs.pkl`
 
-  - Merges the `mps.pkl`and `mgs.pkl` Dataframe
+### 3. [Merge Politicians](./04_politicians/03_merge_politicians.py)
 
-- Attributes:
-  - Input:
-    - `./data/02_cached/politicians/stage_02/mps.pkl`
-    - `./data/02_cached/politicians/stage_01/mgs.pkl`
-    - `./data/03_final/factions.pkl`
-  - Output: `./data/03_final/politicians.csv`
+Function:
 
-## Spoken Content
+- Merges the `mps.pkl`and `mgs.pkl` Dataframe
 
-### 1. [Extract Speeches](./od_lib/04_speech_content/01_extract_speeches.py)
+Attributes:
 
-- Function:
+- Input:
+  - `./data/02_cached/politicians/stage_02/mps.pkl`
+  - `./data/02_cached/politicians/stage_01/mgs.pkl`
+  - `./data/03_final/factions.pkl`
+- Output:
+  - `./data/03_final/politicians.csv`
 
-  - Searches for Speaches in the Corpus using Regex Patterns.
+## Speech Content
 
-- Attributes:
-  - Input: `./data/01_raw/txt/*`
-  - Output: `./data/02_cached/speech_content/stage_01/*`
-  - File Format:
-    - speech_content:
+### 1. [Extract Speeches](./05_speech_content/01_extract_speeches.py)
 
-      | session | name_raw | position_raw | constituency | speech_content | span_begin | span_end |
-      | --- | --- | --- | --- | --- | --- | --- |
-      | 18245 | Peter Schmidt | CDU/CSU | | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0 | 255.0 |
-      | ... | ... | ... | ... | ... | ... | ... |
+Function:
 
-### 2. [Clean Speeches](./od_lib/04_speech_content/02_clean_speeches.py)
+- Searches for Speaches in the Corpus using Regex Patterns.
 
-- Function:
+Attributes:
 
-  - Splits the Full Name into First- and Last-Name
-  - Assigns a Faction ID
-  - Parses the Position into `position_long` and `position_short`
+- Input:
+  - `./data/01_raw/txt/*`
+- Output:
+  - `./data/02_cached/speech_content/stage_01/*`
+- File Format:
+  - speech_content:
 
-- Attributes:
-  - Input:
-    - `./data/02_cached/speech_content/stage_01/*`
-    - `./data/03_final/factions.pkl`
-  - Output: `./data/02_cached/speech_content/stage_02/*`
-  - File Format:
-    - speech_content:
+    | session | name_raw | position_raw | constituency | speech_content | span_begin | span_end |
+    | --- | --- | --- | --- | --- | --- | --- |
+    | 18245 | Peter Schmidt | CDU/CSU | | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0 | 255.0 |
+    | ... | ... | ... | ... | ... | ... | ... |
 
-      | session | position_short | position_long | last_name | first_name | acad_title | faction_id | constituency | speech_content | span_begin | span_end |
-      | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-      | 18245 | Member of Parliament | | Schmidt | ['Peter'] | [] | 4 | | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0 | 255.0 |
-      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+### 2. [Clean Speeches](./05_speech_content/02_clean_speeches.py)
 
-### 3. [Match Names](./od_lib/04_speech_content/03_match_names_speeches.py)
+Function:
 
-- Function:
+- Splits the Full Name into First- and Last-Name
+- Assigns a Faction ID
+- Parses the Position into `position_long` and `position_short`
 
-  - Assigns a People ID to every Speaker
+Attributes:
 
-- Attributes:
-  - Input:
-    - `./data/02_cached/speech_content/stage_03/*`
-    - `./data/03_final/politicians.csv`
-  - Output: `./data/02_cached/speech_content/stage_03/*`
-  - File Format:
-    - speech_content:
+- Input:
+  - `./data/02_cached/speech_content/stage_01/*`
+  - `./data/03_final/factions.pkl`
+- Output:
+  - `./data/02_cached/speech_content/stage_02/*`
+- File Format:
+  - speech_content:
 
-      | session | position_short | position_long | politician_id | last_name | first_name | acad_title | faction_id | constituency | speech_content | span_begin | span_end |
-      | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-      | 18245 | Member of Parliament | | 1109312 | Schmidt | ['Peter'] | [] | 4 | | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0 | 255.0 |
-      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+    | session | position_short | position_long | last_name | first_name | acad_title | faction_id | constituency | speech_content | span_begin | span_end |
+    | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+    | 18245 | Member of Parliament | | Schmidt | ['Peter'] | [] | 4 | | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0 | 255.0 |
+    | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
-## Election Period 19
+### 3. [Match Names](./05_speech_content/03_match_names_speeches.py)
 
-### 1. [Extract Speeches and Contributions Period 19](./od_lib/05_electoral_term_19/01_extract_speeches_and_contributions_electoral_term_19.py)
+Function:
 
-- Function:
+- Assigns a People ID to every Speaker
 
-  - Speeches are extracted from the XML Structure
-  - Searches for Contributions in the Speeches using Regex Pattern
-  - The Script replaces Contributions in the speech_content with an Identifier
-  - The extract_contribution funciton can be found in [helper_functions/extract_contributions.py](./od_lib/helper_functions/extract_contributions.py)
+Attributes:
 
-- Attributes:
+- Input:
+  - `./data/02_cached/speech_content/stage_02/*`
+  - `./data/03_final/politicians.csv`
+- Output:
+  - `./data/02_cached/speech_content/stage_03/*`
+- File Format:
+  - speech_content:
 
-  - Input: `./data/02_cached/electoral_term_19/stage_02/*`
-  - Output:
-    - `./data/02_cached/electoral_term_19/stage_03/speech_content/speech_content.pkl`
-    - `./data/02_cached/contributions_extended/stage_01/*`
-    - `./data/03_final/contributions_simplified.pkl`
-  - File Format:
-    - speech_content:
+    | session | position_short | position_long | politician_id | last_name | first_name | acad_title | faction_id | constituency | speech_content | span_begin | span_end |
+    | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+    | 18245 | Member of Parliament | | 1109312 | Schmidt | ['Peter'] | [] | 4 | | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0 | 255.0 |
+    | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
-      | id | session | position_short | position_long | politician_id | last_name | first_name | faction_id | speech_content | date |
-      | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-      | 1052836 | 18245 | Member of Parliament | | 1109312 | Schmidt | ['Peter'] | 4 | Sehr geehrter ({0})... | 1.608163e+09 |
-      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+## Election Period 20
 
-    - contributions_extended:
+### 1. [Extract Speeches and Contributions Period 20](./06_electoral_term_20/01_extract_speeches_and_contributions_electoral_term_20.py)
 
-      | id |  type | name | faction | constituency | content | text_position |
-      | --- | --- | --- | --- | --- | --- | --- |
-      | 0 | Beifall | | SPD | | | 0 |
-      | 1 | Personen-Einruf | Hans Müller | AfD | | Fisch! | 0 |
-      | ... | ... | ... | ... | ... | ... | ... |
+Function:
+
+- Speeches are extracted from the XML Structure
+- Searches for Contributions in the Speeches using Regex Pattern
+- The Script replaces Contributions in the speech_content with an Identifier
+- The extract_contribution funciton can be found in [helper_functions/extract_contributions.py](./helper_functions/extract_contributions.py)
+
+Attributes:
+
+- Input:
+  - `./data/02_cached/electoral_term_20/stage_02/*`
+- Output:
+  - `./data/02_cached/electoral_term_20/stage_03/speech_content/speech_content.pkl`
+  - `./data/02_cached/contributions_extended/stage_01/*`
+  - `./data/03_final/contributions_simplified.pkl`
+- File Format:
+  - speech_content:
+
+    | id | session | position_short | position_long | politician_id | last_name | first_name | faction_id | speech_content | date |
+    | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+    | 1052836 | 18245 | Member of Parliament | | 1109312 | Schmidt | ['Peter'] | 4 | Sehr geehrter ({0})... | 1.608163e+09 |
+    | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+
+  - contributions_extended:
+
+    | id |  type | name | faction | constituency | content | text_position |
+    | --- | --- | --- | --- | --- | --- | --- |
+    | 0 | Beifall | | SPD | | | 0 |
+    | 1 | Personen-Einruf | Hans Müller | AfD | | Fisch! | 0 |
+    | ... | ... | ... | ... | ... | ... | ... |
 
 ## Contributions
 
-### 1. [Extract Contributions](./od_lib/06_contributions/01_extract_contributions.py)
+### 1. [Extract Contributions](./07_contributions/01_extract_contributions.py)
 
-- Function:
+Function:
 
-  - Searches for Contributions in the Speeches using Regex Pattern
-  - The Script replaces Contributions in the speech_content with an Identifier
-  - The extract_contribution funciton can be found in [helper_functions/extract_contributions.py](./od_lib/helper_functions/extract_contributions.py)
+- Searches for contributions in the speeches using regex pattern
+- The script replaces contributions in the speech_content with an identifier
+- The extract_contribution funciton can be found in [helper_functions/extract_contributions.py](./helper_functions/extract_contributions.py)
 
-- Attributes:
+Attributes:
 
-  - Input: `./data/02_cached/speech_content/stage_03/*`
-  - Output:
-    - `./data/02_cached/speech_content/stage_04/*`
-    - `./data/02_cached/contributions_extended/stage_01/*`
-    - `./data/03_final/contributions_simplified.pkl`
-  - File Format:
-    - speech_content:
+- Input:
+  - `./data/02_cached/speech_content/stage_03/*`
+- Output:
+  - `./data/02_cached/speech_content/stage_04/*`
+  - `./data/02_cached/contributions_extended/stage_01/*`
+  - `./data/03_final/contributions_simplified.pkl`
+- File Format:
+  - speech_content:
 
-      | speech_id | session | position_short | position_long | politician_id | last_name | first_name | acad_title | faction_id | constituency | speech_content | span_begin | span_end |
-      | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-      | 1052836 | 18245 | Member of Parliament | | 1109312 | Schmidt | ['Peter'] | | 4 | | Sehr geehrter ({0})... | 0.0 | 255.0 |
-      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+    | speech_id | session | position_short | position_long | politician_id | last_name | first_name | acad_title | faction_id | constituency | speech_content | span_begin | span_end |
+    | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+    | 1052836 | 18245 | Member of Parliament | | 1109312 | Schmidt | ['Peter'] | | 4 | | Sehr geehrter ({0})... | 0.0 | 255.0 |
+    | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
-    - contributions_extended:
+  - contributions_extended:
 
-      | id |  type | name_raw | faction | constituency | content | text_position |
-      | --- | --- | --- | --- | --- | --- | --- |
-      | 0 | Beifall | | SPD | | | 0 |
-      | 1 | Personen-Einruf | Hans Müller | AfD | | Fisch! | 0 |
-      | ... | ... | ... | ... | ... | ... | ... |
+    | id |  type | name_raw | faction | constituency | content | text_position |
+    | --- | --- | --- | --- | --- | --- | --- |
+    | 0 | Beifall | | SPD | | | 0 |
+    | 1 | Personen-Einruf | Hans Müller | AfD | | Fisch! | 0 |
+    | ... | ... | ... | ... | ... | ... | ... |
 
-### 2. [Clean Contributions Extended](./od_lib/06_contributions/02_clean_contributions_extended.py)
+### 2. [Clean Contributions Extended](./07_contributions/02_clean_contributions_extended.py)
 
-- Function:
+Function:
 
-  - Splits the Full Name into First- and Last-Name
-  - Cleans the Party name and assigns a Faction ID
+- Splits the Full Name into First- and Last-Name
+- Cleans the Party name and assigns a Faction ID
 
-- Attributes:
-  - Input:
-    - `./data/02_cached/contributions_extended/stage_01/*`
-    - `./data/03_final/politicians.csv`
-  - Output: `./data/02_cached/contributions_extended/stage_02/*`
-  - File Format:
-    - contributions_extended:
+Attributes:
 
-      | id | type | name_raw | faction_id | faction | last_name | first_name | acad_title | constituency | content | text_position |
-      | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-      | 0 | Beifall | | 23 | SPD | | [] | [] | | | 0 |
-      | 1 | Personen-Einruf | Hans Müller | 0 | AfD | Müller | ['Hans'] | [] | | Fisch! | 0 |
-      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+- Input:
+  - `./data/02_cached/contributions_extended/stage_01/*`
+  - `./data/03_final/politicians.csv`
+- Output:
+  - `./data/02_cached/contributions_extended/stage_02/*`
+- File Format:
+  - contributions_extended:
 
-### 3. [Match Contributions](./od_lib/06_contributions/03_match_contributions_extended.py)
+    | id | type | name_raw | faction_id | faction | last_name | first_name | acad_title | constituency | content | text_position |
+    | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+    | 0 | Beifall | | 23 | SPD | | [] | [] | | | 0 |
+    | 1 | Personen-Einruf | Hans Müller | 0 | AfD | Müller | ['Hans'] | [] | | Fisch! | 0 |
+    | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
-- Function:
+### 3. [Match Contributions](./07_contributions/03_match_contributions_extended.py)
 
-  - Assigns a People ID to every Contribution
+Function:
 
-- Attributes:
-  - Input:
-    - `./data/02_cached/contributions_extended/stage_01/*`
-    - `./data/03_final/politicians.csv`
-  - Output: `./data/02_cached/contributions_extended/stage_02/*`
-  - File Format:
-    - contributions_extended:
+- Assigns a People ID to every Contribution
 
-      | id | type | name_raw | faction_id | politician_id | faction | last_name | first_name | acad_title | constituency | content | text_position |
-      | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-      | 0 | Beifall | | 23 | -1 | SPD | | [] | [] | | | 0 |
-      | 1 | Personen-Einruf | Hans Müller | 0 | 1109373 | AfD | Müller | ['Hans'] | [] | | Fisch! | 0 |
-      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+Attributes:
+
+- Input:
+  - `./data/02_cached/contributions_extended/stage_02/*`
+  - `./data/03_final/politicians.csv`
+- Output:
+  - `./data/02_cached/contributions_extended/stage_03/*`
+- File Format:
+  - contributions_extended:
+
+    | id | type | name_raw | faction_id | politician_id | faction | last_name | first_name | acad_title | constituency | content | text_position |
+    | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+    | 0 | Beifall | | 23 | -1 | SPD | | [] | [] | | | 0 |
+    | 1 | Personen-Einruf | Hans Müller | 0 | 1109373 | AfD | Müller | ['Hans'] | [] | | Fisch! | 0 |
+    | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
 ## Database
 
-### 1. [Concat Everything](./od_lib/07_database/01_concat_everything.py)
+### 1. [Concat Everything](./08_database/01_concat_everything.py)
 
-- Function:
+Function:
 
-  - Concats every speech_content DataFrame into one single DataFrame. Does this for contributions as well
-  - Removes unnecessary columns from DataFrames
-  - Generates new columns, e.g. id
+- Concats every speech_content DataFrame into one single DataFrame. Does this for contributions as well
+- Removes unnecessary columns from DataFrames
+- Generates new columns, e.g. id
 
-- Attributes:
+Attributes:
 
-  - Input:
-    - `./data/01_raw/xml/*`
-    - `./data/02_cached/speech_content/stage_04/*`
-    - `./data/02_cached/electoral_term_19/stage_03/speech_content/speech_content.pkl`
-    - `./data/02_cached/contributions_extended/stage_03/*`
-  - Output:
-    - `./data/03_final/speech_content.pkl`
-    - `./data/03_final/contributions_extended.pkl`
-  - File Format:
+- Input:
+  - `./data/01_raw/xml/*`
+  - `./data/02_cached/speech_content/stage_04/*`
+  - `./data/02_cached/electoral_term_19/stage_03/speech_content/speech_content.pkl`
+  - `./data/02_cached/contributions_extended/stage_03/*`
+- Output:
+  - `./data/03_final/speech_content.pkl`
+  - `./data/03_final/contributions_extended.pkl`
+- File Format:
+  - speech_content:
 
-    - speech_content:
+    | id | electoral_term | session | position_short | position_long | politician_id | last_name | first_name | faction_id | speech_content | document_url | date |
+    | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+    | 1052836 | 18 | 245 | Member of Parliament | | 1109312 | Schmidt | Peter | 4 | Sehr geehrter ({0})... | <https://dip21.bundestag.de/dip21/btp/18/18245.pdf> | 1.608163e+09 |
+    | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
-      | id | electoral_term | session | position_short | position_long | politician_id | last_name | first_name | faction_id | speech_content | document_url | date |
-      | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-      | 1052836 | 18 | 245 | Member of Parliament | | 1109312 | Schmidt | Peter | 4 | Sehr geehrter ({0})... | <https://dip21.bundestag.de/dip21/btp/18/18245.pdf> | 1.608163e+09 |
-      | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
-
-    - contributions_extended:
+  - contributions_extended:
 
       | id | type | faction_id | speech_id | politician_id | last_name | first_name | content | text_position |
       | --- | --- | --- | --- | --- | --- | --- | --- | --- |
