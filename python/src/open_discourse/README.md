@@ -207,12 +207,13 @@ Attributes:
 - Output:
   - `./data/02_cached/speech_content/stage_01/*`
 - File Format:
+
   - speech_content:
 
-    | session | name_raw | position_raw | constituency | speech_content | span_begin | span_end |
-    | --- | --- | --- | --- | --- | --- | --- |
-    | 18245 | Peter Schmidt | CDU/CSU | | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0 | 255.0 |
-    | ... | ... | ... | ... | ... | ... | ... |
+    | session | name_raw      | position_raw | constituency | speech_content                                                             | span_begin | span_end |
+    | ------- | ------------- | ------------ | ------------ | -------------------------------------------------------------------------- | ---------- | -------- |
+    | 18245   | Peter Schmidt | CDU/CSU      |              | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0        | 255.0    |
+    | ...     | ...           | ...          | ...          | ...                                                                        | ...        | ...      |
 
 ### 2. [Clean Speeches](./05_speech_content/02_clean_speeches.py)
 
@@ -230,12 +231,13 @@ Attributes:
 - Output:
   - `./data/02_cached/speech_content/stage_02/*`
 - File Format:
+
   - speech_content:
 
-    | session | position_short | position_long | last_name | first_name | acad_title | faction_id | constituency | speech_content | span_begin | span_end |
-    | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-    | 18245 | Member of Parliament | | Schmidt | ['Peter'] | [] | 4 | | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0 | 255.0 |
-    | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+    | session | position_short       | position_long | last_name | first_name | acad_title | faction_id | constituency | speech_content                                                             | span_begin | span_end |
+    | ------- | -------------------- | ------------- | --------- | ---------- | ---------- | ---------- | ------------ | -------------------------------------------------------------------------- | ---------- | -------- |
+    | 18245   | Member of Parliament |               | Schmidt   | ['Peter']  | []         | 4          |              | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0        | 255.0    |
+    | ...     | ...                  | ...           |  ...      |  ...       |  ...       | ...        | ...          | ...                                                                        |  ...       | ...      |
 
 ### 3. [Match Names](./05_speech_content/03_match_names_speeches.py)
 
@@ -251,12 +253,13 @@ Attributes:
 - Output:
   - `./data/02_cached/speech_content/stage_03/*`
 - File Format:
+
   - speech_content:
 
-    | session | position_short | position_long | politician_id | last_name | first_name | acad_title | faction_id | constituency | speech_content | span_begin | span_end |
-    | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-    | 18245 | Member of Parliament | | 1109312 | Schmidt | ['Peter'] | [] | 4 | | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0 | 255.0 |
-    | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+    | session | position_short       | position_long | politician_id | last_name | first_name | acad_title | faction_id | constituency | speech_content                                                             | span_begin | span_end |
+    | ------- | -------------------- | ------------- | ------------- | --------- | ---------- | ---------- | ---------- | ------------ | -------------------------------------------------------------------------- | ---------- | -------- |
+    | 18245   | Member of Parliament |               | 1109312       | Schmidt   | ['Peter']  | []         | 4          |              | Sehr geehrter (Hans Müller [AfD]: Fisch! - Beifall bei der SPD - Links)... | 0.0        | 255.0    |
+    | ...     | ...                  | ...           |  ...          |  ...      |  ...       | ...        | ...        | ...          |  ...                                                                       | ...        |
 
 ## Election Period 20
 
@@ -278,20 +281,21 @@ Attributes:
   - `./data/02_cached/contributions_extended/stage_01/*`
   - `./data/03_final/contributions_simplified.pkl`
 - File Format:
+
   - speech_content:
 
-    | id | session | position_short | position_long | politician_id | last_name | first_name | faction_id | speech_content | date |
-    | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-    | 1052836 | 18245 | Member of Parliament | | 1109312 | Schmidt | ['Peter'] | 4 | Sehr geehrter ({0})... | 1.608163e+09 |
-    | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+    | id      | session | position_short       | position_long | politician_id | last_name | first_name | faction_id | speech_content         | date         |
+    | ------- | ------- | -------------------- | ------------- | ------------- | --------- | ---------- | ---------- | ---------------------- | ------------ |
+    | 1052836 | 18245   | Member of Parliament |               | 1109312       | Schmidt   | ['Peter']  | 4          | Sehr geehrter ({0})... | 1.608163e+09 |
+    | ...     | ...     | ...                  |  ...          |  ...          |  ...      | ...        | ...        | ...                    |  ...         |
 
   - contributions_extended:
 
-    | id |  type | name | faction | constituency | content | text_position |
-    | --- | --- | --- | --- | --- | --- | --- |
-    | 0 | Beifall | | SPD | | | 0 |
-    | 1 | Personen-Einruf | Hans Müller | AfD | | Fisch! | 0 |
-    | ... | ... | ... | ... | ... | ... | ... |
+    | id  |  type           | name        | faction | constituency | content | text_position |
+    | --- | --------------- | ----------- | ------- | ------------ | ------- | ------------- |
+    | 0   | Beifall         |             | SPD     |              |         |  0            |
+    | 1   | Personen-Einruf | Hans Müller | AfD     |              | Fisch!  |  0            |
+    | ... | ...             | ...         | ...     | ...          | ...     | ...           |
 
 ## Contributions
 
@@ -312,20 +316,21 @@ Attributes:
   - `./data/02_cached/contributions_extended/stage_01/*`
   - `./data/03_final/contributions_simplified.pkl`
 - File Format:
+
   - speech_content:
 
-    | speech_id | session | position_short | position_long | politician_id | last_name | first_name | acad_title | faction_id | constituency | speech_content | span_begin | span_end |
-    | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-    | 1052836 | 18245 | Member of Parliament | | 1109312 | Schmidt | ['Peter'] | | 4 | | Sehr geehrter ({0})... | 0.0 | 255.0 |
-    | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+    | speech_id | session | position_short       | position_long | politician_id | last_name | first_name | acad_title | faction_id | constituency | speech_content         | span_begin | span_end |
+    | --------- | ------- | -------------------- | ------------- | ------------- | --------- | ---------- | ---------- | ---------- | ------------ | ---------------------- | ---------- | -------- |
+    | 1052836   | 18245   | Member of Parliament |               | 1109312       | Schmidt   | ['Peter']  |            | 4          |              | Sehr geehrter ({0})... | 0.0        | 255.0    |
+    | ...       | ...     | ...                  |  ...          |  ...          |  ...      | ...        | ...        | ...        |  ...         | ...                    | ...        | ...      |
 
   - contributions_extended:
 
-    | id |  type | name_raw | faction | constituency | content | text_position |
-    | --- | --- | --- | --- | --- | --- | --- |
-    | 0 | Beifall | | SPD | | | 0 |
-    | 1 | Personen-Einruf | Hans Müller | AfD | | Fisch! | 0 |
-    | ... | ... | ... | ... | ... | ... | ... |
+    | id  |  type           | name_raw    | faction | constituency | content | text_position |
+    | --- | --------------- | ----------- | ------- | ------------ | ------- | ------------- |
+    | 0   | Beifall         |             | SPD     |              |         |  0            |
+    | 1   | Personen-Einruf | Hans Müller | AfD     |              | Fisch!  |  0            |
+    | ... | ...             | ...         | ...     | ...          | ...     | ...           |
 
 ### 2. [Clean Contributions Extended](./07_contributions/02_clean_contributions_extended.py)
 
@@ -342,13 +347,14 @@ Attributes:
 - Output:
   - `./data/02_cached/contributions_extended/stage_02/*`
 - File Format:
+
   - contributions_extended:
 
-    | id | type | name_raw | faction_id | faction | last_name | first_name | acad_title | constituency | content | text_position |
-    | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-    | 0 | Beifall | | 23 | SPD | | [] | [] | | | 0 |
-    | 1 | Personen-Einruf | Hans Müller | 0 | AfD | Müller | ['Hans'] | [] | | Fisch! | 0 |
-    | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+    | id  | type            | name_raw    | faction_id | faction | last_name | first_name | acad_title | constituency | content | text_position |
+    | --- | --------------- | ----------- | ---------- | ------- | --------- | ---------- | ---------- | ------------ | ------- | ------------- |
+    | 0   | Beifall         |             |  23        | SPD     |           |  []        |  []        |              |         | 0             |
+    | 1   | Personen-Einruf | Hans Müller | 0          |  AfD    | Müller    | ['Hans']   | []         |              | Fisch!  | 0             |
+    | ... | ...             | ...         | ...        | ...     | ...       | ...        | ...        | ...          | ...     | ...           |
 
 ### 3. [Match Contributions](./07_contributions/03_match_contributions_extended.py)
 
@@ -364,13 +370,14 @@ Attributes:
 - Output:
   - `./data/02_cached/contributions_extended/stage_03/*`
 - File Format:
+
   - contributions_extended:
 
-    | id | type | name_raw | faction_id | politician_id | faction | last_name | first_name | acad_title | constituency | content | text_position |
-    | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-    | 0 | Beifall | | 23 | -1 | SPD | | [] | [] | | | 0 |
-    | 1 | Personen-Einruf | Hans Müller | 0 | 1109373 | AfD | Müller | ['Hans'] | [] | | Fisch! | 0 |
-    | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+    | id  | type            | name_raw    | faction_id | politician_id | faction | last_name | first_name | acad_title | constituency | content | text_position |
+    | --- | --------------- | ----------- | ---------- | ------------- | ------- | --------- | ---------- | ---------- | ------------ | ------- | ------------- |
+    | 0   | Beifall         |             | 23         | -1            |  SPD    |           | []         | []         |              |         | 0             |
+    | 1   | Personen-Einruf | Hans Müller | 0          | 1109373       | AfD     | Müller    | ['Hans']   | []         |              | Fisch!  | 0             |
+    | ... | ...             | ...         | ...        | ...           | ...     | ...       | ...        | ...        | ...          | ...     | ...           |
 
 ## Database
 
@@ -393,30 +400,31 @@ Attributes:
   - `./data/03_final/speech_content.pkl`
   - `./data/03_final/contributions_extended.pkl`
 - File Format:
+
   - speech_content:
 
-    | id | electoral_term | session | position_short | position_long | politician_id | last_name | first_name | faction_id | speech_content | document_url | date |
-    | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-    | 1052836 | 18 | 245 | Member of Parliament | | 1109312 | Schmidt | Peter | 4 | Sehr geehrter ({0})... | <https://dip21.bundestag.de/dip21/btp/18/18245.pdf> | 1.608163e+09 |
-    | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+    | id      | electoral_term | session | position_short       | position_long | politician_id | last_name | first_name | faction_id | speech_content         | document_url                                        | date         |
+    | ------- | -------------- | ------- | -------------------- | ------------- | ------------- | --------- | ---------- | ---------- | ---------------------- | --------------------------------------------------- | ------------ | --- |
+    | 1052836 | 18             | 245     | Member of Parliament |               | 1109312       | Schmidt   | Peter      | 4          | Sehr geehrter ({0})... | <https://dip21.bundestag.de/dip21/btp/18/18245.pdf> | 1.608163e+09 |
+    | ...     | ...            | ...     |  ...                 |  ...          |  ...          | ...       | ...        | ...        |  ...                   | ...                                                 | ...          | ... |
 
   - contributions_extended:
 
-      | id | type | faction_id | speech_id | politician_id | last_name | first_name | content | text_position |
-      | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-      | 0 | Beifall | 23 | 1052836 | -1 | | | | 0 |
-      | 1 | Personen-Einruf | 0 | 1052836 | 1109373 | Müller | Hans | Fisch! | 0 |
-      | ... | ... | ... | ... | ... | ... | ... | ... | ... |
+    | id  | type            | faction_id | speech_id | politician_id | last_name | first_name | content | text_position |
+    | --- | --------------- | ---------- | --------- | ------------- | --------- | ---------- | ------- | ------------- |
+    | 0   | Beifall         | 23         | 1052836   | -1            |           |            |         | 0             |
+    | 1   | Personen-Einruf | 0          | 1052836   | 1109373       | Müller    | Hans       | Fisch!  | 0             |
+    | ... | ...             | ...        | ...       | ...           | ...       | ...        | ...     | ...           |
 
-### 2. [Upload Data to Database](./od_lib/07_database/02_upload_data_to_database.py)
+### 2. [Upload Data to Database](./08_database/02_upload_data_to_database.py)
 
-- Function:
+Function:
 
-  - Uploads every Dataframe in `./data/03_final` to the Database
+- Uploads every data frame in `./data/03_final` to the database
 
 ## Topic Modelling
 
-The Topic Modelling is still WIP and most scripts for handling the Data Cubes are still in a prototype phase and are not yet published.
+The Topic Modelling is still WIP and most scripts for handling the data cubes are still in a prototype phase and are not yet published.
 
 In the meanwhile you can download and move the following files into the `./data/03_final` folder:
 
@@ -431,8 +439,8 @@ You can track the development of the Topic Modelling using this [GitHub Issue](h
 
 ...
 
-### [Upload Data Cubes to Database](./od_lib/topic_modelling/upload_data_cubes.py)
+### [Upload Data Cubes to Database](./topic_modelling/upload_data_cubes.py)
 
-- Function:
+Function:
 
-  - Uploads every DataCube in `./data/03_final` to the Database
+- Uploads every DataCube in `./data/03_final` to the Database
