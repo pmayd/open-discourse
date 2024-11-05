@@ -2,7 +2,7 @@ import numpy as np
 import regex
 
 
-def clean(filetext, remove_pdf_header=True):
+def clean(filetext: str, remove_pdf_header: bool = True) -> str:
     # Replaces all the misrecognized characters
     filetext = filetext.replace(r"", "-")
     filetext = filetext.replace(r"", "-")
@@ -44,7 +44,9 @@ def clean(filetext, remove_pdf_header=True):
     return filetext
 
 
-def clean_name_headers(filetext, names, contributions_extended_filter=False):
+def clean_name_headers(
+    filetext: str, names: list[str], contributions_extended_filter: bool = False
+):
     """Cleans lines a given text which remained from the pdf header.
     Usually something like: "Präsident Dr. Lammert"
     Keep in mind this also deletes lines from voting lists.

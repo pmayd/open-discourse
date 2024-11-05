@@ -17,13 +17,15 @@ RAW_TXT = path_definitions.RAW_TXT
 RAW_TXT.mkdir(parents=True, exist_ok=True)
 
 # Open every xml plenar file in every electoral term.
-for folder_path in RAW_XML.glob("*.zip"):
+for folder_path in sorted(RAW_XML.iterdir()):
     # Skip e.g. the .DS_Store file.
+
     if not folder_path.is_dir():
         continue
 
-    term_number = get_term_from_path(folder_path)
+    term_number = get_term_from_path(str(folder_path))
     if term_number is None:
+        print(f"No term number found in {folder_path.stem}.")
         continue
 
     if term_number > 2:

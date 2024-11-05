@@ -7,6 +7,7 @@ from tqdm import tqdm
 
 import open_discourse.definitions.path_definitions as path_definitions
 from open_discourse.helper_functions.clean_text import clean
+from open_discourse.helper_functions.utils import get_term_from_path
 
 # input directory
 RAW_XML = path_definitions.RAW_XML
@@ -21,11 +22,10 @@ for folder_path in sorted(RAW_XML.iterdir()):
     if not folder_path.is_dir():
         continue
 
-    term_number = regex.search(r"(?<=electoral_term_pp)\d{2}", folder_path.stem)
+    term_number = get_term_from_path(folder_path)
     if term_number is None:
         print(f"No term number found in {folder_path.stem}.")
         continue
-    term_number = int(term_number.group(0))
 
     if not (3 <= term_number <= 19):
         print(
