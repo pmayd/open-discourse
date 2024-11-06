@@ -32,7 +32,7 @@ for folder_path in sorted(RAW_XML.iterdir()):
         continue
 
     for xml_file_path in tqdm(
-        folder_path.iterdir(), desc=f"Parsing term {term_number:>2}..."
+        list(folder_path.iterdir()), desc=f"Parsing term {term_number:>2}..."
     ):
         if xml_file_path.suffix == ".xml":
             tree = et.parse(xml_file_path)
@@ -66,7 +66,7 @@ for folder_path in sorted(RAW_XML.iterdir()):
             with open(save_path / "meta_data.xml", "wb") as result_file:
                 result_file.write(dicttoxml.dicttoxml(meta_data))
 
-assert RAW_TXT.exists(), f"Output directory {RAW_TXT}does not exist."
+assert RAW_TXT.exists(), f"Output directory {RAW_TXT} does not exist."
 assert (
     len(list(RAW_TXT.glob("*_pp*"))) == len(list(RAW_XML.glob("*.zip")))
 ), "Number of directories in output directory is not equal to number of directories in input directory minus 2"

@@ -45,7 +45,7 @@ for folder_path in sorted(RAW_XML.iterdir()):
             continue
 
     for xml_file_path in tqdm(
-        folder_path.iterdir(), desc=f"Parsing term {term_number:>2}..."
+        list(folder_path.iterdir()), desc=f"Parsing term {term_number:>2}..."
     ):
         if xml_file_path.suffix == ".xml":
             tree = et.parse(xml_file_path)

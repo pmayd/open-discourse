@@ -1,5 +1,6 @@
+import re
+
 import numpy as np
-import regex
 
 
 def clean(filetext: str, remove_pdf_header: bool = True) -> str:
@@ -9,38 +10,41 @@ def clean(filetext: str, remove_pdf_header: bool = True) -> str:
     filetext = filetext.replace("—", "-")
     filetext = filetext.replace("–", "-")
     filetext = filetext.replace("•", "")
-    filetext = regex.sub(r"\t+", " ", filetext)
-    filetext = regex.sub(r"  +", " ", filetext)
+    filetext = re.sub(r"\t+", " ", filetext)
+    filetext = re.sub(r"  +", " ", filetext)
 
     # Remove pdf artifact
     if remove_pdf_header:
-        filetext = regex.sub(
+        filetext = re.sub(
             r"(?:Deutscher\s?Bundestag\s?-(?:\s?\d{1,2}\s?[,.]\s?Wahlperiode\s?-)?)?\s?\d{1,3}\s?[,.]\s?Sitzung\s?[,.]\s?(?:(?:Bonn|Berlin)[,.])?\s?[^,.]+,\s?den\s?\d{1,2}\s?[,.]\s?[^\d]+\d{4}.*",
             r"\n",
             filetext,
         )
-        filetext = regex.sub(r"\s*(\(A\)|\(B\)|\(C\)|\(D\))", "", filetext)
+        filetext = re.sub(r"\s*(\(A\)|\(B\)|\(C\)|\(D\))", "", filetext)
 
     # Remove delimeter
-    filetext = regex.sub(r"-\n+(?![^(]*\))", "", filetext)
+    filetext = re.sub(r"-\n+(?![^(]*\))", "", filetext)
 
-    # Deletes all the newlines in brackets
-    bracket_text = regex.finditer(r"\(([^(\)]*(\(([^(\)]*)\))*[^(\)]*)\)", filetext)
+    filetext = remove_newlines_in_brackets(filetext)
 
-    for bracket in bracket_text:
-        filetext = filetext.replace(
-            str(bracket.group()),
-            regex.sub(
-                r"\n+",
-                " ",
-                regex.sub(
-                    r"(^((?<!Abg\.).)+|^.*\[.+)(-\n+)",
-                    r"\1",
-                    str(bracket.group()),
-                    flags=regex.MULTILINE,
-                ),
-            ),
+    return filetext
+
+
+def remove_newlines_in_brackets(filetext: str) -> str:
+    # Finds all text within parentheses, including nested parentheses
+    bracket_text = re.findall(r"\(([^(\)]*(\(([^(\)]*)\))*[^(\)]*)\)", filetext)
+
+    for sub_groups in bracket_text:
+        bracket_content = sub_groups[0]
+        bracket_content = re.sub(
+            r"(^((?<!Abg\.).)+|^.*\[.+)(-\n+)",
+            r"\1",
+            bracket_content,
+            flags=re.MULTILINE,
         )
+        bracket_content = re.sub(r"\n+", " ", bracket_content)
+        filetext = filetext.replace(sub_groups[0], bracket_content)
+
     return filetext
 
 
@@ -62,10 +66,10 @@ def clean_name_headers(
         + names_to_clean
         + r" *\n"
     )
-    filetext = regex.sub(pattern, "\n", filetext)
+    filetext = re.sub(pattern, "\n", filetext)
 
     pattern = r"\n\d+ *\n"
 
-    filetext = regex.sub(pattern, "\n", filetext)
+    filetext = re.sub(pattern, "\n", filetext)
 
     return filetext
