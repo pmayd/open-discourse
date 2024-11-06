@@ -2,16 +2,17 @@ import re
 
 import numpy as np
 
+REPLACEMENT_STRATEGY = {
+    "-": [r"—", r"–", r"", r""],
+    "": [r"•"],
+    " ": [r"  +", r"\t"],
+}
+
 
 def clean(filetext: str, remove_pdf_header: bool = True) -> str:
     # Replaces all the misrecognized characters
-    filetext = filetext.replace(r"", "-")
-    filetext = filetext.replace(r"", "-")
-    filetext = filetext.replace("—", "-")
-    filetext = filetext.replace("–", "-")
-    filetext = filetext.replace("•", "")
-    filetext = re.sub(r"\t+", " ", filetext)
-    filetext = re.sub(r"  +", " ", filetext)
+    for replacement, misrecognized_characters in REPLACEMENT_STRATEGY.items():
+        filetext = re.sub("|".join(misrecognized_characters), replacement, filetext)
 
     # Remove pdf artifact
     if remove_pdf_header:
