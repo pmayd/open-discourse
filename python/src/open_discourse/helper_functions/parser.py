@@ -1,11 +1,17 @@
 import regex
-
+from xml.etree.ElementTree import ElementTree
+from pydantic import BaseModel
 
 BEGIN_PATTERN = regex.compile(
     r"Die.*?Sitzung.*?wird.*?\d{1,2}.*?Uhr.*?(durch.*?den.*?)?eröffnet"
 )
 
 APPENDIX_PATTERN = regex.compile(r"\(Schluß.*?Sitzung.*?Uhr.*?\)")
+
+
+class Metadata(BaseModel):
+    document_number: str
+    date: str
 
 
 def get_session_content(text_corpus: str) -> str:
@@ -41,3 +47,20 @@ def get_session_content(text_corpus: str) -> str:
             session_content += text_corpus[begin.span()[1] : end.span()[0]]
 
     return session_content
+
+
+def get_doc_metadata(tree: ElementTree) -> Metadata:
+    """
+    Extracts the document number and the date of the session from the XML tree.
+
+    Args:
+        tree (ElementTree): The XML tree to extract the metadata from.
+
+    Returns:
+        Metadata: The document number and the date of the session.
+    """
+    # Get the document number, the date of the session and the content.
+    document_number = tree.find("NR").text
+    date = tree.find("DATUM").text
+
+    return Metadata(document_number=document_number, date=date)

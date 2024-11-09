@@ -7,7 +7,7 @@ from tqdm import tqdm
 import open_discourse.definitions.path_definitions as path_definitions
 from open_discourse.helper_functions.clean_text import clean
 from open_discourse.helper_functions.utils import get_term_from_path
-from open_discourse.helper_functions.parser import get_session_content
+from open_discourse.helper_functions.parser import get_session_content, get_doc_metadata
 
 # input directory
 RAW_XML = path_definitions.RAW_XML
@@ -37,11 +37,7 @@ for folder_path in sorted(RAW_XML.iterdir()):
         if xml_file_path.suffix == ".xml":
             tree = et.parse(xml_file_path)
 
-            meta_data = {}
-
-            # Get the document number, the date of the session and the content.
-            meta_data["document_number"] = tree.find("NR").text
-            meta_data["date"] = tree.find("DATUM").text
+            meta_data = get_doc_metadata(tree)
             text_corpus = tree.find("TEXT").text
 
             # Clean text corpus.
@@ -54,6 +50,7 @@ for folder_path in sorted(RAW_XML.iterdir()):
             session_content = get_session_content(text_corpus)
 
             if not session_content:
+                print(f"No session content found in {xml_file_path.stem}.")
                 continue
 
             save_path = RAW_TXT / folder_path.stem / xml_file_path.stem
@@ -69,6 +66,6 @@ for folder_path in sorted(RAW_XML.iterdir()):
 assert RAW_TXT.exists(), f"Output directory {RAW_TXT} does not exist."
 assert (
     len(list(RAW_TXT.glob("*_pp*"))) == len(list(RAW_XML.glob("*.zip")))
-), "Number of directories in output directory is not equal to number of directories in input directory minus 2"
+), "Number of directories in output directory is not equal to number of directories in input directory"
 
 print("Script 02_02 done.")
