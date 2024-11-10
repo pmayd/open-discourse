@@ -61,7 +61,7 @@ for folder_path in sorted(RAW_XML.iterdir()):
                 text_file.write(session_content)
 
             with open(save_path / "meta_data.xml", "wb") as result_file:
-                result_file.write(dicttoxml.dicttoxml(meta_data))
+                result_file.write(dicttoxml.dicttoxml(meta_data.dict()))
 
 assert RAW_TXT.exists(), f"Output directory {RAW_TXT} does not exist."
 assert (

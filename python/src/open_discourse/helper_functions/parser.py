@@ -45,6 +45,10 @@ def get_session_content(text_corpus: str) -> str:
     elif len(find_beginnings) == len(find_endings):
         for begin, end in zip(find_beginnings, find_endings):
             session_content += text_corpus[begin.span()[1] : end.span()[0]]
+    else:
+        print(
+            f"No session content found. Beginnings: {len(find_beginnings)}, Endings: {len(find_endings)}"
+        )
 
     return session_content
 
