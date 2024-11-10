@@ -32,19 +32,22 @@ def clean(filetext: str, remove_pdf_header: bool = True) -> str:
 
 def remove_newlines_in_brackets(filetext: str) -> str:
     # Finds all text within parentheses, including nested parentheses
-    bracket_text = regex.findall(r"\(([^(\)]*(\(([^(\)]*)\))*[^(\)]*)\)", filetext)
+    bracket_text = regex.finditer(r"\(([^(\)]*(\(([^(\)]*)\))*[^(\)]*)\)", filetext)
 
-    for sub_groups in bracket_text:
-        # findall does not return the outer brackets compared to finditer
-        bracket_content = sub_groups[0]
-        bracket_content = regex.sub(
+    for bracket in bracket_text:
+        bracket_text = bracket.group()
+
+        # Remove hyphen followed by newline if not preceded by "Abg." or if it is part of a text within square brackets
+        bracket_text = regex.sub(
             r"(^((?<!Abg\.).)+|^.*\[.+)(-\n+)",
             r"\1",
-            bracket_content,
+            bracket_text,
             flags=regex.MULTILINE,
         )
-        bracket_content = regex.sub(r"\n+", " ", bracket_content)
-        filetext = filetext.replace(sub_groups[0], bracket_content)
+        # Replace newline with spaces
+        bracket_text = regex.sub(r"\n+", " ", bracket_text)
+        # Replace the original text with the cleaned text
+        filetext = filetext.replace(bracket.group(), bracket_text)
 
     return filetext
 
