@@ -30,8 +30,9 @@ SESSIONS_PER_TERM = {1: 282, 2: 227, 3: 168, 4: 198, 5: 247, 6: 199, 7: 259, 8: 
 def pp_iterate_03_to_19(source_dir: Path, target_dir: Path, term: int | None = None,
                         session: int | None = None) -> object:
     """
-    Iterates through every subfolder of source_dir, e.g. RAW_XML
+    Iterates through every subfolder of source_dir, e.g. RAW_XML from legislative term 03 to 19
     and calls processing function for single file: pp_process_single_session
+    Call can be limited to one term or one session by additional args.
 
     Args:
         source_dir (Path):
@@ -67,7 +68,7 @@ def pp_iterate_03_to_19(source_dir: Path, target_dir: Path, term: int | None = N
 
     ### Iterate through every input planar file in every legislature term, unless term and/or session are explicitly stated
 
-    # Open every sub_directory of source_dir
+    # Process every sub_directory of source_dir: legislative terms
     for folder_path in sorted(source_dir.iterdir()):
         # Skip e.g. the .DS_Store file.
         if not folder_path.is_dir():
@@ -83,15 +84,17 @@ def pp_iterate_03_to_19(source_dir: Path, target_dir: Path, term: int | None = N
             continue
 
         # Process all relevant files in sub_directory
-        # session from args, so only one input file
+        # if session from args, then only one input file
         if session is not None:
             input_files = list(Path(folder_path).glob(f"{term:02d}{session:03d}{input_suffix}"))
             assert len(input_files) == 1
         # all sessions in sub_directory
         else:
             input_files = list(folder_path.glob("*" + input_suffix))
-            assert len(input_files) == SESSIONS_PER_TERM[term_number]
+            msg = f"number of sessions in {folder_path}: {len(input_files)}, but should be {SESSIONS_PER_TERM[term_number]}"
+            assert len(input_files) == SESSIONS_PER_TERM[term_number], msg
 
+        # Process every relevant sub_directory of folder_path: session
         for input_file_path in tqdm(input_files, desc=f"Parsing term {term_number:>2}..."):
             pp_process_single_session(input_file_path, folder_path)
 
@@ -189,7 +192,13 @@ def pp_process_single_session(input_file_path: Path, folder_path: Path) -> objec
     with open(save_path / "meta_data.xml", "wb") as result_file:
         result_file.write(dicttoxml.dicttoxml(meta_data_short))
 
-    # TODO Was soll returned werden?
+
+    # above writes successful?
+    for file_name in ["toc.txt", "session_content.txt", "appendix.txt", "meta_data.xml"]:
+        file_path = Path(save_path / file_name)
+        if not file_path.exists():
+            msg = f"pp{input_file_path.stem}: File {file_name} not written."
+            logging.error(msg)
 
     return
 
