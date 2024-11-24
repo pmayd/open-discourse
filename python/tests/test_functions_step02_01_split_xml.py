@@ -1,6 +1,3 @@
-import logging
-from open_discourse.helper_functions.logging_config import setup_logger
-
 import pytest
 import tempfile
 from collections import namedtuple
@@ -8,12 +5,9 @@ from pathlib import Path
 import regex
 
 import open_discourse.definitions.path_definitions as path_definitions
-from open_discourse.helper_functions.functions_step02_func_01_split_xml import pp_split_xml_data, pp_iterate_03_to_19, pp_define_regex_pattern
+from open_discourse.helper_functions.functions_step02_func_01_split_xml import pp_split_xml_data, pp_iterate_03_to_19, \
+    pp_define_regex_pattern, pp_process_single_session
 from xml.etree.ElementTree import ParseError
-
-# use predefined logger
-logger = setup_logger('01_split.log', logging.DEBUG)
-logger.debug("start test file")
 
 # DATA
 RAW_XML = path_definitions.RAW_XML
@@ -23,7 +17,6 @@ RAW_TXT = path_definitions.RAW_TXT
 
 # Definition Named Tuple for test cases
 CaseDataforTest = namedtuple('CaseDataforTest', ['input', 'expected', 'exception'])
-
 
 # ========================================
 # test cases for pp_iterate_03_to_19 (list of namedtuple)
@@ -40,7 +33,6 @@ test_cases.append(CaseDataforTest((RAW_XML, RAW_TXT, 4, 19), expected=None, exce
 
 @pytest.mark.parametrize("case", test_cases)
 def test_pp_iterate_03_to_19(case):
-    logger.debug("TST1")
     if case.exception:
         with pytest.raises(case.exception) as excinfo:
             pp_iterate_03_to_19(*case.input)
@@ -54,10 +46,12 @@ def test_pp_iterate_03_to_19(case):
 # test cases for pp_process_single_session (list of namedtuple)
 # ========================================
 test_cases = []
-test_cases.append(CaseDataforTest(None, expected=None, exception=None))
 
 @pytest.mark.parametrize("case", test_cases)
 def test_pp_process_single_session(case):
+    input_path = Path(RAW_XML, "electoral_term_pp03.zip", "03004.xml")
+
+    pp_process_single_session(input_path)
     # TODO Tests definieren
     assert False
 
@@ -175,20 +169,18 @@ def test_pp_get_xml_data_mock(case):
         if case.exception:
             # Erwartete Exception ist gesetzt, prüfe, ob sie übereinstimmt
             msg = f"Expected {case.exception.__name__}, but got {actual_exception}"
-            if actual_exception != case.exception.__name__:
-                logging.error(msg)
             assert actual_exception == case.exception.__name__, msg
         else:
             # unerwartete Exception
-            logging.error(f"Unexpected exception raised: {str(e)}")
-            assert actual_exception == None
+            msg = f"Unexpected exception raised: {str(e)}"
+            assert actual_exception == None, msg
 
     finally:
         # Aufräumen der temporären Datei
         try:
             temp_file_path.unlink()  # Löschen der temporären Datei
         except OSError as e:
-            logging.warning(f"Failed to delete temporary file {temp_file_path}: {e}")
+            print(f"Failed to delete temporary file {temp_file_path}: {e}")
 
     if result:
         assert result[0] == expected_metadata
