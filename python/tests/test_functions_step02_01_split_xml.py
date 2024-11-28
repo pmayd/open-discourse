@@ -1,38 +1,81 @@
-import pytest
-import tempfile
 from collections import namedtuple
 from pathlib import Path
+from xml.etree.ElementTree import ParseError
+
+import pytest
 import regex
 
 import open_discourse.definitions.path_definitions as path_definitions
-from open_discourse.helper_functions.functions_step02_func_01_split_xml import pp_split_xml_data, pp_iterate_03_to_19, \
+from open_discourse.helper_functions.functions_step02_func_01_split_xml import ends_with_relative_path, \
+    pp_split_xml_data, pp_iterate_03_to_19, \
     pp_define_regex_pattern, pp_process_single_session
-from xml.etree.ElementTree import ParseError
 
-# DATA
+# Definition Named Tuple for test cases, don't name ist Testcase!!!
+CaseDataforTest = namedtuple('CaseDataforTest', ['input', 'expected', 'exception'])
+
 RAW_XML = path_definitions.RAW_XML
 RAW_TXT = path_definitions.RAW_TXT
 
+# ========================================
+# test cases for ends_with_relative_path (list of namedtuple)
+# ========================================
+test_cases = []
+test_cases.append(CaseDataforTest((RAW_XML, RAW_XML), expected=True, exception=None))
+test_cases.append(CaseDataforTest((RAW_XML, RAW_TXT), expected=False, exception=None))
+test_cases.append(CaseDataforTest((Path("/data/data"), Path("text/data")), expected=None, exception=ValueError))
 
 
-# Definition Named Tuple for test cases
-CaseDataforTest = namedtuple('CaseDataforTest', ['input', 'expected', 'exception'])
+@pytest.mark.parametrize("case", test_cases)
+def test_ends_with_relative_path(case):
+    if case.exception:
+        with pytest.raises(case.exception) as excinfo:
+            ends_with_relative_path(*case.input)
+    else:
+        assert case.expected == ends_with_relative_path(*case.input)
+
 
 # ========================================
 # test cases for pp_iterate_03_to_19 (list of namedtuple)
 # ========================================
 test_cases = []
-test_cases.append(CaseDataforTest(input=(path_definitions.ROOT_DIR, RAW_TXT, -1), expected=None, exception=NotImplementedError))
-test_cases.append(CaseDataforTest(input=(RAW_TXT, RAW_XML, -1), expected=None, exception=NotImplementedError))
-test_cases.append(CaseDataforTest(input=(RAW_XML, RAW_TXT, -1), expected=None, exception=ValueError))
-test_cases.append(CaseDataforTest(input=(RAW_XML, RAW_TXT, 1), expected=None, exception=ValueError))
-test_cases.append(CaseDataforTest(input=(RAW_XML, RAW_TXT, 20), expected=None, exception=ValueError))
-test_cases.append(CaseDataforTest((RAW_XML, RAW_TXT, 3, 333), expected=None, exception=ValueError))
-test_cases.append(CaseDataforTest((RAW_XML, RAW_TXT, None, 333), expected=None, exception=ValueError))
-test_cases.append(CaseDataforTest((RAW_XML, RAW_TXT, 4, 19), expected=None, exception=None))
+test_cases.append(CaseDataforTest({"xml": path_definitions.ROOT_DIR, "txt": RAW_TXT, "term": -1}, expected=None,
+                                  exception=NotImplementedError))
+test_cases.append(
+    CaseDataforTest({"xml": RAW_TXT, "txt": RAW_XML, "term": 1}, expected=None, exception=NotImplementedError))
+test_cases.append(CaseDataforTest({"xml": RAW_XML, "txt": RAW_TXT, "term": 0}, expected=None, exception=ValueError))
+test_cases.append(
+    CaseDataforTest({"xml": RAW_XML, "txt": RAW_TXT, "term": 0, "session": 0}, expected=None, exception=ValueError))
+test_cases.append(CaseDataforTest({"xml": RAW_XML, "txt": RAW_TXT, "term": -1}, expected=None, exception=ValueError))
+test_cases.append(
+    CaseDataforTest({"xml": RAW_XML, "txt": RAW_TXT, "term": 5, "session": -8}, expected=None, exception=ValueError))
+test_cases.append(
+    CaseDataforTest({"xml": RAW_XML, "txt": RAW_TXT, "term": 5, "session": 0}, expected=None, exception=ValueError))
+test_cases.append(CaseDataforTest({"xml": RAW_XML, "txt": RAW_TXT, "term": 1}, expected=None, exception=ValueError))
+test_cases.append(
+    CaseDataforTest({"xml": RAW_XML, "txt": RAW_TXT, "term": 20, "session": 7}, expected=None, exception=ValueError))
+test_cases.append(
+    CaseDataforTest({"xml": RAW_XML, "txt": RAW_TXT, "term": 3, "session": 333}, expected=None, exception=ValueError))
+test_cases.append(CaseDataforTest({"xml": RAW_XML, "txt": RAW_TXT, "session": 17}, expected=None, exception=ValueError))
+test_cases.append(
+    CaseDataforTest({"xml": RAW_XML, "txt": RAW_TXT, "term": 4, "session": 19}, expected=None, exception=None))
+
 
 @pytest.mark.parametrize("case", test_cases)
-def test_pp_iterate_03_to_19(case):
+def test_pp_iterate_03_to_19(tmp_path, case):
+    # create directories based on tmp_path
+    source_dir = tmp_path / case.input["xml"].relative_to(
+        path_definitions.ROOT_DIR)  # only difference of pathes is used
+    source_dir.mkdir(parents=True, exist_ok=True)
+    target_dir = tmp_path / case.input["txt"].relative_to(path_definitions.ROOT_DIR)
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    # Get term and session from test case if available
+    term = case.input.get("term", None)
+    session = case.input.get("session", None)
+
+    # Change inside CaseDataforTest
+    case = case._replace(input=(source_dir, target_dir, term, session))
+
     if case.exception:
         with pytest.raises(case.exception) as excinfo:
             pp_iterate_03_to_19(*case.input)
@@ -41,97 +84,167 @@ def test_pp_iterate_03_to_19(case):
         assert result == case.expected
 
 
-
 # ========================================
 # test cases for pp_process_single_session (list of namedtuple)
 # ========================================
 test_cases = []
+xml = '''<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE DOKUMENT SYSTEM "BUNDESTAGSDOKUMENTE.dtd">
+<DOKUMENT>
+  <WAHLPERIODE>4</WAHLPERIODE>
+  <DOKUMENTART>PLENARPROTOKOLL</DOKUMENTART>
+  <NR>04/19</NR>
+  <DATUM>14.03.1962</DATUM>
+  <TITEL>Plenarprotokoll vom 14.03.1962</TITEL>
+  <TEXT>Deutscher Bundestag
+19. Sitzung
+Bonn, den 14. März 1962
+Inhalt:
+Fragestunde (Drucksache IV/239) Frage des Abg. Lohmar:
+Sondermarken zum 20. Jahrestag des 20. Juli 1944
+Dr. Steinmetz, Staatssekretär . . . 625 B Frage des Abg. Rademacher:
+Münzfernsprecher auf Bahnsteigen der Bundesbahn
+Nächste Sitzung  	695 D
+Anlage 	 697
+Deutscher Bundestag — 4. Wahlperiode — 19. Sitzung. Bonn, Mittwoch, den 14. März 1962	625
+19. Sitzung
+Bonn, den 14. März 1962
+Stenographischer Bericht
+Beginn: 9.03 Uhr.
+Präsident D. Dr. Gerstenmaier: Die Sitzung ist eröffnet.
+Ich rufe auf Punkt 1 der Tagesordnung: Fragestunde (Drucksache IV/239).
+Ich berufe die nächste Sitzung auf Donnerstag, den 15. März 1962, 9 Uhr.
+Die Sitzung ist geschlossen.
+(Schluß der Sitzung: 19.06 Uhr.)
+
+Liste der beurlaubten Abgeordneten
+Abgeordnete(r)	beurlaubt bis einschließlich
+a) Beurlaubungen
+Arendt (Wattenscheid)	15.  3.
+b) Urlaubsanträge
+Schlick	14. 4.</TEXT>
+</DOKUMENT>
+'''
+filename = "04019.xml"
+test_cases.append(CaseDataforTest((filename, xml), expected=4, exception=None))
+
 
 @pytest.mark.parametrize("case", test_cases)
-def test_pp_process_single_session(case):
-    input_path = Path(RAW_XML, "electoral_term_pp03.zip", "03004.xml")
+def test_pp_process_single_session(tmp_path, case):
+    (tmp_path / "xml").mkdir(parents=True, exist_ok=True)
+    temp_file_1 = Path(tmp_path, "xml", case.input[0])
+    temp_file_1.write_text(case.input[1], encoding='utf-8')
 
-    pp_process_single_session(input_path)
-    # TODO Tests definieren
-    assert False
+    pp_process_single_session(temp_file_1, (tmp_path / "txt"))
 
+    ###
+    # expected path and files
+    expected_path = Path(tmp_path, "txt")
+    expected_files = ["toc.txt", "session_content.txt", "appendix.txt", "meta_data.xml"]
 
+    # check if the number of written files is as expected
+    created_files = list(expected_path.iterdir())
+    assert len(created_files) == case.expected, f" {len(created_files)} files written from {case.expected}"
 
-# ========================================
-# test cases for test_pp_get_xml_data (list of namedtuple)
-# ========================================
-test_cases = []
-# TC0 PP03/004
-filepath = Path(RAW_XML, "electoral_term_pp03.zip", "03004.xml")
-metadata = {"term": "3", "document_type": "PLENARPROTOKOLL", "document_number": "03/4", "date": "05.11.1957"}
-text = "text"
-test_cases.append(CaseDataforTest(filepath, (metadata, text), None))
+    # Überprüfen Sie, ob alle erwarteten Dateien existieren
+    for filename in expected_files:
+        file_path = expected_path / filename
+        assert file_path.is_file(), f"Die Datei {filename} wurde nicht erstellt"
 
-# TC1 PP04/019
-filepath = Path(RAW_XML, "electoral_term_pp04.zip", "04019.xml")
-metadata = {"term": "4", "document_type": "PLENARPROTOKOLL", "document_number": "04/19", "date": "14.03.1962"}
-text = "text"
-test_cases.append(CaseDataforTest(filepath, (metadata, text), None))
-
-# TC2 PP18/039
-filepath = Path(RAW_XML, "electoral_term_pp18.zip", "18039.xml")
-metadata = {"term": "18", "document_type": "PLENARPROTOKOLL", "document_number": "18/39", "date": "05.06.2014"}
-text = "text"
-test_cases.append(CaseDataforTest(filepath, (metadata, text), None))
-
-# TC3
-filepath = Path(RAW_XML, "electoral_term_pp18.zip", "nonexistent.xml")
-metadata = {}
-text = ""
-test_cases.append(CaseDataforTest(filepath, (metadata, text), FileNotFoundError))
-
-
-@pytest.mark.parametrize("case", test_cases)
-def test_pp_get_xml_data(case):
-    if case.exception:
-        with pytest.raises(case.exception) as excinfo:
-            pp_split_xml_data(case.input)
-        # if verbose:
-        #     # Den Fehlertext auslesen
-        #     error_msg = str(excinfo.value)
-        #     # Den Fehlertext ausgeben
-        #     print(f"\nRaised Exception: {case.exception.__name__}")
-        #     print(f"Error message: {error_msg}")
-
-    else:
-        result = pp_split_xml_data(case.input)
-        expected_metadata, expected_text = case.expected
-        assert result[0] == expected_metadata
-        if result[1] is not None:
-            assert len(result[1]) > 10000
-        else:
-            assert result[1] is None
-
+    ###
 
 
 # ========================================
-# test cases for test_pp_get_xml_data_mock (list of namedtuple)
+# test cases for test_pp_split_xml_data (list of namedtuple)
 # ========================================
 test_cases = []
-# Mock with invalid xml files, except the last one.
-test_cases.append(CaseDataforTest("<root><invalid></root>", expected=None, exception=ParseError))
-test_cases.append(CaseDataforTest("<root>", expected=None, exception=ParseError))
-test_cases.append(CaseDataforTest("invalid content", expected=None, exception=ParseError))
 
-# TC3
-text = '''<DOKUMENT>
-    <WAHLPERIODE>4</WAHLPERIODE>
-    <DOKUMENTART>PLENARPROTOKOLL</DOKUMENTART>
-    <DATUM>14.03.1962</DATUM>
-    <TITEL>Plenarprotokoll vom 14.03.1962</TITEL>
-    <TEXT>Deutscher Bundestag
-    </TEXT>
-    </DOKUMENT>'''                  #   Tag <NR> fehlt
-test_cases.append(CaseDataforTest(text, expected=None, exception=AttributeError))
+test_cases.append(CaseDataforTest(("Testdummy1.xml", "<root><invalid></root>"), expected=None, exception=ParseError))
+test_cases.append(CaseDataforTest(("Testdummy2.xml", "<root>"), expected=None, exception=ParseError))
+test_cases.append(CaseDataforTest(("Testdummy3.xml", "invalid content"), expected=None, exception=ParseError))
+test_cases.append(CaseDataforTest(("Testdummy3.doc", "invalid content"), expected=None, exception=FileNotFoundError))
+
+# ----------
+# Tests with same metadate
+expected_metadata = {"term": "3", "document_type": "PLENARPROTOKOLL", "document_number": "03/4", "date": "05.11.1957"}
+
+xml = '''<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE DOKUMENT SYSTEM "BUNDESTAGSDOKUMENTE.dtd">
+<DOKUMENT>
+  <WAHLPERIODE>3</WAHLPERIODE>
+  <DOKUMENTART>PLENARPROTOKOLL</DOKUMENTART>
+  <NR>03/4</NR>
+  <DATUM>05.11.1957</DATUM>
+  <TITEL>Plenarprotokoll vom 05.11.1957</TITEL>
+  <TEXT>Deutscher Bundestag — 3. Wahlperiode — 4. Sitzung. Bonn, Dienstag, den 5. November 1957
+4. Sitzung
+Bonn, den 5. November 1957
+Inhalt:
+Die Sitzung ist geschlossen.
+(Schluß: 17.53 Uhr.)
+Fürst von Bismarck	20. 12.
+Kühlthau	25. 11.
+Scheel	15. 12.</TEXT>
+</DOKUMENT>
+'''
+text = '''Deutscher Bundestag — 3. Wahlperiode — 4. Sitzung. Bonn, Dienstag, den 5. November 1957
+4. Sitzung
+Bonn, den 5. November 1957
+Inhalt:
+Die Sitzung ist geschlossen.
+(Schluß: 17.53 Uhr.)
+Fürst von Bismarck	20. 12.
+Kühlthau	25. 11.
+Scheel	15. 12.'''
+test_cases.append(CaseDataforTest(("03004.xml", xml), (expected_metadata, text), None))
+test_cases.append(
+    CaseDataforTest(("03005.xml", xml), (expected_metadata, text), None))  # Filename inconsistent to tag NR
+
+xml = '''<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE DOKUMENT SYSTEM "BUNDESTAGSDOKUMENTE.dtd">
+<DOKUMENT>
+  <WAHLPERIODE>3</WAHLPERIODE>
+  <DOKUMENTART>PLENARPROTOKOLL</DOKUMENTART>
+    <DATUM>05.11.1957</DATUM>
+  <TITEL>Plenarprotokoll vom 05.11.1957</TITEL>
+  <TEXT>Deutscher Bundestag — 3. Wahlperiode — 4. Sitzung. Bonn, Dienstag, den 5. November 1957
+4. Sitzung
+Bonn, den 5. November 1957
+Inhalt:
+Die Sitzung ist geschlossen.
+(Schluß: 17.53 Uhr.)
+Fürst von Bismarck	20. 12.
+Kühlthau	25. 11.
+Scheel	15. 12.</TEXT>
+</DOKUMENT>
+'''
+test_cases.append(CaseDataforTest(("03004.xml", xml), (expected_metadata, text), AttributeError))  # Tag <NR> fehlt
+
+xml = '''<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE DOKUMENT SYSTEM "BUNDESTAGSDOKUMENTE.dtd">
+<DOKUMENT>
+  <WAHLPERIODE>3</WAHLPERIODE>
+  <DOKUMENTART>PLENARPROTOKOLL</DOKUMENTART>
+  <NR>03/4</NR>
+  <DATUM>05.11.1957</DATUM>
+  <TITEL>Plenarprotokoll vom 05.11.1957</TITEL>
+  TEXT>Deutscher Bundestag — 3. Wahlperiode — 4. Sitzung. Bonn, Dienstag, den 5. November 1957
+4. Sitzung
+Bonn, den 5. November 1957
+Inhalt:
+Die Sitzung ist geschlossen.
+(Schluß: 17.53 Uhr.)
+Fürst von Bismarck	20. 12.
+Kühlthau	25. 11.
+Scheel	15. 12.</TEXT>
+</DOKUMENT>
+'''
+test_cases.append(CaseDataforTest(("03004.xml", xml), (expected_metadata, text), ParseError))  # Fehlerhafter Tag TEXT
+# ----------
 
 # TC4
-metadata = {"term": "4", "document_type": "PLENARPROTOKOLL", "document_number": "04/19", "date": "14.03.1962"}
-text = '''<DOKUMENT>
+expected_metadata = {"term": "4", "document_type": "PLENARPROTOKOLL", "document_number": "04/19", "date": "14.03.1962"}
+xml = '''<DOKUMENT>
     <WAHLPERIODE>4</WAHLPERIODE>
     <DOKUMENTART>PLENARPROTOKOLL</DOKUMENTART>
     <NR>04/19</NR>
@@ -140,53 +253,23 @@ text = '''<DOKUMENT>
     <TEXT>Deutscher Bundestag
     </TEXT>
     </DOKUMENT>'''
-test_cases.append(CaseDataforTest((metadata,text), expected=(metadata,"Deutscher Bundestag\n    "), exception=None))
+test_cases.append(
+    CaseDataforTest(("04019.xml", xml), expected=(expected_metadata, "Deutscher Bundestag\n    "), exception=None))
 
 
 @pytest.mark.parametrize("case", test_cases)
-def test_pp_get_xml_data_mock(case):
-    # Temporäre Datei mit xml-Inhalt erstellen
-    if isinstance(case.input, str):
-        xml_content = case.input
-    else: xml_content = case.input[1]
+def test_pp_split_xml_data(tmp_path, case):
+    # create temp_files for test
+    temp_file_1 = tmp_path / case.input[0]
+    temp_file_1.write_text(case.input[1], encoding='utf-8')
 
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".xml") as temp_file:
-        temp_file.write(xml_content.encode('utf-8'))
-        temp_file_path = Path(temp_file.name)
-
-    # ========================================
-    result = None
-    try:
-        result = pp_split_xml_data(temp_file_path)
-        expected_metadata, expected_text = case.expected
-        # assert result[0] == expected_metadata
-        # if result[1] is not None:
-        #     assert result[1] == expected_text
-    except Exception as e:
-        # Vergleiche den tatsächlichen Exception-Typ mit dem erwarteten, falls angegeben
-        actual_exception = type(e).__name__
-
-        if case.exception:
-            # Erwartete Exception ist gesetzt, prüfe, ob sie übereinstimmt
-            msg = f"Expected {case.exception.__name__}, but got {actual_exception}"
-            assert actual_exception == case.exception.__name__, msg
-        else:
-            # unerwartete Exception
-            msg = f"Unexpected exception raised: {str(e)}"
-            assert actual_exception == None, msg
-
-    finally:
-        # Aufräumen der temporären Datei
-        try:
-            temp_file_path.unlink()  # Löschen der temporären Datei
-        except OSError as e:
-            print(f"Failed to delete temporary file {temp_file_path}: {e}")
-
-    if result:
-        assert result[0] == expected_metadata
-        if result[1] is not None:
-            assert result[1] == expected_text
-
+    if case.exception:
+        with pytest.raises(case.exception) as excinfo:
+            pp_split_xml_data(temp_file_1)
+    else:
+        result = pp_split_xml_data(temp_file_1)
+        assert result[0] == case.expected[0]
+        assert result[1] == case.expected[1]
 
 
 # ========================================
@@ -194,16 +277,19 @@ def test_pp_get_xml_data_mock(case):
 # ========================================
 test_cases = []
 
-meta_data = {"document_number":"04/019"}
+meta_data = {"document_number": "04/019"}
 begin_pattern_default = regex.compile(r"Beginn?:?\s?(\d){1,2}(\s?[.,]\s?(\d){1,2})?\s?Uhr")
 appendix_pattern_default = \
-    regex.compile(r"\(Schlu(ß|ss)\s?:?(.*?)\d{1,2}\D+(\d{1,2})?(.*?)\)?|\(Ende der Sitzung: \d{1,2}\D+(\d{1,2}) Uhr\.?\)")
-test_cases.append(CaseDataforTest(meta_data, expected=(begin_pattern_default, appendix_pattern_default), exception=None))
+    regex.compile(
+        r"\(Schlu(ß|ss)\s?:?(.*?)\d{1,2}\D+(\d{1,2})?(.*?)\)?|\(Ende der Sitzung: \d{1,2}\D+(\d{1,2}) Uhr\.?\)")
+test_cases.append(
+    CaseDataforTest(meta_data, expected=(begin_pattern_default, appendix_pattern_default), exception=None))
 
-meta_data = {"document_number":"17/250"}
+meta_data = {"document_number": "17/250"}
 begin_pattern = regex.compile(r"Beginn: 9.02 Uhr(?=\nPräsident)")
 appendix_pattern = regex.compile(r"\(Schluss: 0.52 Uhr\)\n\nIch")
 test_cases.append(CaseDataforTest(meta_data, expected=(begin_pattern, appendix_pattern), exception=None))
+
 
 @pytest.mark.parametrize("case", test_cases)
 def test_pp_define_regex_pattern(case):
@@ -213,4 +299,3 @@ def test_pp_define_regex_pattern(case):
     else:
         result = pp_define_regex_pattern(case.input)
         assert result == case.expected
-
