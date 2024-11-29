@@ -1,5 +1,6 @@
-import regex
 from xml.etree.ElementTree import ElementTree
+
+import regex
 from pydantic import BaseModel
 
 BEGIN_PATTERN = regex.compile(

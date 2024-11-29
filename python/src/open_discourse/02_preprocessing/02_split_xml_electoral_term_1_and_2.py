@@ -1,13 +1,12 @@
 import xml.etree.ElementTree as et
 
 import dicttoxml
-
 from tqdm import tqdm
 
 import open_discourse.definitions.path_definitions as path_definitions
 from open_discourse.helper_functions.clean_text import clean
+from open_discourse.helper_functions.parser import get_doc_metadata, get_session_content
 from open_discourse.helper_functions.utils import get_term_from_path
-from open_discourse.helper_functions.parser import get_session_content, get_doc_metadata
 
 # input directory
 RAW_XML = path_definitions.RAW_XML

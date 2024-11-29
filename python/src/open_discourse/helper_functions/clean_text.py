@@ -1,5 +1,5 @@
-import regex
 import numpy as np
+import regex
 
 
 def clean(filetext: str, remove_pdf_header: bool = True) -> str:
