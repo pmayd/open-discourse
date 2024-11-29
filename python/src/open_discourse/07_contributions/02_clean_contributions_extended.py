@@ -3,10 +3,10 @@ import sys
 import numpy as np
 import pandas as pd
 import regex
+from tqdm import tqdm
 
 import open_discourse.definitions.path_definitions as path_definitions
 from open_discourse.helper_functions.clean_text import clean_name_headers
-from tqdm import tqdm
 
 # Disabling pandas warnings.
 pd.options.mode.chained_assignment = None
