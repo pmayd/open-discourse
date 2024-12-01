@@ -5,7 +5,9 @@ from pathlib import Path
 import open_discourse.definitions.path_definitions as path_definitions
 
 
-def setup_logger(log_file: str = logging, log_level: int = logging.DEBUG) -> logging.Logger:
+def setup_logger(
+    log_file: str = logging, log_level: int = logging.DEBUG
+) -> logging.Logger:
     """Logger Setup for Root-Logger; can be used globally
 
     Args:
@@ -15,7 +17,7 @@ def setup_logger(log_file: str = logging, log_level: int = logging.DEBUG) -> log
     Returns:
         logger (logging.logger):
     """
-    formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+    formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
 
     # file handler
     logs_dir = path_definitions.LOGS_DIR
