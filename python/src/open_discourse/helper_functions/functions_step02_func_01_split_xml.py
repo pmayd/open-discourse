@@ -1,10 +1,11 @@
 import logging
-from tqdm import tqdm
-from pathlib import Path
 import xml.etree.ElementTree as Et
+from pathlib import Path
 from xml.etree.ElementTree import ParseError
+
 import dicttoxml
 import regex
+from tqdm import tqdm
 
 import open_discourse.definitions.path_definitions as path_definitions
 from open_discourse.definitions.other_definitions import SESSIONS_PER_TERM
@@ -23,7 +24,6 @@ RAW_TXT = path_definitions.RAW_TXT
 RAW_TXT.mkdir(parents=True, exist_ok=True)
 
 
-
 def ends_with_relative_path(base_path: Path, test_path: Path) -> bool:
     """
     check if testPath ends with relative_path from base_path to ROOT_DIR
@@ -39,14 +39,13 @@ def ends_with_relative_path(base_path: Path, test_path: Path) -> bool:
         relative_path = base_path.relative_to(path_definitions.ROOT_DIR)
 
         # check if testPath ends with relative_path
-        return test_path.parts[-len(relative_path.parts):] == relative_path.parts
+        return test_path.parts[-len(relative_path.parts) :] == relative_path.parts
 
     except ValueError:
         # if ROOT_DIR not part of base_path or other exception
         msg = f"Invalid directories: {base_path} {test_path}"
         logging.debug(msg)
         raise
-
 
 
 def pp_iterate_03_to_19(source_dir: Path, target_dir: Path, term: int | None = None,
@@ -67,7 +66,7 @@ def pp_iterate_03_to_19(source_dir: Path, target_dir: Path, term: int | None = N
         None
     """
 
-    logger.debug(f"Script pp_iterate_03_to_19 starts")
+    logger.debug("Script pp_iterate_03_to_19 starts")
     # Check args
     if ends_with_relative_path(RAW_XML, source_dir):
         input_suffix = ".xml"
@@ -75,7 +74,8 @@ def pp_iterate_03_to_19(source_dir: Path, target_dir: Path, term: int | None = N
         raise NotImplementedError("At the moment, only RAW_XML valid as source_dir")
     assert source_dir.exists(), f"Output directory {source_dir} does not exist."
     if ends_with_relative_path(RAW_TXT, target_dir):
-        output_suffix = ".txt"
+        # output_suffix = ".txt"
+        pass
     else:
         raise NotImplementedError("At the moment, only RAW_TXT valid as target_dir")
     assert target_dir.exists(), f"Output directory {target_dir} does not exist."
@@ -116,12 +116,13 @@ def pp_iterate_03_to_19(source_dir: Path, target_dir: Path, term: int | None = N
         # all sessions in sub_directory
         else:
             input_files = list(folder_path.glob("*" + input_suffix))
-            msg = f"number of sessions in {folder_path}: {len(input_files)}, but should be {SESSIONS_PER_TERM[term_number]}"
+            msg = f"number of sessions in {folder_path}: {len(input_files)}, " \
+                  f"but should be {SESSIONS_PER_TERM[term_number]}"
             assert len(input_files) == SESSIONS_PER_TERM[term_number], msg
 
         # Process every relevant sub_directory of folder_path: session
         for input_file_path in tqdm(input_files, desc=f"Parsing term {term_number:>2}..."):
-            output_dir_path = target_dir / folder_path.stem / input_file_path.stem # new
+            output_dir_path = target_dir / folder_path.stem / input_file_path.stem  # new
             pp_process_single_session(input_file_path, output_dir_path)
             # pp_process_single_session(input_file_path, folder_path)
 
@@ -146,10 +147,9 @@ def pp_iterate_03_to_19(source_dir: Path, target_dir: Path, term: int | None = N
                 logging.warning(msg)
                 return_code = False
 
-        assert return_code, f"processing incomplete, see log"
+        assert return_code, "processing incomplete, see log"
 
     return
-
 
 
 def pp_process_single_session(input_file_path: Path, output_dir_path: Path) -> bool:
@@ -219,7 +219,8 @@ def pp_process_single_session(input_file_path: Path, output_dir_path: Path) -> b
     find_endings = list(regex.finditer(appendix_pattern, session_content))
 
     if len(find_endings) != 1:
-        msg = f"found {len(find_endings)} endings, 1 is expected in {input_file_path.name}. No files written."
+        msg = f"found {len(find_endings)} endings, 1 is expected in " \
+              f"{input_file_path.name}. No files written."
         logging.warning(msg)
         return False
 
@@ -248,14 +249,18 @@ def pp_process_single_session(input_file_path: Path, output_dir_path: Path) -> b
     meta_data_short = {k: meta_data[k] for k in keys_to_keep if k in meta_data}
 
     # other loglevel for dicttoxml!
-    logging.getLogger('dicttoxml').setLevel(logging.WARNING)
+    logging.getLogger("dicttoxml").setLevel(logging.WARNING)
     with open(output_dir_path / "meta_data.xml", "wb") as result_file:
         result_file.write(dicttoxml.dicttoxml(meta_data_short))
 
-
     # above writes successful?
     return_code = True
-    for file_name in ["toc.txt", "session_content.txt", "appendix.txt", "meta_data.xml"]:
+    for file_name in [
+        "toc.txt",
+        "session_content.txt",
+        "appendix.txt",
+        "meta_data.xml",
+    ]:
         file_path = Path(output_dir_path / file_name)
         if not file_path.exists():
             msg = f"pp{input_file_path.stem}: File {file_name} not written."
@@ -265,8 +270,7 @@ def pp_process_single_session(input_file_path: Path, output_dir_path: Path) -> b
     return return_code
 
 
-
-def pp_split_xml_data(xml_file_path:Path) -> tuple:
+def pp_split_xml_data(xml_file_path: Path) -> tuple:
     """
     Opens a plenary protocol xml file and splits content into metadata and text corpus.
     Raises ParseError resp. ValueError when xml-content cannot be processed properly or expected tags are missing
@@ -312,7 +316,6 @@ def pp_split_xml_data(xml_file_path:Path) -> tuple:
         logger.warning(msg)
 
     return meta_data, text_corpus
-
 
 
 def pp_define_regex_pattern(meta_data: dict) -> tuple:
@@ -388,8 +391,7 @@ def pp_define_regex_pattern(meta_data: dict) -> tuple:
     return begin_pattern, appendix_pattern
 
 
-
-def pp_special_text_split(meta_data: dict, text_corpus: str) ->str:
+def pp_special_text_split(meta_data: dict, text_corpus: str) -> str:
     """
     Change the content of text_corpus for some special cases (e.g. duplicated text corpus or two sessions in one protocol),
     dependent from meta_data["document_number"].
