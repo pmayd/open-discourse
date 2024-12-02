@@ -12,7 +12,6 @@ from open_discourse.definitions.other_definitions import SESSIONS_PER_TERM
 from open_discourse.helper_functions.clean_text import clean
 from open_discourse.helper_functions.utils import get_term_from_path
 
-
 # use predefined logger
 logger = logging.getLogger()
 
@@ -32,7 +31,8 @@ def ends_with_relative_path(base_path: Path, test_path: Path) -> bool:
     :param test_path: path to be checked
 
     Returns:
-        bool: True, if test_path ends with relative path form base_path, otherwise False.
+        bool: True, if test_path ends with relative path form base_path, otherwise
+        False.
     """
     try:
         # relative path, part of path, that is not ROOT_DIR
@@ -48,10 +48,15 @@ def ends_with_relative_path(base_path: Path, test_path: Path) -> bool:
         raise
 
 
-def pp_iterate_03_to_19(source_dir: Path, target_dir: Path, term: int | None = None,
-                        session: int | None = None):
+def pp_iterate_03_to_19(
+    source_dir: Path,
+    target_dir: Path,
+    term: int | None = None,
+    session: int | None = None,
+):
     """
-    Iterates through every subfolder of source_dir, e.g. RAW_XML from legislative term 03 to 19
+    Iterates through every subfolder of source_dir, e.g. RAW_XML from legislative
+    term 03 to 19
     and calls processing function for single file: pp_process_single_session
     Call can be limited to one term or one session by additional args.
     Raises NotImplementedError resp. ValueError when args are not consistent or valid
@@ -91,7 +96,8 @@ def pp_iterate_03_to_19(source_dir: Path, target_dir: Path, term: int | None = N
                 msg = f"Invalid arg: session {session}"
                 raise ValueError(msg)
 
-    ### Iterate through every input planar file in every legislature term, unless term and/or session are explicitly stated
+    ### Iterate through every input planar file in every legislature term,
+    # unless term and/or session are explicitly stated
 
     # Process every sub_directory of source_dir: legislative terms
     for folder_path in sorted(source_dir.iterdir()):
@@ -104,27 +110,33 @@ def pp_iterate_03_to_19(source_dir: Path, target_dir: Path, term: int | None = N
             logger.debug(f"No term number found in {folder_path.stem}.")
             continue
 
-        # Don't process sub_directories outside scope of this function, that is term 3 to 19 or term in args
+        # Don't process sub_directories outside scope of this function, that is term
+        # 3 to 19 or term in args
         if not (3 <= term_number <= 19) or (term and term != term_number):
             continue
 
         # Process all relevant files in sub_directory
         # if session from args, then only one input file
         if session is not None:
-            input_files = list(Path(folder_path).glob(f"{term:02d}{session:03d}{input_suffix}"))
+            input_files = list(
+                Path(folder_path).glob(f"{term:02d}{session:03d}{input_suffix}")
+            )
             assert len(input_files) == 1
         # all sessions in sub_directory
         else:
             input_files = list(folder_path.glob("*" + input_suffix))
-            msg = f"number of sessions in {folder_path}: {len(input_files)}, " \
-                  f"but should be {SESSIONS_PER_TERM[term_number]}"
+            msg = (
+                f"number of sessions in {folder_path}: {len(input_files)}, "
+                f"but should be {SESSIONS_PER_TERM[term_number]}"
+            )
             assert len(input_files) == SESSIONS_PER_TERM[term_number], msg
 
         # Process every relevant sub_directory of folder_path: session
-        for input_file_path in tqdm(input_files, desc=f"Parsing term {term_number:>2}..."):
-            output_dir_path = target_dir / folder_path.stem / input_file_path.stem  # new
+        for input_file_path in tqdm(
+            input_files, desc=f"Parsing term {term_number:>2}..."
+        ):
+            output_dir_path = target_dir / folder_path.stem / input_file_path.stem
             pp_process_single_session(input_file_path, output_dir_path)
-            # pp_process_single_session(input_file_path, folder_path)
 
     # ========================================
     # Quality Assurance
@@ -137,15 +149,20 @@ def pp_iterate_03_to_19(source_dir: Path, target_dir: Path, term: int | None = N
         for term in range(3, 20):
             chkdir = Path(target_dir, f"electoral_term_pp{term:02d}")
             if not chkdir.exists():
-                logging.warning(f"term {term}: expected directory {chkdir} doesn't exist")
+                logging.warning(
+                    f"term {term}: expected directory {chkdir} doesn't exist"
+                )
                 return_code = False
                 continue
 
             sessions_found = sum(1 for _ in chkdir.glob("[0-9]*") if _.is_dir())
             if sessions_found != SESSIONS_PER_TERM[term]:
-                msg = f"term {term}: sessions written: {sessions_found} expected: {SESSIONS_PER_TERM[term]}"
-                logging.warning(msg)
-                return_code = False
+                msg = (
+                    f"term {term}: sessions written: {sessions_found} expected: "
+                    f"{SESSIONS_PER_TERM[term]}"
+                )
+            logging.warning(msg)
+            return_code = False
 
         assert return_code, "processing incomplete, see log"
 
@@ -163,7 +180,8 @@ def pp_process_single_session(input_file_path: Path, output_dir_path: Path) -> b
 
     Args:
         input_file_path (Path): single session protocol file to be processed
-        output_dir_path (Path): path with output directory. This dierectory will be created if it doesn't exist
+        output_dir_path (Path): path with output directory. This dierectory will be
+        created if it doesn't exist
 
     Returns:
         bool: True, if all 4 files have been written, otherwise False.
@@ -197,7 +215,10 @@ def pp_process_single_session(input_file_path: Path, output_dir_path: Path) -> b
 
     # If found more than once or none, handle depending on period.
     if len(find_beginnings) != 1:
-        msg = f"found {len(find_beginnings)} beginnings, 1 is expected in {input_file_path.name}. No files written."
+        msg = (
+            f"found {len(find_beginnings)} beginnings, 1 is expected in "
+            f"{input_file_path.name}. No files written."
+        )
         logging.warning(msg)
         return False
 
@@ -219,8 +240,10 @@ def pp_process_single_session(input_file_path: Path, output_dir_path: Path) -> b
     find_endings = list(regex.finditer(appendix_pattern, session_content))
 
     if len(find_endings) != 1:
-        msg = f"found {len(find_endings)} endings, 1 is expected in " \
-              f"{input_file_path.name}. No files written."
+        msg = (
+            f"found {len(find_endings)} endings, 1 is expected in "
+            f"{input_file_path.name}. No files written."
+        )
         logging.warning(msg)
         return False
 
@@ -235,13 +258,15 @@ def pp_process_single_session(input_file_path: Path, output_dir_path: Path) -> b
     # ========================================
     output_dir_path.mkdir(parents=True, exist_ok=True)
     # Save table of content, spoken content and appendix in separate files
-    with open(output_dir_path / "toc.txt", "w", encoding='utf-8') as text_file:
+    with open(output_dir_path / "toc.txt", "w", encoding="utf-8") as text_file:
         text_file.write(toc)
 
-    with open(output_dir_path / "session_content.txt", "w", encoding='utf-8') as text_file:
+    with open(
+        output_dir_path / "session_content.txt", "w", encoding="utf-8"
+    ) as text_file:
         text_file.write(session_content)
 
-    with open(output_dir_path / "appendix.txt", "w", encoding='utf-8') as text_file:
+    with open(output_dir_path / "appendix.txt", "w", encoding="utf-8") as text_file:
         text_file.write(appendix)
 
     # Dictionary Comprehension to reduce meta_data
@@ -273,7 +298,8 @@ def pp_process_single_session(input_file_path: Path, output_dir_path: Path) -> b
 def pp_split_xml_data(xml_file_path: Path) -> tuple:
     """
     Opens a plenary protocol xml file and splits content into metadata and text corpus.
-    Raises ParseError resp. ValueError when xml-content cannot be processed properly or expected tags are missing
+    Raises ParseError resp. ValueError when xml-content cannot be processed properly
+    or expected tags are missing
 
     Args:
         xml_file_path (Path):
@@ -311,8 +337,14 @@ def pp_split_xml_data(xml_file_path: Path) -> tuple:
         raise
 
     # Are filename and meta_data consistent?
-    if xml_file_path.stem != f"{int(meta_data["term"]):02d}{int(meta_data["document_number"].split("/")[1]):03d}":
-        msg = f"meta_data / filepath not consistent: {str(xml_file_path)} {meta_data["document_number"]}"
+    if (
+        xml_file_path.stem != f"{int(meta_data["term"]):02d}"
+        f"{int(meta_data["document_number"].split("/")[1]):03d}"
+    ):
+        msg = (
+            f"meta_data / filepath not consistent: {str(xml_file_path)} "
+            f"{meta_data["document_number"]}"
+        )
         logger.warning(msg)
 
     return meta_data, text_corpus
@@ -320,7 +352,8 @@ def pp_split_xml_data(xml_file_path: Path) -> tuple:
 
 def pp_define_regex_pattern(meta_data: dict) -> tuple:
     """
-    Defines regex pattern for finding begin of speech_content respectively appendix of a plenar protocol.
+    Defines regex pattern for finding begin of speech_content respectively appendix
+    of a plenar protocol.
     Based on a standard case, various exceptions from
     individual protocols (based on meta_data["document_number"]) are taken into account.
 
@@ -333,7 +366,11 @@ def pp_define_regex_pattern(meta_data: dict) -> tuple:
 
     """
     begin_pattern_electoral_term = r"Beginn?:?\s?(\d){1,2}(\s?[.,]\s?(\d){1,2})?\s?Uhr"
-    appendix_pattern_electoral_term = r"\(Schlu(ß|ss)\s?:?(.*?)\d{1,2}\D+(\d{1,2})?(.*?)\)?|\(Ende der Sitzung: \d{1,2}\D+(\d{1,2}) Uhr\.?\)"
+    appendix_pattern_electoral_term = (
+        r"\(Schlu(ß|ss)\s?:?(.*?)\d{1,2}\D+(\d{1,"
+        r"2})?(.*?)\)?|\(Ende der Sitzung: \d{1,"
+        r"2}\D+(\d{1,2}) Uhr\.?\)"
+    )
 
     begin_pattern = begin_pattern_electoral_term
     appendix_pattern = appendix_pattern_electoral_term
@@ -367,13 +404,16 @@ def pp_define_regex_pattern(meta_data: dict) -> tuple:
         begin_pattern = r"Beginn: 9\.00 Uhr(?=\nVize)"
     elif meta_data["document_number"] == "14/17":
         begin_pattern = "Beginn: 9.00 Uhr"
-        appendix_pattern = r"Schluß: 12.06 Uhr\)\n\nDruck: Bonner Universitäts-Buchdruckerei, 53113 Bonn\n " + \
-                           r"53003 Bonn, Telefon: 02 28/3 82 08 40, Telefax: 02 28/3 82 08 44\n\n20\n\nBun" + \
-                           r"despräsident Dr. Roman Herzog\n\nDeutscher"
+        appendix_pattern = (
+            r"Schluß: 12.06 Uhr\)\n\nDruck: Bonner Universitäts-Buchdruckerei, 53113 Bonn\n "
+            r"53003 Bonn, Telefon: 02 28/3 82 08 40, Telefax: 02 28/3 82 08 44\n\n20\n\nBun"
+            r"despräsident Dr. Roman Herzog\n\nDeutscher"
+        )
     elif meta_data["document_number"] == "14/21":
         appendix_pattern = r"\(Schluß: 22.18 Uhr\)\n\nAdelheid Tröscher\n\n1594"
     elif meta_data["document_number"] == "14/192":
-        appendix_pattern = r"Vizepräsidentin Petra Bläss: Ich schließe die Aus-\nsprache\.(?=\n\nInter)"
+        appendix_pattern = r"Vizepräsidentin Petra Bläss: Ich schließe die "
+        appendix_pattern += r"Aus-\nsprache\.(?=\n\nInter)"
     elif meta_data["document_number"] == "16/222":
         appendix_pattern = r"\(Schluss: 18\.54 Uhr\)"
     elif meta_data["document_number"] == "17/250":
@@ -393,7 +433,8 @@ def pp_define_regex_pattern(meta_data: dict) -> tuple:
 
 def pp_special_text_split(meta_data: dict, text_corpus: str) -> str:
     """
-    Change the content of text_corpus for some special cases (e.g. duplicated text corpus or two sessions in one protocol),
+    Change the content of text_corpus for some special cases (e.g. duplicated text
+    corpus or two sessions in one protocol),
     dependent from meta_data["document_number"].
     In the standard case, text_corpus is returned unchanged.
 
@@ -409,9 +450,7 @@ def pp_special_text_split(meta_data: dict, text_corpus: str) -> str:
     # like a duplicated text corpus or two sessions in one file.
     if meta_data["document_number"] == "07/145":
         # In this file the whole text is duplicated.
-        find_bundestag = list(
-            regex.finditer("Deutscher Bundestag\n", text_corpus)
-        )
+        find_bundestag = list(regex.finditer("Deutscher Bundestag\n", text_corpus))
         text_corpus = text_corpus[: find_bundestag[1].span()[0]]
     elif meta_data["document_number"] in [
         "03/97",
@@ -439,11 +478,9 @@ def pp_special_text_split(meta_data: dict, text_corpus: str) -> str:
         "05/233",
     ]:
         find_second = regex.search(
-            "(?<=\n)"
-            + meta_data["document_number"][3:]
-            + r"\. Sitzung(?=\nBonn)",
+            "(?<=\n)" + meta_data["document_number"][3:] + r"\. Sitzung(?=\nBonn)",
             text_corpus,
         )
-        text_corpus = text_corpus[find_second.span()[0]:]
+        text_corpus = text_corpus[find_second.span()[0] :]
 
     return text_corpus
