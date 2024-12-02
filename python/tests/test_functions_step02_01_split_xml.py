@@ -271,7 +271,7 @@ xml = """<?xml version="1.0" encoding="UTF-8"?>
   <DATUM>05.11.1957</DATUM>
   <TITEL>Plenarprotokoll vom 05.11.1957</TITEL>
   <TEXT>Deutscher Bundestag — 3. Wahlperiode — 4. Sitzung. Bonn, Dienstag,
-  den 5. November 1957
+den 5. November 1957
 4. Sitzung
 Bonn, den 5. November 1957
 Inhalt:
