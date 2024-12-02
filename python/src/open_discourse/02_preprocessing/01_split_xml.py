@@ -1,13 +1,11 @@
 import logging
 
-import open_discourse.definitions.path_definitions as path_definitions
-from open_discourse.helper_functions.functions_step02_func_01_split_xml import (
-    pp_iterate_03_to_19,
-)
 from open_discourse.helper_functions.logging_config import setup_logger
+import open_discourse.definitions.path_definitions as path_definitions
+from open_discourse.helper_functions.functions_step02_func_01_split_xml import pp_iterate_03_to_19
 
-logger = setup_logger(__file__, logging.DEBUG)
-logger.info("Script 02_01 starts")
+logger = setup_logger(__file__,logging.DEBUG)
+logger.info(f"Script 02_01 starts")
 
 # input directory
 RAW_XML = path_definitions.RAW_XML
@@ -20,4 +18,4 @@ RAW_TXT.mkdir(parents=True, exist_ok=True)
 # pp_iterate_03_to_19(RAW_XML, RAW_TXT, 4, session=19)
 pp_iterate_03_to_19(RAW_XML, RAW_TXT)
 
-logger.info("Script 02_01 ends")
+logger.info(f"Script 02_01 ends")
