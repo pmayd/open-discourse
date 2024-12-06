@@ -1,8 +1,7 @@
+# imports
 import xml.etree.ElementTree as et
-
 import pandas as pd
 import regex
-
 import open_discourse.definitions.path_definitions as path_definitions
 
 # input directory
@@ -14,12 +13,26 @@ POLITICIANS_STAGE_01.mkdir(parents=True, exist_ok=True)
 save_path = POLITICIANS_STAGE_01 / "mps.pkl"
 
 print("Process mps...", end="", flush=True)
+
 # read data
 tree = et.parse(MP_BASE_DATA)
 root = tree.getroot()
 
+###### Richard edit's
+for child in root:
+    print("child: ", child.tag, child.attrib)  # MDB{}
+    for grandchild in (
+        child
+    ):  # ID,Namen,Biografische_Angaben, Wahlperioden, mit jeweils weiteren unterknoten
+        print("grandchild: ", grandchild.tag, grandchild.attrib)
+# id -> text
+# namen -> name -> nachname, vorname, ortszusatz etc.
+# biografische_angaben -> Geburtsdatum, Geburtsort, Geburtsland etc..
+# wahlperioden -> wahlperiode (1,2,3,4.54..-..)
+
+#############
 # placeholder for final dataframe
-mps = {
+mps = {  # Dict
     "ui": [],
     "electoral_term": [],
     "first_name": [],
@@ -39,10 +52,19 @@ mps = {
 
 last_names_to_revisit = []
 i = 0
+summe = 0
 # Iterate over all MDBs (Mitglieder des Bundestages) in XML File.
-for mdb in tree.iter("MDB"):
+for mdb in tree.iter("MDB"):  # 4383 mdbs
+    ###### Richard edit's
+    # print("mdb", mdb)
+    # summe += 1
+    # print("Anzahl an MDBs:", sum)
+    #######
     ui = mdb.findtext("ID")
 
+    ###### Richard edit's
+    # Fehlerüberprüfung aus den ausgelesenen unterknoten und unterunterknoten
+    #######
     # This entries exist only once for every politician.
     if mdb.findtext("BIOGRAFISCHE_ANGABEN/GEBURTSDATUM") == "":
         raise ValueError("Politician has to be born at some point.")
