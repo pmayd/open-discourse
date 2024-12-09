@@ -1,5 +1,5 @@
 import logging
-import xml.etree.ElementTree as et
+import xml.etree.ElementTree as Et
 
 import pandas as pd
 
@@ -8,7 +8,6 @@ from open_discourse.helper_functions.logging_config import setup_logger
 from open_discourse.specific_functions.func_step02_func04_extract_mps import (
     process_single_mdb,
 )
-
 
 logger = setup_logger(__file__, logging.DEBUG)
 logger.info("Script 02_04 start: Process mps...")
@@ -21,7 +20,7 @@ POLITICIANS_STAGE_01.mkdir(parents=True, exist_ok=True)
 save_path = POLITICIANS_STAGE_01 / "mps.pkl"
 
 # read data
-tree = et.parse(MP_BASE_DATA)
+tree = Et.parse(MP_BASE_DATA)
 root = tree.getroot()
 
 
