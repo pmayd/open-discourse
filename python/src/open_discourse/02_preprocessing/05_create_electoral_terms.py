@@ -4,7 +4,7 @@ import logging
 
 # import open_discourse.definitions.path_definitions as path_definitions
 from open_discourse.helper_functions.logging_config import setup_logger
-from open_discourse.helper_functions.functions_step02_func_05_create_el_terms import (
+from open_discourse.definitions.specific_functions.functions_step02_func_05_create_el_terms import (
     convert_electoral_term_dates,
     add_ids,
     save_as_csv,
