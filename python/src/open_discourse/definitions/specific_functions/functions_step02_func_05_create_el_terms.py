@@ -2,7 +2,10 @@
 from datetime import datetime
 import pandas as pd
 import open_discourse.definitions.path_definitions as path_definitions
+import logging
 
+### logging ###
+logger = logging.getLogger()
 ### output directory ###
 ELECTORAL_TERMS = path_definitions.ELECTORAL_TERMS
 ELECTORAL_TERMS.mkdir(parents=True, exist_ok=True)
@@ -65,19 +68,34 @@ def convert_electoral_term_dates(electoral_terms):
     Returns:
         list[dict]: Eine Liste von Dictionaries mit konvertierten Werten.
     """
-    electoral_terms = [
-        # Das Ergebnis ist ein neues Dictionary, in dem die ursprünglichen Schlüssel beibehalten werden, aber die Werte transformiert sind.
-        {
-            key: convert_date_to_delta_seconds(date_string)
-            for key, date_string in term.items()
-        }
-        for term in electoral_terms
-    ]
+    if not electoral_terms:
+        logger.error("List of electoral terms not found or is empty.")
+        return []
 
-    return electoral_terms
+    converted_terms = []
+    for index, term in enumerate(electoral_terms):
+        # Create new dictionaries with unchanged keys ("start_date, end_date"), but converted values
+        try:
+            converted_term = {
+                key: convert_date_to_delta_seconds(date_string)
+                for key, date_string in term.items()
+            }
+            # append the dictionaries to the list converted_terms
+
+            converted_terms.append(converted_term)
+
+        except Exception as e:
+            logger.error(
+                f"Error processing term at index {index}: {term}. Exception: {e}"
+            )
+
+    if not converted_terms:
+        logger.warning("No electoral terms could be converted successfully.")
+
+    return converted_terms
 
 
-def add_ids(electoral_terms=electoral_terms):
+def add_ids(electoral_terms):
     """
     Fügt jedem Dictionary in der Liste eine eindeutige ID hinzu.
 
@@ -89,6 +107,7 @@ def add_ids(electoral_terms=electoral_terms):
     """
     for idx, term in enumerate(electoral_terms):
         term["id"] = idx + 1
+    logger.debug("add_ids succesful")
 
     return electoral_terms
 
@@ -98,3 +117,4 @@ def save_as_csv(electoral_terms):
     save_path = ELECTORAL_TERMS / "electoral_terms.csv"
 
     pd.DataFrame(electoral_terms).to_csv(save_path, index=False)
+    logger.debug("save_as_csv succesful")
