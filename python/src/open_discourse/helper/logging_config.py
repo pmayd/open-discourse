@@ -52,7 +52,7 @@ def setup_and_get_logger(
     # file handler
     logs_dir = path.LOGS_DIR
     logs_dir.mkdir(parents=False, exist_ok=True)  # create logs directory if necessary
-    log_file = logs_dir / f"{Path(log_file).stem}.log"
+    log_file = str(logs_dir / f"{Path(log_file).stem}.log")
 
     file_handler = FileHandler(log_file, mode="w", encoding="utf-8")
     file_handler.setLevel(log_level)
