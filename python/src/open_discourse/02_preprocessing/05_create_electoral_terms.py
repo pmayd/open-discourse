@@ -3,12 +3,10 @@ import logging
 
 # Eigene Module
 from open_discourse.helper_functions.logging_config import setup_logger
-from open_discourse.specific_functions.functions_02_05 import (
-    convert_electoral_term_dates,
-    add_ids,
-    save_as_csv,
-    electoral_terms,
-)
+from open_discourse.specific_functions.functions_02_05 import convert_electoral_term_dates
+from open_discourse.specific_functions.functions_02_05 import add_ids
+from open_discourse.specific_functions.functions_02_05 import save_as_csv
+from open_discourse.specific_functions.functions_02_05 import electoral_terms
 
 # Logs
 logger = setup_logger(__file__, logging.DEBUG)
