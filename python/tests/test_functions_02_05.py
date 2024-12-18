@@ -6,8 +6,9 @@ from collections import namedtuple
 from open_discourse.specific_functions.functions_02_05 import convert_date_to_delta_seconds
 from open_discourse.specific_functions.functions_02_05 import convert_electoral_term_dates
 
-
+# ========================================
 # Testfälle für convert_date_to_delta_seconds (TestElectionPeriod)
+# ========================================
 
 # Definition eines namedtuple für den Testfall
 TestElectionPeriod = namedtuple("TestElectionPeriod", ["input", "expected", "exception"])
