@@ -3,9 +3,9 @@ import pytest
 from collections import namedtuple
 
 # Eigene Module
-from open_discourse.specific_functions.functions_02_05 import convert_date_to_delta_seconds,
+from open_discourse.specific_functions.functions_02_05 import convert_date_to_delta_seconds
 
-from open_discourse.specific_functions.functions_02_05 import convert_electoral_term_dates,
+from open_discourse.specific_functions.functions_02_05 import convert_electoral_term_dates
 
 
 # Testfälle für convert_date_to_delta_seconds (TestElectionPeriod)
