@@ -3,6 +3,9 @@ from pathlib import Path
 # ROOT DIR _____________________________________________________________________________
 ROOT_DIR = (Path(__file__) / "../../../..").resolve()
 
+# SYNCHRO DIR
+SYNCHRO_DIR = ROOT_DIR / "synchro"
+
 # LOGS DIR _____________________________________________________________________________
 LOGS_DIR = ROOT_DIR / "logs"
 
