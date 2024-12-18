@@ -6,16 +6,13 @@ from collections import namedtuple
 from open_discourse.specific_functions.functions_02_05 import (
     convert_date_to_delta_seconds, convert_electoral_term_dates
 )
-
-
+# ========================================
+# test cases for convert_date_to_delta_seconds(TestElectionPeriod)
+# ========================================
 # definition of a named tuple for test case
 TestElectionPeriod = namedtuple(
     "TestElectionPeriod", ["input", "expected", "exception"]
 )
-
-# ========================================
-# test cases for convert_date_to_delta_seconds(TestElectionPeriod)
-# ========================================
 test_cases_convert_to_seconds = []
 # 1) input ist kein string
 # 2) inputstring ist im falschen dateformat
