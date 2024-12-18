@@ -7,9 +7,11 @@ import logging
 ### logging ###
 logger = logging.getLogger()
 ### output directory ###
-ELECTORAL_TERMS = path_definitions.ELECTORAL_TERMS
+# ELECTORAL_TERMS = path_definitions.ELECTORAL_TERMS
+# ELECTORAL_TERMS.mkdir(parents=True, exist_ok=True)
+# to validate output we use the synchro_dir
+ELECTORAL_TERMS = path_definitions.SYNCHRO_DIR / "electoral_terms_synchro"
 ELECTORAL_TERMS.mkdir(parents=True, exist_ok=True)
-
 #### dates ###
 electoral_terms = [
     {"start_date": "1949-09-07", "end_date": "1953-10-05"},
