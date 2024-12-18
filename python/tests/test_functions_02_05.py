@@ -14,9 +14,9 @@ from open_discourse.specific_functions.functions_02_05 import (
 TestElectionPeriod = namedtuple("TestElectionPeriod", ["input", "expected", "exception"])
 test_cases_convert_to_seconds = []
 
-# 1) Input ist kein String
-# 2) Input-String ist im falschen Datumsformat
+# Input ist kein String
 test_wrong_datatype = TestElectionPeriod((123,), expected=None, exception=TypeError)
+# Input-String ist im falschen Datumsformat
 test_wrong_dateformat = TestElectionPeriod(("30.12.1994",), expected=None, exception=ValueError)
 
 test_cases_convert_to_seconds.append(test_wrong_dateformat)
