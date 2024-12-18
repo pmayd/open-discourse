@@ -70,3 +70,4 @@ def test_convert_electoral_term_dates(case):
     else:
         result = convert_electoral_term_dates(case.input)
         assert result == case.expected
+
