@@ -8,7 +8,7 @@ import pandas as pd
 import open_discourse.definitions.path_definitions as path_definitions
 import logging
 
-# Logging
+
 logger = logging.getLogger()
 
 # Output directory

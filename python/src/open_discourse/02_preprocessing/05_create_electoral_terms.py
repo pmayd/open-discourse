@@ -8,7 +8,7 @@ from open_discourse.specific_functions.functions_02_05 import add_ids
 from open_discourse.specific_functions.functions_02_05 import save_as_csv
 from open_discourse.specific_functions.functions_02_05 import electoral_terms
 
-# Logs
+
 logger = setup_logger(__file__, logging.DEBUG)
 logger.info("Script 02_05 starts")
 
