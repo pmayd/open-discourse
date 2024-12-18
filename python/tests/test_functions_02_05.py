@@ -1,6 +1,6 @@
 import pytest
 from collections import namedtuple
-from open_discourse.specific_functions.functions_step02_func_05_create_el_terms import (
+from open_discourse.specific_functions.functions_02_05 import (
     convert_date_to_delta_seconds, convert_electoral_term_dates
 )
 
