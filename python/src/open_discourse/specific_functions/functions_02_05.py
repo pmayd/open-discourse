@@ -1,11 +1,17 @@
-### imports ###
+
+# Standardbibliotheken
 from datetime import datetime
+
+# Drittanbieterbibliotheken
 import pandas as pd
+
+# Eigene Module
 import open_discourse.definitions.path_definitions as path_definitions
 import logging
 
 ### logging ###
 logger = logging.getLogger()
+
 ### output directory ###
 # ELECTORAL_TERMS = path_definitions.ELECTORAL_TERMS
 # ELECTORAL_TERMS.mkdir(parents=True, exist_ok=True)
