@@ -1,4 +1,4 @@
-#Standardbibliotheken
+# Standardbibliotheken
 from pathlib import Path
 
 # ROOT DIR _____________________________________________________________________________
