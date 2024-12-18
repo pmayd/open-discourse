@@ -1,10 +1,10 @@
-#Standardbibliotheken
+# Standardbibliotheken
 from pathlib import Path
 
 # ROOT DIR _________________________________________________________________________________________
 ROOT_DIR = (Path(__file__) / "../../../..").resolve()
 
-#SYNCHRO DIR
+# SYNCHRO DIR
 SYNCHRO_DIR = ROOT_DIR / "synchro"
 
 # LOGS DIR _________________________________________________________________________________________
