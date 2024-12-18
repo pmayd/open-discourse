@@ -1,8 +1,7 @@
-### imports ###
-
+# Standardbibliotheken
 import logging
 
-# import open_discourse.definitions.path_definitions as path_definitions
+# Eigene Module
 from open_discourse.helper_functions.logging_config import setup_logger
 from open_discourse.specific_functions.functions_02_05 import (
     convert_electoral_term_dates,
