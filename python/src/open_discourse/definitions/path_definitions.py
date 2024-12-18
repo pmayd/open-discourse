@@ -39,7 +39,6 @@ CONTRIBUTIONS_EXTENDED_STAGE_01 = CONTRIBUTIONS_EXTENDED / "stage_01"
 CONTRIBUTIONS_EXTENDED_STAGE_02 = CONTRIBUTIONS_EXTENDED / "stage_02"
 CONTRIBUTIONS_EXTENDED_STAGE_03 = CONTRIBUTIONS_EXTENDED / "stage_03"
 CONTRIBUTIONS_EXTENDED_STAGE_04 = CONTRIBUTIONS_EXTENDED / "stage_04"
-
 CONTRIBUTIONS_EXTENDED_FINAL = CONTRIBUTIONS_EXTENDED / "final"
 
 
@@ -53,7 +52,6 @@ POLITICIANS_FINAL = POLITICIANS / "final"
 FACTIONS = DATA_CACHE / "factions"
 FACTIONS_STAGE_01 = FACTIONS / "stage_01"
 FACTIONS = FACTIONS / "stage_02"
-
 FACTIONS_FINAL = FACTIONS / "final"
 
 # CONTRIBUTIONS_SIMPLIFIED _________________________________________________________________________
@@ -61,7 +59,6 @@ CONTRIBUTIONS_SIMPLIFIED = FINAL
 
 # ELECTORAL_TERMS __________________________________________________________________________________
 ELECTORAL_TERMS = FINAL
-
 
 # TOPIC_MODELLING __________________________________________________________________________________
 TOPIC_MODELLING = DATA_CACHE / "topic_modelling"
