@@ -1,8 +1,12 @@
+# Standardbibliotheken
 import pytest
 from collections import namedtuple
+
+# Eigene Module
 from open_discourse.specific_functions.functions_02_05 import (
     convert_date_to_delta_seconds, convert_electoral_term_dates
 )
+
 
 # definition of a named tuple for test case
 TestElectionPeriod = namedtuple(

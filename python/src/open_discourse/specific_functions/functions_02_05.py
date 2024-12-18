@@ -1,4 +1,3 @@
-
 # Standardbibliotheken
 from datetime import datetime
 
