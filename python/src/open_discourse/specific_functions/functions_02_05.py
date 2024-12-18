@@ -8,16 +8,18 @@ import pandas as pd
 import open_discourse.definitions.path_definitions as path_definitions
 import logging
 
-### logging ###
+# Logging
 logger = logging.getLogger()
 
-### output directory ###
+# Output directory
 # ELECTORAL_TERMS = path_definitions.ELECTORAL_TERMS
 # ELECTORAL_TERMS.mkdir(parents=True, exist_ok=True)
-# to validate output we use the synchro_dir
+
+# To validate output we use the synchro_dir
 ELECTORAL_TERMS = path_definitions.SYNCHRO_DIR / "electoral_terms_synchro"
 ELECTORAL_TERMS.mkdir(parents=True, exist_ok=True)
-#### dates ###
+
+# Dates
 electoral_terms = [
     {"start_date": "1949-09-07", "end_date": "1953-10-05"},
     {"start_date": "1953-10-06", "end_date": "1957-10-14"},
@@ -40,10 +42,10 @@ electoral_terms = [
     {"start_date": "2017-10-24", "end_date": "2021-10-26"},
     {"start_date": "2021-10-27", "end_date": "2025-10-29"},
 ]
-# ref_date = datetime(year=1970, month=1, day=1)
 
 
-### functions ###
+
+# Functions
 def convert_date_to_delta_seconds(
     date_string, ref_date=datetime(year=1970, month=1, day=1)
 ):
@@ -81,13 +83,11 @@ def convert_electoral_term_dates(electoral_terms):
 
     converted_terms = []
     for index, term in enumerate(electoral_terms):
-        # Create new dictionaries with unchanged keys ("start_date, end_date"), but converted values
         try:
             converted_term = {
                 key: convert_date_to_delta_seconds(date_string)
                 for key, date_string in term.items()
             }
-            # append the dictionaries to the list converted_terms
 
             converted_terms.append(converted_term)
 

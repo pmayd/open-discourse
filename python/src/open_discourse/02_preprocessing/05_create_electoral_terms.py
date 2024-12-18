@@ -10,7 +10,7 @@ from open_discourse.specific_functions.functions_02_05 import (
     electoral_terms,
 )
 
-# logs
+# Logs
 logger = setup_logger(__file__, logging.DEBUG)
 logger.info("Script 02_05 starts")
 
@@ -22,10 +22,4 @@ save_as_csv(terms_with_ids)
 
 logger.info("Script 02_05 done.")
 
-# script end
-
-
-# - - -
-# To Do
-# - - - - -
-# pytest
+# Script end
