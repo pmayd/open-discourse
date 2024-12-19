@@ -7,11 +7,11 @@ import regex
 
 import open_discourse.definitions.path_definitions as path_definitions
 from open_discourse.specific_functions.functions_step02_func01 import (
+    define_single_session_regex_pattern,
     ends_with_relative_path,
-    pp_define_regex_pattern,
-    pp_iterate_03_to_19,
-    pp_process_single_session,
-    pp_split_xml_data,
+    iterate_preprocessing_completed_terms,
+    process_single_session_protocol,
+    split_single_session_xml_data,
 )
 
 # Definition Named Tuple for test cases, don't name ist Testcase!!!
@@ -43,7 +43,7 @@ def test_ends_with_relative_path(case):
 
 
 # ========================================
-# test cases for pp_iterate_03_to_19 (list of namedtuple)
+# test cases for iterate_preprocessing_completed_terms (list of namedtuple)
 # ========================================
 test_cases = []
 test_cases.append(
@@ -147,14 +147,14 @@ def test_pp_iterate_03_to_19(tmp_path, case):
 
     if case.exception:
         with pytest.raises(case.exception):
-            pp_iterate_03_to_19(*case.input)
+            iterate_preprocessing_completed_terms(*case.input)
     else:
-        result = pp_iterate_03_to_19(*case.input)
+        result = iterate_preprocessing_completed_terms(*case.input)
         assert result == case.expected
 
 
 # ========================================
-# test cases for pp_process_single_session (list of namedtuple)
+# test cases for process_single_session_protocol (list of namedtuple)
 # ========================================
 test_cases = []
 xml = """<?xml version="1.0" encoding="UTF-8"?>
@@ -205,7 +205,7 @@ def test_pp_process_single_session(tmp_path, case):
     temp_file_1 = Path(tmp_path, "xml", case.input[0])
     temp_file_1.write_text(case.input[1], encoding="utf-8")
 
-    pp_process_single_session(temp_file_1, (tmp_path / "txt"))
+    process_single_session_protocol(temp_file_1, (tmp_path / "txt"))
 
     ###
     # expected path and files
@@ -377,15 +377,15 @@ def test_pp_split_xml_data(tmp_path, case):
 
     if case.exception:
         with pytest.raises(case.exception):
-            pp_split_xml_data(temp_file_1)
+            split_single_session_xml_data(temp_file_1)
     else:
-        result = pp_split_xml_data(temp_file_1)
+        result = split_single_session_xml_data(temp_file_1)
         assert result[0] == case.expected[0]
         assert result[1] == case.expected[1]
 
 
 # ========================================
-# test cases for pp_define_regex_pattern (list of namedtuple)
+# test cases for define_single_session_regex_pattern (list of namedtuple)
 # ========================================
 test_cases = []
 
@@ -421,7 +421,7 @@ test_cases.append(
 def test_pp_define_regex_pattern(case):
     if case.exception:
         with pytest.raises(case.exception):
-            pp_define_regex_pattern(case.input)
+            define_single_session_regex_pattern(case.input)
     else:
-        result = pp_define_regex_pattern(case.input)
+        result = define_single_session_regex_pattern(case.input)
         assert result == case.expected
