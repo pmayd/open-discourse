@@ -6,7 +6,7 @@ import pytest
 import regex
 
 import open_discourse.definitions.path_definitions as path_definitions
-from open_discourse.helper_functions.functions_step02_func_01_split_xml import (
+from open_discourse.specific_functions.functions_step02_func01 import (
     ends_with_relative_path,
     pp_define_regex_pattern,
     pp_iterate_03_to_19,

@@ -1,3 +1,6 @@
+"""
+Functions for step02 function 01_split_xml
+"""
 import logging
 import xml.etree.ElementTree as Et
 from pathlib import Path
@@ -27,8 +30,9 @@ def ends_with_relative_path(base_path: Path, test_path: Path) -> bool:
     """
     check if testPath ends with relative_path from base_path to ROOT_DIR
 
-    :param base_path: path for comparison, e.g. RAW_XML
-    :param test_path: path to be checked
+    Args:
+        base_path (Path): Path for comparison, e.g. RAW_XML
+        test_path (Path): Path to be checked
 
     Returns:
         bool: True, if test_path ends with relative path form base_path, otherwise
@@ -55,17 +59,17 @@ def pp_iterate_03_to_19(
     session: int | None = None,
 ):
     """
-    Iterates through every subfolder of source_dir, e.g. RAW_XML from legislative
+    Iterate through every subfolder of source_dir, e.g. RAW_XML from electoral
     term 03 to 19
     and calls processing function for single file: pp_process_single_session
     Call can be limited to one term or one session by additional args.
     Raises NotImplementedError resp. ValueError when args are not consistent or valid
 
     Args:
-        source_dir (Path):
-        target_dir (Path):
-        term (int):         legislative term
-        session (int):      session number in legislative term
+        source_dir (Path):  Path to input directory
+        target_dir (Path):  Path to output directory
+        term (int):         electoral term
+        session (int):      session number in electoral term
 
     Returns:
         None
@@ -96,10 +100,10 @@ def pp_iterate_03_to_19(
                 msg = f"Invalid arg: session {session}"
                 raise ValueError(msg)
 
-    ### Iterate through every input planar file in every legislature term,
+    # Iterate through every input file in every electoral term and session,
     # unless term and/or session are explicitly stated
 
-    # Process every sub_directory of source_dir: legislative terms
+    # Process every sub_directory of source_dir: electoral terms
     for folder_path in sorted(source_dir.iterdir()):
         # Skip e.g. the .DS_Store file.
         if not folder_path.is_dir():
@@ -171,17 +175,17 @@ def pp_iterate_03_to_19(
 
 def pp_process_single_session(input_file_path: Path, output_dir_path: Path) -> bool:
     """
-    Cleans and split a single plenar protocol to
+    Clean and split a single plenar protocol to
     - TOC
     - Session content
     - Appendix
-    - metadate
+    - Metadata
     and write 4 files.
 
     Args:
-        input_file_path (Path): single session protocol file to be processed
-        output_dir_path (Path): path with output directory. This dierectory will be
-        created if it doesn't exist
+        input_file_path (Path): Path to single session plenary protocol xml-file
+        output_dir_path (Path): Path to output directory. This directory will be
+        created if it doesn't exist.
 
     Returns:
         bool: True, if all 4 files have been written, otherwise False.
@@ -297,16 +301,16 @@ def pp_process_single_session(input_file_path: Path, output_dir_path: Path) -> b
 
 def pp_split_xml_data(xml_file_path: Path) -> tuple:
     """
-    Opens a plenary protocol xml file and splits content into metadata and text corpus.
+    Open a plenary protocol xml file and splits content into metadata and text corpus.
     Raises ParseError resp. ValueError when xml-content cannot be processed properly
     or expected tags are missing
 
     Args:
-        xml_file_path (Path):
+        xml_file_path (Path): Path to single session plenary protocol xml-file
 
     Returns:
-        meta_data (dict):
-        text_corpus (str):
+        meta_data (dict):   Metadata of current xml-file
+        text_corpus (str):  Content of tag <TEXT> of current xml-file
     """
 
     # Cancel if not xml file, this case should not occur
@@ -352,17 +356,17 @@ def pp_split_xml_data(xml_file_path: Path) -> tuple:
 
 def pp_define_regex_pattern(meta_data: dict) -> tuple:
     """
-    Defines regex pattern for finding begin of speech_content respectively appendix
+    Define regex pattern for finding begin of speech_content respectively appendix
     of a plenar protocol.
     Based on a standard case, various exceptions from
     individual protocols (based on meta_data["document_number"]) are taken into account.
 
     Args:
-        meta_data (dict):
+        meta_data (dict):   Metadata of current xml-file
 
     Returns:
-        begin_pattern (compiled regex):
-        appendix_pattern (compiled regex):
+        begin_pattern (compiled regex):     regex pattern for begin of speech content
+        appendix_pattern (compiled regex):  regex pattern for appendix
 
     """
     begin_pattern_electoral_term = r"Beginn?:?\s?(\d){1,2}(\s?[.,]\s?(\d){1,2})?\s?Uhr"
@@ -405,9 +409,9 @@ def pp_define_regex_pattern(meta_data: dict) -> tuple:
     elif meta_data["document_number"] == "14/17":
         begin_pattern = "Beginn: 9.00 Uhr"
         appendix_pattern = (
-            r"Schluß: 12.06 Uhr\)\n\nDruck: Bonner Universitäts-Buchdruckerei, 53113 Bonn\n "
-            r"53003 Bonn, Telefon: 02 28/3 82 08 40, Telefax: 02 28/3 82 08 44\n\n20\n\nBun"
-            r"despräsident Dr. Roman Herzog\n\nDeutscher"
+            r"Schluß: 12.06 Uhr\)\n\nDruck: Bonner Universitäts-Buchdruckerei, 53113 "
+            r"Bonn\n 53003 Bonn, Telefon: 02 28/3 82 08 40, Telefax: 02 28/3 82 08 "
+            r"44\n\n20\n\nBundespräsident Dr. Roman Herzog\n\nDeutscher"
         )
     elif meta_data["document_number"] == "14/21":
         appendix_pattern = r"\(Schluß: 22.18 Uhr\)\n\nAdelheid Tröscher\n\n1594"
@@ -439,11 +443,11 @@ def pp_special_text_split(meta_data: dict, text_corpus: str) -> str:
     In the standard case, text_corpus is returned unchanged.
 
     Args:
-        meta_data (dict):
-        text_corpus (str):
+        meta_data (dict):   Metadata of current xml-file
+        text_corpus (str):  Content of tag <TEXT> of current xml-file
 
     Returns:
-        text_corpus (str):
+        text_corpus (str):  Improved content of tag <TEXT> of current xml-file
 
     """
     # Some files have issues which have to be handled manually
