@@ -1,7 +1,10 @@
+"""
+Iterate through entire data or select one term or one session
+"""
 import logging
 
 import open_discourse.definitions.path_definitions as path_definitions
-from open_discourse.helper_functions.functions_step02_func_01_split_xml import (
+from open_discourse.specific_functions.functions_step02_func01 import (
     pp_iterate_03_to_19,
 )
 from open_discourse.helper_functions.logging_config import setup_logger
