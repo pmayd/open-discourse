@@ -52,7 +52,7 @@ def ends_with_relative_path(base_path: Path, test_path: Path) -> bool:
         raise
 
 
-def pp_iterate_03_to_19(
+def iterate_preprocessing_completed_terms(
     source_dir: Path,
     target_dir: Path,
     term: int | None = None,
@@ -61,7 +61,7 @@ def pp_iterate_03_to_19(
     """
     Iterate through every subfolder of source_dir, e.g. RAW_XML from electoral
     term 03 to 19
-    and calls processing function for single file: pp_process_single_session
+    and calls processing function for single file: process_single_session_protocol
     Call can be limited to one term or one session by additional args.
     Raises NotImplementedError resp. ValueError when args are not consistent or valid
 
@@ -75,7 +75,7 @@ def pp_iterate_03_to_19(
         None
     """
 
-    logger.debug("Script pp_iterate_03_to_19 starts")
+    logger.debug("Script iterate_preprocessing_completed_terms starts")
     # Check args
     if ends_with_relative_path(RAW_XML, source_dir):
         input_suffix = ".xml"
@@ -140,7 +140,7 @@ def pp_iterate_03_to_19(
             input_files, desc=f"Parsing term {term_number:>2}..."
         ):
             output_dir_path = target_dir / folder_path.stem / input_file_path.stem
-            pp_process_single_session(input_file_path, output_dir_path)
+            process_single_session_protocol(input_file_path, output_dir_path)
 
     # ========================================
     # Quality Assurance
@@ -165,17 +165,20 @@ def pp_iterate_03_to_19(
                     f"term {term}: sessions written: {sessions_found} expected: "
                     f"{SESSIONS_PER_TERM[term]}"
                 )
-            logging.warning(msg)
-            return_code = False
+                logging.warning(msg)
+                return_code = False
 
         assert return_code, "processing incomplete, see log"
 
     return
 
 
-def pp_process_single_session(input_file_path: Path, output_dir_path: Path) -> bool:
+def process_single_session_protocol(
+    input_file_path: Path,
+    output_dir_path: Path
+) -> bool:
     """
-    Clean and split a single plenar protocol to
+    Clean and split a single session protocol to
     - TOC
     - Session content
     - Appendix
@@ -183,7 +186,7 @@ def pp_process_single_session(input_file_path: Path, output_dir_path: Path) -> b
     and write 4 files.
 
     Args:
-        input_file_path (Path): Path to single session plenary protocol xml-file
+        input_file_path (Path): Path to single session protocol xml-file
         output_dir_path (Path): Path to output directory. This directory will be
         created if it doesn't exist.
 
@@ -193,19 +196,19 @@ def pp_process_single_session(input_file_path: Path, output_dir_path: Path) -> b
 
     # 1 split xml
     try:
-        meta_data, text_corpus = pp_split_xml_data(input_file_path)
+        meta_data, text_corpus = split_single_session_xml_data(input_file_path)
     except ParseError:
         return False
 
     # ========================================
     # 2 regex patterns
     # ========================================
-    begin_pattern, appendix_pattern = pp_define_regex_pattern(meta_data)
+    begin_pattern, appendix_pattern = define_single_session_regex_pattern(meta_data)
 
     # ========================================
     # 3 special cases with text split
     # ========================================
-    text_corpus = pp_special_text_split(meta_data, text_corpus)
+    text_corpus = single_session_special_text_split(meta_data, text_corpus)
 
     # ========================================
     # 4 clean text corpus.
@@ -213,7 +216,7 @@ def pp_process_single_session(input_file_path: Path, output_dir_path: Path) -> b
     text_corpus = clean(text_corpus)
 
     # ========================================
-    # 5 Find the beginning pattern in plenar protocol
+    # 5 Find the beginning pattern in session protocol
     # ========================================
     find_beginnings = list(regex.finditer(begin_pattern, text_corpus))
 
@@ -235,7 +238,7 @@ def pp_process_single_session(input_file_path: Path, output_dir_path: Path) -> b
     # content begins after the matched phrase.
 
     # ========================================
-    # 6 Find the ending pattern in plenar protocol
+    # 6 Find the ending pattern in session protocol
     # ========================================
     # Append "END OF FILE" to document text, otherwise pattern is
     # not found, when appearing at the end of the file.
@@ -299,14 +302,14 @@ def pp_process_single_session(input_file_path: Path, output_dir_path: Path) -> b
     return return_code
 
 
-def pp_split_xml_data(xml_file_path: Path) -> tuple:
+def split_single_session_xml_data(xml_file_path: Path) -> tuple:
     """
-    Open a plenary protocol xml file and splits content into metadata and text corpus.
-    Raises ParseError resp. ValueError when xml-content cannot be processed properly
-    or expected tags are missing
+    Open a session protocol xml-file and split content into metadata and text corpus.
+    Raise ParseError resp. ValueError when xml-content cannot be processed properly
+    or expected tags are missing.
 
     Args:
-        xml_file_path (Path): Path to single session plenary protocol xml-file
+        xml_file_path (Path): Path to single session protocol xml-file
 
     Returns:
         meta_data (dict):   Metadata of current xml-file
@@ -319,6 +322,7 @@ def pp_split_xml_data(xml_file_path: Path) -> tuple:
         raise FileNotFoundError(msg)
 
     meta_data = {}
+    # noinspection PyUnusedLocal
     text_corpus = None
 
     try:
@@ -354,10 +358,10 @@ def pp_split_xml_data(xml_file_path: Path) -> tuple:
     return meta_data, text_corpus
 
 
-def pp_define_regex_pattern(meta_data: dict) -> tuple:
+def define_single_session_regex_pattern(meta_data: dict) -> tuple:
     """
     Define regex pattern for finding begin of speech_content respectively appendix
-    of a plenar protocol.
+    of a session protocol.
     Based on a standard case, various exceptions from
     individual protocols (based on meta_data["document_number"]) are taken into account.
 
@@ -435,7 +439,7 @@ def pp_define_regex_pattern(meta_data: dict) -> tuple:
     return begin_pattern, appendix_pattern
 
 
-def pp_special_text_split(meta_data: dict, text_corpus: str) -> str:
+def single_session_special_text_split(meta_data: dict, text_corpus: str) -> str:
     """
     Change the content of text_corpus for some special cases (e.g. duplicated text
     corpus or two sessions in one protocol),

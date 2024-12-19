@@ -4,10 +4,10 @@ Iterate through entire data or select one term or one session
 import logging
 
 import open_discourse.definitions.path_definitions as path_definitions
-from open_discourse.specific_functions.functions_step02_func01 import (
-    pp_iterate_03_to_19,
-)
 from open_discourse.helper_functions.logging_config import setup_logger
+from open_discourse.specific_functions.functions_step02_func01 import (
+    iterate_preprocessing_completed_terms,
+)
 
 logger = setup_logger(__file__, logging.DEBUG)
 logger.info("Script 02_01 starts")
@@ -20,7 +20,7 @@ RAW_TXT = path_definitions.RAW_TXT
 RAW_TXT.mkdir(parents=True, exist_ok=True)
 
 # iterate through entire data or select one term or one session
-# pp_iterate_03_to_19(RAW_XML, RAW_TXT, 4, session=19)
-pp_iterate_03_to_19(RAW_XML, RAW_TXT)
+# iterate_preprocessing_completed_terms(RAW_XML, RAW_TXT, 4, session=19)
+iterate_preprocessing_completed_terms(RAW_XML, RAW_TXT)
 
 logger.info("Script 02_01 ends")
