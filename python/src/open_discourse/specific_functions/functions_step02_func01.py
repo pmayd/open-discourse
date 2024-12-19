@@ -115,9 +115,11 @@ def iterate_preprocessing_completed_terms(
             logger.debug(f"No term number found in {folder_path.stem}.")
             continue
 
-        # Don't process sub_directories outside scope of this function, that is term
-        # 3 to 19 or term in args
-        if not (3 <= term_number <= 19) or (term and term != term_number):
+        # Don't process sub_directories outside scope of this function,
+        # that is term 3 to the highest completed term or term in args
+        min_term = 3
+        max_term = max(SESSIONS_PER_TERM.keys())
+        if not (min_term <= term_number <= max_term) or (term and term != term_number):
             continue
 
         # Process all relevant files in sub_directory
