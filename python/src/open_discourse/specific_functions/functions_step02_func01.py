@@ -1,6 +1,7 @@
 """
 Functions for step02 function 01_split_xml
 """
+
 import logging
 import xml.etree.ElementTree as Et
 from pathlib import Path
@@ -174,8 +175,7 @@ def iterate_preprocessing_completed_terms(
 
 
 def process_single_session_protocol(
-    input_file_path: Path,
-    output_dir_path: Path
+    input_file_path: Path, output_dir_path: Path
 ) -> bool:
     """
     Clean and split a single session protocol to

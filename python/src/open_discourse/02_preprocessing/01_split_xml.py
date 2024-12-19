@@ -1,6 +1,7 @@
 """
 Iterate through entire data or select one term or one session
 """
+
 import logging
 
 import open_discourse.definitions.path_definitions as path_definitions
