@@ -30,13 +30,13 @@ $(INSTALL_DEV_STAMP): $(PYTHON) pyproject.toml
 
 .PHONY: lint
 lint: $(INSTALL_DEV_STAMP)
-	${VENV_PYTHON} -m ruff check
-	${VENV_PYTHON} -m ruff check --select I
+	${PYTHON} -m ruff check
+	${PYTHON} -m ruff check --select I
 
 .PHONY: format
 format: $(INSTALL_DEV_STAMP)
-	${VENV_PYTHON} -m ruff check --select I --fix
-	${VENV_PYTHON} -m ruff format
+	${PYTHON} -m ruff check --select I --fix
+	${PYTHON} -m ruff format
 
 .PHONY: database
 database:

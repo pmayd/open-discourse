@@ -1,8 +1,8 @@
 import pandas as pd
 import regex
+from tqdm import tqdm
 
 import open_discourse.definitions.path_definitions as path_definitions
-from tqdm import tqdm
 
 # input directory
 MGS_PATH = path_definitions.POLITICIANS_STAGE_01

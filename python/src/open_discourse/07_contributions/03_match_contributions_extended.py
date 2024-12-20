@@ -2,12 +2,12 @@ import sys
 
 import pandas as pd
 import regex
+from tqdm import tqdm
 
 import open_discourse.definitions.path_definitions as path_definitions
 from open_discourse.helper_functions.match_names import (
     insert_politician_id_into_contributions_extended,
 )
-from tqdm import tqdm
 
 # input directory
 CONTRIBUTIONS_EXTENDED_INPUT = path_definitions.CONTRIBUTIONS_EXTENDED_STAGE_02
