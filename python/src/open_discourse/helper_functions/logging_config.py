@@ -5,7 +5,7 @@ from pathlib import Path
 import open_discourse.definitions.path_definitions as path_definitions
 
 
-def setup_logger(
+def setup_and_get_logger(
     log_file: str = logging, log_level: int = logging.DEBUG
 ) -> logging.Logger:
     """Logger Setup for Root-Logger; can be used globally
