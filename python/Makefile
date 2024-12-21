@@ -1,7 +1,7 @@
 # see https://blog.mathieu-leplatre.info/tips-for-your-makefile-with-python.html
 NAME := open_discourse
 VENV := $(shell echo $${VIRTUAL_ENV-.venv})
-PY3 := $(shell command -v python3 2> /dev/null)
+UV := $(shell command -v uv 2> /dev/null)
 PYTHON := $(VENV)/bin/python
 INSTALL_STAMP := $(VENV)/.install.stamp
 INSTALL_DEV_STAMP := $(VENV)/.install.dev.stamp
@@ -9,34 +9,32 @@ INSTALL_DEV_STAMP := $(VENV)/.install.dev.stamp
 .DEFAULT_GOAL = install-dev
 
 $(PYTHON):
-	@if [ -z $(PY3) ]; then echo "Python 3 could not be found."; exit 2; fi
-	$(PY3) -m venv $(VENV)
+	@if [ -z $(UV) ]; then echo "uv could not be found."; exit 2; fi
+	$(UV) venv $(VENV)
 
 .PHONY: install
 install: $(INSTALL_STAMP)
 
 $(INSTALL_STAMP): $(PYTHON) pyproject.toml
-	$(PYTHON) -m pip install -U pip
-	$(PYTHON) -m pip install -e .
+	$(UV) sync --no-dev
 	touch $(INSTALL_STAMP)
 
 .PHONY: install-dev
 install-dev: $(INSTALL_DEV_STAMP)
 
 $(INSTALL_DEV_STAMP): $(PYTHON) pyproject.toml
-	$(PYTHON) -m pip install -U pip
-	$(PYTHON) -m pip install -e .[dev]
+	$(UV) sync
 	touch $(INSTALL_DEV_STAMP)
 
 .PHONY: lint
 lint: $(INSTALL_DEV_STAMP)
-	${PYTHON} -m ruff check
-	${PYTHON} -m ruff check --select I
+	$(UV) run ruff check
+	$(UV) run ruff check --select I
 
 .PHONY: format
 format: $(INSTALL_DEV_STAMP)
-	${PYTHON} -m ruff check --select I --fix
-	${PYTHON} -m ruff format
+	$(UV) run ruff check --select I --fix
+	$(UV) run ruff format
 
 .PHONY: database
 database:
