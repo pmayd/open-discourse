@@ -49,7 +49,7 @@ data: \
 	data/02_cached/electoral_term_pp20/stage_01/01_03.done
 
 data/01_raw/xml/01_01.done: $(INSTALL_STAMP)
-	$(MAKE) clean-data && $(PYTHON) src/$(NAME)/01_data/01_download_raw_data.py
+	$(PYTHON) src/$(NAME)/01_data/01_download_raw_data.py
 	touch data/01_raw/xml/01_01.done
 
 data/01_raw/MP_BASE_DATA/01_02.done: $(INSTALL_STAMP)
