@@ -17,7 +17,6 @@ def get_politicians_with_special_chars():
     Returns:
         sorted list: All names with special chars, regardless of first or last name
     """
-    # todo pytest
 
     # Initialize empty list
     csv_liste = []
@@ -53,6 +52,7 @@ def get_politicians_with_special_chars():
     assert result_len >= 13, "Too few politicians with special chars found"
 
     return sorted(politicians_with_special_chars)
+
 
 result = get_politicians_with_special_chars()
 print(f"Found {len(result)} politicians with special chars:")
