@@ -6,7 +6,7 @@ import logging
 
 import open_discourse.definitions.path_definitions as path_definitions
 from open_discourse.helper_functions.logging_config import setup_and_get_logger
-from open_discourse.specific_functions.functions_step02_func01 import (
+from open_discourse.specific_functions.func_step02_func01 import (
     iterate_preprocessing_completed_terms,
 )
 

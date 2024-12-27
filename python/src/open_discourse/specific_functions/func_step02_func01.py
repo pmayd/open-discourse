@@ -36,7 +36,7 @@ def ends_with_relative_path(base_path: Path, test_path: Path) -> bool:
         test_path (Path): Path to be checked
 
     Returns:
-        bool: True, if test_path ends with relative path form base_path, otherwise
+        bool: True, if test_path ends with relative path from base_path, otherwise
         False.
     """
     try:
