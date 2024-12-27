@@ -1,4 +1,5 @@
 import logging
+from idlelib.iomenu import encoding
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
@@ -22,7 +23,7 @@ def setup_and_get_logger(
     # file handler
     logs_dir = path_definitions.LOGS_DIR
     logs_dir.mkdir(parents=False, exist_ok=True)  # create logs directory if necessary
-    log_file = Path(logs_dir, str(Path(log_file).stem + ".log"))
+    log_file = Path(logs_dir, str(Path(log_file).stem + ".log"),encoding="utf-8")
     file_handler = RotatingFileHandler(log_file, maxBytes=1024 * 1024, backupCount=5)
     file_handler.setFormatter(formatter)
 
