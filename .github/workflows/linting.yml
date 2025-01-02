@@ -25,14 +25,22 @@ jobs:
         with:
           node-version: 20
 
+      - name: Switch to python directory
+        working-directory: python
+        run: echo "Switched to python directory"
+
       - name: Install dependencies
-        run: make -C python install-dev
+        run: make install-dev
 
       - name: Lint with ruff
         run: uv run ruff check --output-format=github .
 
       - name: Lint imports with ruff
         run: uv run ruff check --select I --output-format=github .
+
+      - name: Switch to root directory
+        working-directory: ..
+        run: echo "Switched to root directory"
 
       - name: Lint database package
         working-directory: database
