@@ -240,7 +240,6 @@ def prepare_valid_test_files(case, dynamic_patch_paths):
     session_list = sorted([session, 34, 56])
 
     for t in term_list:
-
         if (
             test_dir == dynamic_patch_paths["RAW_XML"]
             or test_dir == dynamic_patch_paths["SPEECH_CONTENT_STAGE_02"]
@@ -269,9 +268,6 @@ def prepare_valid_test_files(case, dynamic_patch_paths):
 
 @pytest.mark.parametrize("case", test_cases)
 def test_session_file_iterator(case, dynamic_patch_paths, prepare_valid_test_files):
-
-    print("ZTT", dynamic_patch_paths[case.input["source_dir"]])
-    # print(dynamic_patch_paths['DATA_RAW'])
     test_dir = dynamic_patch_paths[case.input["source_dir"]]
     assert "pytest" in str(test_dir)
 

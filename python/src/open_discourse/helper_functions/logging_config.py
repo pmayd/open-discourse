@@ -1,5 +1,4 @@
 import logging
-from idlelib.iomenu import encoding
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 

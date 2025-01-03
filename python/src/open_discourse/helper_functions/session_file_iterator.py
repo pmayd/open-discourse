@@ -79,7 +79,7 @@ def validate_term_session(
 
 
 def session_file_iterator(
-    source_dir: Path = RAW_XML,
+    source_dir: Path,
     term: int | tuple[int, int] | None = None,
     session: int | tuple[int, int] | None = None,
 ) -> Generator[Path, None, None]:
@@ -147,8 +147,9 @@ def session_file_iterator(
     # ==================================================================================
     tqdm_bar = None
     for term_number in term_list:
-        total_per_term = SESSIONS_PER_TERM[term_number] if not session else len(
-            session_list)
+        total_per_term = (
+            SESSIONS_PER_TERM[term_number] if not session else len(session_list)
+        )
         # tqdm bar
         if tqdm_bar:
             tqdm_bar.close()
@@ -156,14 +157,15 @@ def session_file_iterator(
         tqdm_bar = tqdm(
             total=total_per_term,
             desc=f"Parsing term" f" {term_number:>2}...,",
-            position=0, )
+            position=0,
+        )
 
         if file_pattern == "*.xml":
             glob_pattern = f"electoral_term_pp{term_number:02}.zip/{file_pattern}"
         elif file_pattern == "session_content.txt":
-            glob_pattern = f"electoral_term_pp{term_number:02}/*/{file_pattern}"
+            glob_pattern = f"electoral_term_pp{term_number:02}.zip/*/{file_pattern}"
         else:
-            glob_pattern = f"electoral_term_pp{term_number:02}/{file_pattern}"
+            glob_pattern = f"electoral_term_pp{term_number:02}.zip/{file_pattern}"
 
         file_list = sorted(list(source_dir.glob(glob_pattern)), key=lambda x: x.name)
         for input_path in file_list:
@@ -176,9 +178,16 @@ def session_file_iterator(
                     check_session = int(input_path.parent.name[2:])
                     check_dir = input_path.parent.parent
                 else:
-                    check_term = int(input_path.stem[:2])
-                    check_session = int(input_path.stem[2:])
-                    check_dir = input_path.parent
+                    try:
+                        check_term = int(input_path.stem[:2])
+                        check_session = int(input_path.stem[2:])
+                        check_dir = input_path.parent
+                    except ValueError:
+                        logging.warning(
+                            f"Invalid file {input_path} should not exist "
+                            f"in directoy!"
+                        )
+                        continue
 
                 # Check for relevant session
                 if session is not None:
@@ -193,7 +202,7 @@ def session_file_iterator(
                 # check consistency in dir-name electoral_term
                 term_in_path = get_term_from_path(str(check_dir))
                 if term_in_path != check_term:
-                    raise ValueError(f"inkonsitent {input_path} {check_dir}")
+                    raise ValueError(f"inconsitent {input_path} {check_dir}")
 
                 tqdm_bar.update(1)
                 yield input_path

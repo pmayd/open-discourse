@@ -33,7 +33,6 @@ RAW_TXT.mkdir(parents=True, exist_ok=True)
 # iterate through entire data or select term or session
 # for input_file_path in tqdm(session_file_iterator(RAW_XML,4,(19,78))):
 for input_file_path in tqdm(session_file_iterator(RAW_XML)):
-    #print(input_file_path)
     # ========================================
     # 1 split xml
     # ========================================
@@ -103,7 +102,6 @@ for input_file_path in tqdm(session_file_iterator(RAW_XML)):
     output_dir_path = RAW_TXT / input_file_path.parent.stem / input_file_path.stem
     output_dir_path.mkdir(parents=True, exist_ok=True)
 
-
     # Save table of content, spoken content and appendix in separate files
     with open(output_dir_path / "toc.txt", "w", encoding="utf-8") as text_file:
         text_file.write(toc)
@@ -138,7 +136,6 @@ for input_file_path in tqdm(session_file_iterator(RAW_XML)):
             msg = f"pp{input_file_path.stem}: File {file_name} not written."
             logging.error(msg)
             return_code = False
-
 
 
 logger.info("Script 02_01 ends")
