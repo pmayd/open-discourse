@@ -1,14 +1,8 @@
 from collections import namedtuple
 from pathlib import Path
-import pytest
-import importlib
 from unittest.mock import patch
-from open_discourse.definitions.path_definitions import (
-    RAW_XML,
-    RAW_TXT,
-    SPEECH_CONTENT_STAGE_02,
-)
 
+import pytest
 
 from open_discourse.helper_functions.session_file_iterator import (
     session_file_iterator,
@@ -126,16 +120,25 @@ test_cases.append(
 )
 test_cases.append(
     CaseDataforTest(
-        {"source_dir": "RAW_TXT","term": 4,"session":None},
-        expected=["04019","04034","04056"],
+        {"source_dir": "RAW_TXT", "term": 4, "session": None},
+        expected=["04019", "04034", "04056"],
         exception=None,
     )
 )
 test_cases.append(
     CaseDataforTest(
-        {"source_dir": "RAW_TXT","term": None,"session":None},
-        expected=["04019","04034","04056","09019","09034","09056","15019","15034",
-            "15056"],
+        {"source_dir": "RAW_TXT", "term": None, "session": None},
+        expected=[
+            "04019",
+            "04034",
+            "04056",
+            "09019",
+            "09034",
+            "09056",
+            "15019",
+            "15034",
+            "15056",
+        ],
         exception=None,
     )
 )
@@ -182,7 +185,7 @@ def dynamic_patch_paths(tmp_path):
     mocked_DATA = tmp_path / "data"
     mocked_DATA_RAW = mocked_DATA / "01_raw"
     mocked_DATA_CACHE = mocked_DATA / "02_cached"
-    mocked_DATA_FINAL = mocked_DATA / "03_final"
+    # mocked_DATA_FINAL = mocked_DATA / "03_final"
 
     # RAW
     mocked_RAW_XML = mocked_DATA_RAW / "xml"
@@ -208,6 +211,7 @@ def dynamic_patch_paths(tmp_path):
     #     mocked_RAW_XML):
     #     yield mocked_RAW_XM
 
+
 @pytest.fixture
 @pytest.mark.parametrize("case", test_cases)
 def prepare_valid_test_files(case, dynamic_patch_paths):
@@ -229,9 +233,6 @@ def prepare_valid_test_files(case, dynamic_patch_paths):
     session = case.input["session"]
     if session is None:
         session = 19
-
-    print("PIT", test_dir, RAW_XML)
-
 
     # testfiles in 3 directories, one is invalid filename format
 
@@ -258,7 +259,9 @@ def prepare_valid_test_files(case, dynamic_patch_paths):
             create_dir = Path(test_dir, f"electoral_term_pp{t:02}.zip")
             create_dir.mkdir(parents=True, exist_ok=True)
             for s in session_list:
-                create_dir = Path(test_dir,f"electoral_term_pp{t:02}.zip",f"{t:02}{s:03}")
+                create_dir = Path(
+                    test_dir, f"electoral_term_pp{t:02}.zip", f"{t:02}{s:03}"
+                )
                 create_dir.mkdir(parents=True, exist_ok=True)
                 sample_file = create_dir / "session_content.txt"
                 sample_file.write_text("<content>Test</content>")
