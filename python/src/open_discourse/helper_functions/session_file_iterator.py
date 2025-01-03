@@ -147,8 +147,9 @@ def session_file_iterator(
     # ==================================================================================
     tqdm_bar = None
     for term_number in term_list:
-        total_per_term = SESSIONS_PER_TERM[term_number] if not session else len(
-            session_list)
+        total_per_term = (
+            SESSIONS_PER_TERM[term_number] if not session else len(session_list)
+        )
         # tqdm bar
         if tqdm_bar:
             tqdm_bar.close()
@@ -156,7 +157,8 @@ def session_file_iterator(
         tqdm_bar = tqdm(
             total=total_per_term,
             desc=f"Parsing term" f" {term_number:>2}...,",
-            position=0, )
+            position=0,
+        )
 
         if file_pattern == "*.xml":
             glob_pattern = f"electoral_term_pp{term_number:02}.zip/{file_pattern}"
@@ -186,7 +188,6 @@ def session_file_iterator(
                             f"in directoy!"
                         )
                         continue
-
 
                 # Check for relevant session
                 if session is not None:
