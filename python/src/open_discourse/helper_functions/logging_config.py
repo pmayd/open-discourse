@@ -8,7 +8,8 @@ import open_discourse.definitions.path_definitions as path_definitions
 def setup_and_get_logger(
     log_file: str = logging, log_level: int = logging.DEBUG
 ) -> logging.Logger:
-    """Logger Setup for Root-Logger; can be used globally
+    """
+    Logger Setup for Root-Logger; can be used globally
 
     Args:
         log_file (str)  : name of log_file
@@ -22,7 +23,7 @@ def setup_and_get_logger(
     # file handler
     logs_dir = path_definitions.LOGS_DIR
     logs_dir.mkdir(parents=False, exist_ok=True)  # create logs directory if necessary
-    log_file = Path(logs_dir, str(Path(log_file).stem + ".log"),encoding="utf-8")
+    log_file = Path(logs_dir, str(Path(log_file).stem + ".log"), encoding="utf-8")
     file_handler = RotatingFileHandler(log_file, maxBytes=1024 * 1024, backupCount=5)
     file_handler.setFormatter(formatter)
 

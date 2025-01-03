@@ -1,5 +1,9 @@
 """
-Iterate through entire data or select term or session
+Iterate through xml files of session protocols,
+either entire data or select electoral term and session.
+This script processes only completed electoral terms with a full set of protocols
+already downloaded in 01_download_raw_data. The last completed electoral term is
+determined by the info in SESSIONS_PER_TERM.
 """
 
 import logging
@@ -11,6 +15,7 @@ import regex
 from tqdm import tqdm
 
 import open_discourse.definitions.path_definitions as path_definitions
+from open_discourse.definitions.other_definitions import SESSIONS_PER_TERM
 from open_discourse.helper_functions.clean_text import clean
 from open_discourse.helper_functions.logging_config import setup_and_get_logger
 from open_discourse.helper_functions.session_file_iterator import session_file_iterator
@@ -31,8 +36,11 @@ RAW_TXT = path_definitions.RAW_TXT
 RAW_TXT.mkdir(parents=True, exist_ok=True)
 
 # iterate through entire data or select term or session
-# for input_file_path in tqdm(session_file_iterator(RAW_XML,4,(19,78))):
-for input_file_path in tqdm(session_file_iterator(RAW_XML)):
+# by default the iterator process form electoral term 3 until the last completed
+# electoral term
+max_term = max(SESSIONS_PER_TERM.keys())
+# for input_file_path in tqdm(session_file_iterator(RAW_XML,4, 19)):
+for input_file_path in tqdm(session_file_iterator(RAW_XML, (3, max_term))):
     # ========================================
     # 1 split xml
     # ========================================
@@ -41,7 +49,7 @@ for input_file_path in tqdm(session_file_iterator(RAW_XML)):
     except ParseError:
         continue  # logs are written in func
     # ========================================
-    # 2 regex patterns
+    # 2 define regex patterns
     # ========================================
     begin_pattern, appendix_pattern = define_single_session_regex_pattern(meta_data)
     # ========================================

@@ -1,4 +1,9 @@
+"""
+Constants and other definitions
+"""
+
 # Number of session per legislative term
+# Only completed electoral terms!
 SESSIONS_PER_TERM = {
     1: 282,
     2: 227,

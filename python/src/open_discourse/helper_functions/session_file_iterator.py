@@ -41,8 +41,6 @@ def validate_term_session(
     Returns: Range(int,int)
 
     """
-    # Don't process sub_directories outside scope of this function,
-    # that is term 1 to the highest completed term or term in args
     if not isinstance(max_value, int) or max_value < 1:
         msg = f"Invalid arg: max_value {max_value}."
         raise ValueError(msg)
@@ -102,7 +100,7 @@ def session_file_iterator(
     # ==================================================================================
     # Check args
     # ==================================================================================
-    pck_path_list = (
+    pkl_path_list = (
         SPEECH_CONTENT_STAGE_01,
         SPEECH_CONTENT_STAGE_02,
         SPEECH_CONTENT_STAGE_03,
@@ -117,15 +115,14 @@ def session_file_iterator(
         file_pattern = "*.xml"
     elif source_dir == RAW_TXT:
         file_pattern = "session_content.txt"
-    elif source_dir in pck_path_list:
+    elif source_dir in pkl_path_list:
         file_pattern = "*.pkl"
     else:
         raise NotImplementedError(f"Nothing implemented for {source_dir}.")
     assert source_dir.exists(), f"Input directory {source_dir} does not exist."
 
     # Don't process sub_directories outside scope of this function,
-    # that is term 1 to the highest completed term or term in args
-
+    # that is term 1 to the highest term in SESSIONS_PER_TERM or term in args
     max_term = max(SESSIONS_PER_TERM.keys())
     if term is None:
         term_list = list(range(1, max_term + 1))
@@ -141,7 +138,6 @@ def session_file_iterator(
         else:
             max_session = SESSIONS_PER_TERM[term]
             session_list = validate_term_session(session, max_session, "session")
-    tqdm_bar = None
     # ==================================================================================
     # search for file_pattern
     # ==================================================================================
