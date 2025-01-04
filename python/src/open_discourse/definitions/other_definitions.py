@@ -24,4 +24,5 @@ SESSIONS_PER_TERM = {
     17: 253,
     18: 245,
     19: 239,
+    20: -1,  # current electoral term, total number of sessions isn't known yet
 }
