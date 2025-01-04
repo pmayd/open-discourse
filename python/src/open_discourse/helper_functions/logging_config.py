@@ -6,18 +6,31 @@ import open_discourse.definitions.path_definitions as path_definitions
 
 
 def setup_and_get_logger(
-    log_file: str = logging, log_level: int = logging.DEBUG
+    log_file: str, log_level: int = logging.DEBUG
 ) -> logging.Logger:
     """
     Logger Setup for Root-Logger; can be used globally
 
     Args:
-        log_file (str)  : name of log_file
+        log_file (str)  : name of log_file, 3 chars minimum required
         log_level (int) : logging level, e.g. logging.DEBUG (default value)
 
     Returns:
         logger (logging.logger):
     """
+    # check args
+    if not isinstance(log_file, str) or len(log_file) < 3:
+        raise ValueError("arg 'log_file' should be a string of 3 chars minimum!")
+    # only standard log levels are supported
+    if not isinstance(log_level, int) or log_level not in (
+        logging.DEBUG,
+        logging.INFO,
+        logging.WARNING,
+        logging.ERROR,
+        logging.CRITICAL,
+    ):
+        log_level = logging.DEBUG
+
     formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
 
     # file handler

@@ -39,6 +39,12 @@ RAW_TXT.mkdir(parents=True, exist_ok=True)
 # by default the iterator process form electoral term 3 until the last completed
 # electoral term
 max_term = max(SESSIONS_PER_TERM.keys())
+while SESSIONS_PER_TERM[max_term] <= 0:
+    max_term -= 1
+    if max_term < 1:
+        msg = ("No valid completed electoral term found. Check SESSIONS_PER_TERM.")
+        raise ValueError(msg)
+# change here for testuing with single terms or sessions
 # for input_file_path in tqdm(session_file_iterator(RAW_XML,4, 19)):
 for input_file_path in tqdm(session_file_iterator(RAW_XML, (3, max_term))):
     # ========================================
