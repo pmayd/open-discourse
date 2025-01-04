@@ -296,8 +296,6 @@ def test_session_file_iterator(
         assert sorted(result_short_list) == sorted(case.expected)
 
 
-
-
 test_cases = []
 test_cases.append(
     CaseDataforTest(
@@ -313,12 +311,10 @@ test_cases.append(
         exception=NotImplementedError,
     )
 )
-@pytest.mark.parametrize("case", test_cases)
-def test_session_file_iterator_exception(
-    case: namedtuple
-):
 
+
+@pytest.mark.parametrize("case", test_cases)
+def test_session_file_iterator_exception(case: namedtuple):
     if case.exception:
         with pytest.raises(case.exception):
             next(session_file_iterator(*case.input))
-
