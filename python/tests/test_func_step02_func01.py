@@ -162,7 +162,7 @@ test_cases.append(
 
 
 @pytest.mark.parametrize("case", test_cases)
-def test_pp_split_xml_data(tmp_path, case:namedtuple):
+def test_pp_split_xml_data(tmp_path, case: namedtuple):
     # create temp_files for test
     temp_file_1 = tmp_path / case.input[0]
     temp_file_1.write_text(case.input[1], encoding="utf-8")
@@ -210,7 +210,7 @@ test_cases.append(
 
 
 @pytest.mark.parametrize("case", test_cases)
-def test_pp_define_regex_pattern(case:namedtuple):
+def test_pp_define_regex_pattern(case: namedtuple):
     if case.exception:
         with pytest.raises(case.exception):
             define_single_session_regex_pattern(case.input)
