@@ -10,7 +10,7 @@ from open_discourse.specific_functions.func_step02_func01 import (
     split_single_session_xml_data,
 )
 
-# Definition Named Tuple for test cases, don't name ist Testcase!!!
+# Definition Named Tuple for test cases, don't name it Testcase!!!
 CaseDataforTest = namedtuple("CaseDataforTest", ["input", "expected", "exception"])
 
 RAW_XML = path_definitions.RAW_XML

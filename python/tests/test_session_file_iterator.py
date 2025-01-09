@@ -10,7 +10,7 @@ from open_discourse.helper_functions.session_file_iterator import (
     validate_term_session,
 )
 
-# Definition Named Tuple for test cases, don't name ist Testcase!!!
+# Definition Named Tuple for test cases, don't name it Testcase!!!
 CaseDataforTest = namedtuple("CaseDataforTest", ["input", "expected", "exception"])
 
 # ======================================================================================
@@ -177,7 +177,7 @@ test_cases.append(
 
 @pytest.fixture(scope="module")
 def module_tmp_path(tmp_path_factory):
-    return tmp_path_factory.mktemp("session_itertor_test")
+    return tmp_path_factory.mktemp("session_iterator_test")
 
 
 @pytest.fixture(scope="module")
