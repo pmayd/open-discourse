@@ -86,7 +86,7 @@ for folder_path in sorted(RAW_XML.iterdir()):
         # date = time.mktime(
         #     datetime.datetime.strptime(tree.find("DATUM").text, "%d.%m.%Y").timetuple()
         # )
-        date = timestamp = datetime.datetime.strptime(
+        date = datetime.datetime.strptime(
             tree.find("DATUM").text, "%d.%m.%Y"
         ).timestamp()
         document_number = xml_plenar_file_path.stem
