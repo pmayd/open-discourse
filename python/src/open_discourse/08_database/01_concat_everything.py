@@ -1,6 +1,5 @@
 import datetime
 import sys
-import time
 import xml.etree.ElementTree as et
 
 import pandas as pd
@@ -84,9 +83,12 @@ for folder_path in sorted(RAW_XML.iterdir()):
         # meta_data["document_number"].append(tree.find("NR").text)
         # meta_data["date"].append(tree.find("DATUM").text)
         # document_number = tree.find("NR").text
-        date = time.mktime(
-            datetime.datetime.strptime(tree.find("DATUM").text, "%d.%m.%Y").timetuple()
-        )
+        # date = time.mktime(
+        #     datetime.datetime.strptime(tree.find("DATUM").text, "%d.%m.%Y").timetuple()
+        # )
+        date = timestamp = datetime.datetime.strptime(
+            tree.find("DATUM").text, "%d.%m.%Y"
+        ).timestamp()
         document_number = xml_plenar_file_path.stem
         document_number = int(document_number)
         meta_data[document_number] = date
