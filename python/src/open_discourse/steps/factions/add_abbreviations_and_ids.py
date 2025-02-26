@@ -1,82 +1,182 @@
+"""
+Script to enhance the faction dataset with abbreviations and unique IDs.
+
+This script is part of the Open Discourse pipeline and performs the following tasks:
+1. Loads the basic factions data created by create.py
+2. Adds standardized abbreviations to each faction using predefined mappings
+3. Assigns unique numerical IDs to each faction based on their abbreviations
+4. Saves the fully processed factions data to the final data directory
+
+The resulting dataset is used throughout the Open Discourse project to standardize
+faction references and provide consistent identifiers for parliamentary groups.
+"""
+
 import numpy as np
 import pandas as pd
 
+# Project-specific imports
 from open_discourse.definitions import path
+from open_discourse.helper.constants import FACTION_ABBREVIATIONS
+from open_discourse.helper.logging_config import setup_and_get_logger
 
-# input directory
-FACTIONS_STAGE_01 = path.FACTIONS_STAGE_01
+# Configure a logger for this script
+logger = setup_and_get_logger("process_factions")
 
-# output directory
-DATA_FINAL = path.DATA_FINAL
-DATA_FINAL.mkdir(parents=True, exist_ok=True)
+
+def _get_abbreviation(faction_name: str) -> str:
+    """
+    Get the standardized abbreviation for a faction name.
+
+    Args:
+        faction_name (str): The full faction name to look up in the FACTION_ABBREVIATIONS dictionary
+
+    Returns:
+        str: The standardized abbreviation if the faction name is found in FACTION_ABBREVIATIONS,
+             otherwise returns the original faction_name as a fallback
+    """
+    if faction_name in FACTION_ABBREVIATIONS:
+        return FACTION_ABBREVIATIONS[faction_name]
+    else:
+        # Return the faction name itself as a fallback
+        return faction_name
+
+
+def add_abbreviations_to_factions(factions_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Adds abbreviations to faction names based on predefined mapping.
+
+    Args:
+        factions_df (pd.DataFrame): DataFrame containing faction names in the 'faction_name' column
+
+    Returns:
+        pd.DataFrame: DataFrame with an additional 'abbreviation' column at index 0. The original
+                      data is preserved, and for faction names without a standard abbreviation,
+                      the original faction name is used as the abbreviation.
+
+    Raises:
+        KeyError: If 'faction_name' column is missing from the input DataFrame
+    """
+    logger.info("Adding abbreviations to factions")
+
+    # Create a copy to avoid modifying the input DataFrame
+    result_df = factions_df.copy()
+
+    # Insert new column at the beginning
+    result_df.insert(0, "abbreviation", "")
+
+    # Track missing factions
+    missing_factions = []
+
+    # Helper function to track missing factions while getting abbreviation
+    def track_and_get_abbreviation(faction_name):
+        abbreviation = _get_abbreviation(faction_name)
+        if abbreviation == faction_name and faction_name not in FACTION_ABBREVIATIONS:
+            missing_factions.append(faction_name)
+        return abbreviation
+
+    # Apply the function to each faction name
+    result_df["abbreviation"] = result_df["faction_name"].apply(
+        track_and_get_abbreviation
+    )
+
+    # Log any missing factions as warnings
+    if missing_factions:
+        unique_missing = set(missing_factions)
+        logger.warning(
+            f"Found {len(unique_missing)} faction names without abbreviation mappings: {unique_missing}"
+        )
+        logger.warning("Using original names as abbreviations for these factions")
+
+    return result_df
+
+
+def assign_ids_to_factions(factions_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Assigns unique IDs to factions based on their abbreviations.
+
+    Args:
+        factions_df (pd.DataFrame): DataFrame containing faction abbreviations in the 'abbreviation' column
+
+    Returns:
+        pd.DataFrame: DataFrame with an additional 'id' column at index 0
+
+    Raises:
+        KeyError: If 'abbreviation' column is missing from the input DataFrame
+    """
+    logger.info("Assigning IDs to factions based on abbreviations")
+
+    # Create a copy to avoid modifying the input DataFrame
+    result_df = factions_df.copy()
+
+    # Get unique abbreviations and generate sequential IDs
+    unique_abbreviations = np.unique(result_df["abbreviation"])
+    faction_ids = list(range(len(unique_abbreviations)))
+
+    # Insert new ID column at the beginning with default value -1
+    result_df.insert(0, "id", -1)
+
+    # Assign IDs based on abbreviations
+    for abbrev, id_value in zip(unique_abbreviations, faction_ids):
+        result_df.loc[result_df["abbreviation"] == abbrev, "id"] = id_value
+
+    logger.info(f"Assigned {len(unique_abbreviations)} unique IDs to factions")
+    return result_df
 
 
 def main(task):
-    factions = pd.read_pickle(FACTIONS_STAGE_01 / "factions.pkl")
+    """
+    Main function that loads factions data, adds abbreviations and IDs,
+    and saves the result to the final directory.
 
-    abbreviations_dict = {
-        "Alternative für Deutschland": "AfD",
-        "Deutsche Soziale Union": "DSU",
-        "Fraktion Alternative für Deutschland": "AfD",
-        "Fraktion Bayernpartei": "BP",
-        "Fraktion Bündnis 90/Die Grünen": "Bündnis 90/Die Grünen",
-        "Fraktion DIE LINKE.": "DIE LINKE.",
-        "Fraktion DP/DPB (Gast)": "DP/DPB",
-        "Fraktion DRP (Gast)": "DRP",
-        "Fraktion Demokratische Arbeitsgemeinschaft": "DA",
-        "Fraktion Deutsche Partei": "DP",
-        "Fraktion Deutsche Partei Bayern": "DPB",
-        "Fraktion Deutsche Partei/Deutsche Partei Bayern": "DP/DPB",
-        "Fraktion Deutsche Partei/Freie Volkspartei": "DP/FVP",
-        "Fraktion Deutsche Reichspartei": "DRP",
-        "Fraktion Deutsche Reichspartei/Nationale Rechte": "DRP/NR",
-        "Fraktion Deutsche Zentrums-Partei": "Z",
-        "Fraktion Deutscher Gemeinschaftsblock der Heimatvertriebenen und Entrechteten": "BHE",
-        "Fraktion Die Grünen": "Bündnis 90/Die Grünen",
-        "Fraktion Die Grünen/Bündnis 90": "Bündnis 90/Die Grünen",
-        "Fraktion BÜNDNIS 90/DIE GRÜNEN": "Bündnis 90/Die Grünen",
-        "Fraktion Freie Volkspartei": "FVP",
-        "Fraktion Föderalistische Union": "FU",
-        "Fraktion Gesamtdeutscher Block / Block der Heimatvertriebenen und Entrechteten": "GB/BHE",
-        "Fraktion WAV (Gast)": "WAV",
-        "Fraktion Wirtschaftliche Aufbauvereinigung": "WAV",
-        "Fraktion der CDU/CSU (Gast)": "CDU/CSU",
-        "Fraktion der Christlich Demokratischen Union/Christlich - Sozialen Union": "CDU/CSU",
-        "Fraktion der FDP (Gast)": "FDP",
-        "Fraktion der Freien Demokratischen Partei": "FDP",
-        "Fraktion der Kommunistischen Partei Deutschlands": "KPD",
-        "Fraktion der Partei des Demokratischen Sozialismus": "PDS",
-        "Fraktion der SPD (Gast)": "SPD",
-        "Fraktion der Sozialdemokratischen Partei Deutschlands": "SPD",
-        "Fraktionslos": "Fraktionslos",
-        "Gruppe Bündnis 90/Die Grünen": "Bündnis 90/Die Grünen",
-        "Gruppe BSW - Bündnis Sahra Wagenknecht - Vernunft und Gerechtigkeit": "BSW",
-        "Gruppe Deutsche Partei": "DP",
-        "Gruppe Die Linke": "DIE LINKE.",
-        "Gruppe Kraft/Oberländer": "KO",
-        "Gruppe der Partei des Demokratischen Sozialismus": "PDS",
-        "Gruppe der Partei des Demokratischen Sozialismus/Linke Liste": "PDS",
-        "Südschleswigscher Wählerverband": "SSW",
-        "Gast": "Gast",
-        "Gruppe Nationale Rechte": "NR",
-    }
+    Returns:
+        bool: True if the task was successful, False otherwise
+    """
+    # Define input/output paths
+    FACTIONS_STAGE_01 = path.FACTIONS_STAGE_01
+    DATA_FINAL = path.DATA_FINAL
+    DATA_FINAL.mkdir(parents=True, exist_ok=True)
 
-    factions.insert(0, "abbreviation", "")
-    factions["abbreviation"] = factions["faction_name"].apply(
-        lambda x: abbreviations_dict[x]
-    )
+    # Load the factions data
+    input_file = FACTIONS_STAGE_01 / "factions.pkl"
+    try:
+        factions = pd.read_pickle(input_file)
+        logger.info(f"Loaded factions data from {input_file}")
+    except Exception as e:
+        logger.error(f"Failed to load {input_file}: {e}")
+        return False
 
-    unique_abbreviations = np.unique(factions["abbreviation"])
-    faction_ids = list(range(len(unique_abbreviations)))
+    # Process the data: add abbreviations and IDs
+    try:
+        # Add abbreviations
+        factions_with_abbrevs = add_abbreviations_to_factions(factions)
 
-    factions.insert(0, "id", -1)
+        # Add IDs based on abbreviations
+        final_factions = assign_ids_to_factions(factions_with_abbrevs)
 
-    for abbrev, id in zip(unique_abbreviations, faction_ids):
-        factions.loc[factions["abbreviation"] == abbrev, "id"] = id
+        logger.info("Successfully processed factions data")
+    except TypeError as e:
+        logger.error(f"Type error during faction processing: {e}")
+        return False
+    except ValueError as e:
+        logger.error(f"Value error during faction processing: {e}")
+        return False
+    except KeyError as e:
+        logger.error(f"Key error during faction processing (missing column?): {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Unexpected error processing factions data: {e}")
+        return False
 
-    # save the dataframe
-    factions.to_pickle(DATA_FINAL / "factions.pkl")
+    # Save the processed data
+    output_file = DATA_FINAL / "factions.pkl"
+    try:
+        final_factions.to_pickle(output_file)
+        logger.info(f"Saved processed factions data to {output_file}")
+    except Exception as e:
+        logger.error(f"Failed to save to {output_file}: {e}")
+        return False
 
+    logger.info("Script completed: factions abbreviations and IDs added.")
     return True
 
 
