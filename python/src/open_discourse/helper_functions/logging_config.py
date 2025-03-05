@@ -7,7 +7,7 @@ import open_discourse.definitions.path_definitions as path_definitions
 
 
 def setup_and_get_logger(
-        log_file: str, log_level: int = logging.DEBUG
+    log_file: str, log_level: int = logging.DEBUG
 ) -> logging.Logger:
     """
     Setup for Root-Logger; can be used globally.
@@ -27,11 +27,11 @@ def setup_and_get_logger(
         raise ValueError("arg 'log_file' should be a string of 3 chars minimum!")
     # only standard log levels are supported
     if not isinstance(log_level, int) or log_level not in (
-            logging.DEBUG,
-            logging.INFO,
-            logging.WARNING,
-            logging.ERROR,
-            logging.CRITICAL,
+        logging.DEBUG,
+        logging.INFO,
+        logging.WARNING,
+        logging.ERROR,
+        logging.CRITICAL,
     ):
         log_level = logging.DEBUG
 
