@@ -142,7 +142,7 @@ def test_setup_and_get_logger(case: namedtuple, patch_log_path, capfd):
 
     # Test 1: exact two handlers
     assert (
-            len(logger.handlers) == 2
+        len(logger.handlers) == 2
     ), "Logger should have exact 2 Handler(file & console)"
 
     # Test 2: log file created?
@@ -167,7 +167,7 @@ def test_setup_and_get_logger(case: namedtuple, patch_log_path, capfd):
             assert len(log_content) == 0
         else:
             assert (
-                    "ROOT" not in log_content
+                "ROOT" not in log_content
             )  # The original root handler should not be used
             # check for correct log_level
             assert log_content.endswith(
