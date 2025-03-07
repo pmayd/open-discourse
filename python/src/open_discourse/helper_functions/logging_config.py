@@ -12,7 +12,7 @@ def setup_and_get_logger(
     """
     Setup for Root-Logger; can be used globally.
     Prepare logging to console and file.
-    Logging to console oly for log_level logging.INFO and more severe.
+    Logging to console only for log_level logging.INFO and more severe.
     Only standard log levels without logging.NOTSET are supported.
 
     Args:
@@ -20,7 +20,7 @@ def setup_and_get_logger(
         log_level (int) : logging level, e.g. logging.DEBUG (default value)
 
     Returns:
-        logger (logging.logger):
+        logger (logging.Logger):
     """
     # check args
     if not isinstance(log_file, str) or len(log_file) < 3:
