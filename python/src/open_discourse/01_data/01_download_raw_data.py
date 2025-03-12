@@ -32,22 +32,50 @@ zip_links = [
     "https://www.bundestag.de/resource/blob/870686/91b713c492499db98eec5b2f8f142d20/pp19.zip",
 ]
 
-for link in tqdm(zip_links, desc="Download & unzip election period data..."):
-    # Extract election period from URL
-    electoral_term_str = "electoral_term_" + regex.search(r"pp(\d+).zip$", link).group(
-        0
-    )
 
-    print(f"Download & unzip '{electoral_term_str}'...", end="", flush=True)
+class MockLogger:
+    def __init__(self, verbose=True):
+        self.verbose = verbose
 
-    r = requests.get(link)
+    def info(self, msg):
+        if self.verbose:
+            print(msg)
 
-    with zipfile.ZipFile(io.BytesIO(r.content)) as z:
-        save_path = RAW_XML / electoral_term_str
-        save_path.mkdir(parents=True, exist_ok=True)
-        z.extractall(save_path)
+    def error(self, msg):
+        if self.verbose:
+            print(msg)
 
-assert RAW_XML.exists()
-assert len(list(RAW_XML.glob("*"))) == len(zip_links)
+    def warning(self, msg):
+        if self.verbose:
+            print(msg)
 
-print("Script 01_01 done.")
+
+if __name__ == "__main__":
+    logger = MockLogger()
+    logger.info("Begin task 01_01, download electoral term data...")
+    for link in tqdm(zip_links, desc="Download & unzip election period data..."):
+        try:
+            # Extract election period from URL
+            electoral_term_str = "electoral_term_" + regex.search(
+                r"pp(\d+).zip$", link
+            ).group(0)
+
+            print(f"Download & unzip '{electoral_term_str}'...", end="", flush=True)
+
+            r = requests.get(link)
+
+            with zipfile.ZipFile(io.BytesIO(r.content)) as z:
+                save_path = RAW_XML / electoral_term_str
+                save_path.mkdir(parents=True, exist_ok=True)
+                z.extractall(save_path)
+            logger.info(f"Downloaded '{link}' to '{save_path}'")
+        except Exception as e:
+            logger.error(f"Error downloading '{link}': {e}")
+
+    try:
+        assert RAW_XML.exists()
+        assert len(list(RAW_XML.glob("*"))) == len(zip_links)
+    except Exception as e:
+        logger.error(f"Error: {e}")
+        raise e
+    logger.info("Task 01_01 completed.")
