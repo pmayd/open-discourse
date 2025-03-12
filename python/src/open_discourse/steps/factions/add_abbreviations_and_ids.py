@@ -141,10 +141,18 @@ def main(task):
     try:
         factions = pd.read_pickle(input_file)
         logger.info(f"Loaded factions data from {input_file}")
-    except Exception as e:
-        logger.error(f"Failed to load {input_file}: {e}")
+    except FileNotFoundError as e:
+        logger.error(f"File not found at {input_file}: {e}")
         return False
-
+    except (pd.errors.EmptyDataError, pd.errors.ParserError) as e:
+        logger.error(f"Data parsing error for {input_file}: {e}")
+        return False
+    except PermissionError as e:
+        logger.error(f"Permission denied accessing {input_file}: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Unexpected error loading {input_file}: {e}")
+        return False
     # Process the data: add abbreviations and IDs
     try:
         # Add abbreviations
@@ -166,14 +174,19 @@ def main(task):
     except Exception as e:
         logger.error(f"Unexpected error processing factions data: {e}")
         return False
-
     # Save the processed data
     output_file = DATA_FINAL / "factions.pkl"
     try:
         final_factions.to_pickle(output_file)
         logger.info(f"Saved processed factions data to {output_file}")
+    except PermissionError as e:
+        logger.error(f"Permission denied when saving to {output_file}: {e}")
+        return False
+    except OSError as e:
+        logger.error(f"OS error when saving to {output_file}: {e}")
+        return False
     except Exception as e:
-        logger.error(f"Failed to save to {output_file}: {e}")
+        logger.error(f"Unexpected error saving to {output_file}: {e}")
         return False
 
     logger.info("Script completed: factions abbreviations and IDs added.")
