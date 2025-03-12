@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  format-python:
-    if: contains(github.event.pull_request.changed_files, 'python/')
+  format:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -20,54 +20,26 @@ jobs:
       - name: Set up Python
         run: uv python install
 
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
       - name: Install Python dependencies
         working-directory: python
         run: make install-dev
 
       - name: Format with ruff
         working-directory: python
-        run: uv run ruff format --check
-
-  format-database:
-    if: contains(github.event.pull_request.changed_files, 'database/')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+        run:  uv run ruff format --check
 
       - name: Format database package
         working-directory: database
         run: yarn && yarn run prettier . --check
 
-  format-frontend:
-    if: contains(github.event.pull_request.changed_files, 'frontend/')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
       - name: Format frontend package
         working-directory: frontend
         run: yarn && yarn run prettier . --check
-
-  format-proxy:
-    if: contains(github.event.pull_request.changed_files, 'proxy/')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
 
       - name: Format proxy package
         working-directory: proxy
