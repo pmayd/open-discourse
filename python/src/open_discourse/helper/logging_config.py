@@ -3,11 +3,12 @@ import sys
 from logging import FileHandler
 from pathlib import Path
 
-
 from open_discourse.definitions import path
 
 
-def setup_and_get_logger(log_file: str, log_level: int = logging.DEBUG) -> logging.Logger:
+def setup_and_get_logger(
+    log_file: str, log_level: int = logging.DEBUG
+) -> logging.Logger:
     """
     Setup for Root-Logger; can be used globally.
     Prepare logging to console and file.
