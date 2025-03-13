@@ -1,6 +1,4 @@
-import logging
-import xml.etree.ElementTree as Et
-from datetime import datetime
+import xml.etree.ElementTree as et
 
 import pandas as pd
 
