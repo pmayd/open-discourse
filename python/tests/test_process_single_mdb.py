@@ -3,9 +3,7 @@ from collections import namedtuple
 
 import pytest
 
-from open_discourse.steps.preprocessing.extract_mps_from_mp_base_data import (
-    process_single_mdb,
-)
+from open_discourse.extract_mps_from_mp_base_data import process_single_mdb
 
 # Definition Named Tuple for test cases, don't name ist Testcase!!!
 CaseDataforTest = namedtuple("CaseDataforTest", ["input", "expected", "exception"])
