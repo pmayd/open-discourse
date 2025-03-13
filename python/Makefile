@@ -53,3 +53,7 @@ clean:
 .PHONY: clean-data
 clean-data:
 	rm -rf data
+
+.PHONY: list-tasks
+list-tasks:
+	$(UV) run doit list --all --deps
