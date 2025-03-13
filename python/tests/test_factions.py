@@ -1,6 +1,5 @@
 import pandas as pd
 import pytest
-from pandas.testing import assert_frame_equal
 
 # Import the functions from the correct package path
 from open_discourse.helper_functions.constants import ADDITIONAL_FACTIONS
@@ -33,7 +32,6 @@ def extract_unique_factions(mps_df):
 def add_abbreviations_to_factions(factions_df):
     """Import at test time to avoid module import issues"""
     from open_discourse.helper_functions.constants import FACTION_ABBREVIATIONS
-    import pandas as pd
 
     # Create a copy to avoid modifying the input DataFrame
     result_df = factions_df.copy()
@@ -60,7 +58,6 @@ def add_abbreviations_to_factions(factions_df):
 def assign_ids_to_factions(factions_df):
     """Import at test time to avoid module import issues"""
     import numpy as np
-    import pandas as pd
 
     # Create a copy to avoid modifying the input DataFrame
     result_df = factions_df.copy()

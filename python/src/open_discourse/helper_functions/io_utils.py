@@ -9,7 +9,7 @@ error handling and logging.
 import pandas as pd
 import logging
 from pathlib import Path
-from typing import Optional, Any, Union
+from typing import Optional, Any
 
 
 def load_pickle(file_path: Path, logger: logging.Logger) -> Optional[Any]:
