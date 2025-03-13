@@ -7,7 +7,7 @@ This script is part of the Open Discourse pipeline and performs the following ta
 3. Adds additional predefined factions from constants
 4. Saves the resulting factions DataFrame to a pickle file
 
-The output of this script serves as input for the subsequent faction processing step 
+The output of this script serves as input for the subsequent faction processing step
 (02_add_abbreviations_and_ids.py) which adds abbreviations and unique IDs.
 """
 
@@ -22,6 +22,7 @@ from open_discourse.helper_functions.io_utils import load_pickle, save_pickle
 
 # Configure a logger for this script
 logger = setup_and_get_logger("process_factions")
+
 
 def extract_unique_factions(mps: pd.DataFrame) -> pd.DataFrame:
     """
@@ -51,7 +52,9 @@ def extract_unique_factions(mps: pd.DataFrame) -> pd.DataFrame:
         raise ValueError(f"Missing required columns in DataFrame: {missing}")
 
     # Filter rows where institution_type is "Fraktion/Gruppe"
-    factions_series = mps.loc[mps["institution_type"] == "Fraktion/Gruppe", "institution_name"]
+    factions_series = mps.loc[
+        mps["institution_type"] == "Fraktion/Gruppe", "institution_name"
+    ]
 
     # Extract unique faction names
     unique_factions = np.unique(factions_series)
@@ -62,16 +65,17 @@ def extract_unique_factions(mps: pd.DataFrame) -> pd.DataFrame:
     # Convert the result to a DataFrame, will eventually be saved to file
     return pd.DataFrame(all_factions, columns=["faction_name"])
 
+
 def main() -> None:
     """
     Main function that loads the mps DataFrame, extracts unique factions,
     and saves them to 'factions.pkl' in the designated output directory.
-    
+
     This function orchestrates the following steps:
     1. Loads politicians data from the POLITICIANS_STAGE_01 directory
     2. Extracts unique faction names using extract_unique_factions()
     3. Saves the resulting DataFrame to the FACTIONS_STAGE_01 directory
-    
+
     Returns:
         None: This function doesn't return any values but exits early on errors
     """
@@ -103,6 +107,7 @@ def main() -> None:
         return  # Early return if saving failed
 
     logger.info("Script completed: 03_01_process_factions.py done.")
+
 
 if __name__ == "__main__":
     main()
