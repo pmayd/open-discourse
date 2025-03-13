@@ -10,14 +10,16 @@ FACTIONS_INPUT = path.DATA_FINAL
 POLITICIANS_OUTPUT = path.POLITICIANS_STAGE_02
 POLITICIANS_OUTPUT.mkdir(parents=True, exist_ok=True)
 
-factions = pd.read_pickle(FACTIONS_INPUT / "factions.pkl")
-mps = pd.read_pickle(POLITICIANS_INPUT / "mps.pkl")
 
-mps.insert(2, "faction_id", -1)
+def main(task):
+    factions = pd.read_pickle(FACTIONS_INPUT / "factions.pkl")
+    mps = pd.read_pickle(POLITICIANS_INPUT / "mps.pkl")
 
-for faction_name, faction_id in zip(factions["faction_name"], factions["id"]):
-    mps.loc[mps["institution_name"] == faction_name, "faction_id"] = faction_id
+    mps.insert(2, "faction_id", -1)
 
-mps.to_pickle(POLITICIANS_OUTPUT / "mps.pkl")
+    for faction_name, faction_id in zip(factions["faction_name"], factions["id"]):
+        mps.loc[mps["institution_name"] == faction_name, "faction_id"] = faction_id
 
-print("Script 04_01 done.")
+    mps.to_pickle(POLITICIANS_OUTPUT / "mps.pkl")
+
+    return True
