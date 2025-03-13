@@ -33,7 +33,7 @@ include = ["open_discourse*"]
 open_discourse = ["*"]
 
 [tool.ruff]
-exclude = ["__pycache__", ".git", ".github", ".ruff_cache", ".venv"]
+exclude = ["__pycache__", ".git", ".github", ".ruff_cache", ".venv", "dodo.py"]
 line-length = 88
 
 [tool.uv]
