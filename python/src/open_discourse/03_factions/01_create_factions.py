@@ -16,12 +16,12 @@ import pandas as pd
 
 # Project-specific imports
 import open_discourse.definitions.path_definitions as path_definitions
-from open_discourse.helper_functions.logging_config import configure_logger
+from open_discourse.helper_functions.logging_config import setup_and_get_logger
 from open_discourse.helper_functions.constants import ADDITIONAL_FACTIONS
 from open_discourse.helper_functions.io_utils import load_pickle, save_pickle
 
 # Configure a logger for this script
-logger = configure_logger("process_factions")
+logger = setup_and_get_logger("process_factions")
 
 def extract_unique_factions(mps: pd.DataFrame) -> pd.DataFrame:
     """
