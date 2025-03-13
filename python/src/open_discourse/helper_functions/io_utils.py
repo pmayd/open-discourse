@@ -6,10 +6,11 @@ loading and saving data from/to various file formats, with comprehensive
 error handling and logging.
 """
 
-import pandas as pd
 import logging
 from pathlib import Path
-from typing import Optional, Any
+from typing import Any, Optional
+
+import pandas as pd
 
 
 def load_pickle(file_path: Path, logger: logging.Logger) -> Optional[Any]:

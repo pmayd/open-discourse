@@ -8,9 +8,10 @@ from open_discourse.helper_functions.constants import ADDITIONAL_FACTIONS
 # Import the functions we need to test
 def extract_unique_factions(mps_df):
     """Import at test time to avoid module import issues"""
-    from open_discourse.helper_functions.constants import ADDITIONAL_FACTIONS
     import numpy as np
     import pandas as pd
+
+    from open_discourse.helper_functions.constants import ADDITIONAL_FACTIONS
 
     # Cut dataframe down to two columns
     required_cols = {"institution_type", "institution_name"}
