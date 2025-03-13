@@ -15,53 +15,55 @@ RAW_XML = path.RAW_XML
 RAW_TXT = path.RAW_TXT
 RAW_TXT.mkdir(parents=True, exist_ok=True)
 
-# Open every xml plenar file in every electoral term.
-for folder_path in sorted(RAW_XML.iterdir()):
-    # Skip e.g. the .DS_Store file.
 
-    if not folder_path.is_dir():
-        continue
+def main(task):
+    # Open every xml plenar file in every electoral term.
+    for folder_path in sorted(RAW_XML.iterdir()):
+        # Skip e.g. the .DS_Store file.
 
-    term_number = get_term_from_path(str(folder_path))
-    if term_number is None:
-        print(f"No term number found in {folder_path.stem}.")
-        continue
+        if not folder_path.is_dir():
+            continue
 
-    if term_number > 2:
-        continue
+        term_number = get_term_from_path(str(folder_path))
+        if term_number is None:
+            print(f"No term number found in {folder_path.stem}.")
+            continue
 
-    for xml_file_path in tqdm(
-        list(folder_path.iterdir()), desc=f"Parsing term {term_number:>2}..."
-    ):
-        if xml_file_path.suffix == ".xml":
-            tree = et.parse(xml_file_path)
+        if term_number > 2:
+            continue
 
-            meta_data = get_doc_metadata(tree)
-            text_corpus = tree.find("TEXT").text
+        for xml_file_path in tqdm(
+            list(folder_path.iterdir()), desc=f"Parsing term {term_number:>2}..."
+        ):
+            if xml_file_path.suffix == ".xml":
+                tree = et.parse(xml_file_path)
 
-            # Clean text corpus.
-            text_corpus = clean(text_corpus)
+                meta_data = get_doc_metadata(tree)
+                text_corpus = tree.find("TEXT").text
 
-            # Append "END OF FILE" to document text, otherwise pattern is
-            # not found, when appearing at the end of the file.
-            text_corpus += "\n\nEND OF FILE"
+                # Clean text corpus.
+                text_corpus = clean(text_corpus)
 
-            session_content = get_session_content(text_corpus)
+                # Append "END OF FILE" to document text, otherwise pattern is
+                # not found, when appearing at the end of the file.
+                text_corpus += "\n\nEND OF FILE"
 
-            if not session_content:
-                print(f"No session content found in {xml_file_path.stem}.")
-                continue
+                session_content = get_session_content(text_corpus)
 
-            save_path = RAW_TXT / folder_path.stem / xml_file_path.stem
-            save_path.mkdir(parents=True, exist_ok=True)
-            # Save table of content, spoken content and appendix
-            # in separate folders.
-            with open(save_path / "session_content.txt", "w") as text_file:
-                text_file.write(session_content)
+                if not session_content:
+                    print(f"No session content found in {xml_file_path.stem}.")
+                    continue
 
-            with open(save_path / "meta_data.xml", "wb") as result_file:
-                result_file.write(dicttoxml.dicttoxml(meta_data.dict()))
+                save_path = RAW_TXT / folder_path.stem / xml_file_path.stem
+                save_path.mkdir(parents=True, exist_ok=True)
+                # Save table of content, spoken content and appendix
+                # in separate folders.
+                with open(save_path / "session_content.txt", "w") as text_file:
+                    text_file.write(session_content)
 
-assert RAW_TXT.exists(), f"Output directory {RAW_TXT} does not exist."
+                with open(save_path / "meta_data.xml", "wb") as result_file:
+                    result_file.write(dicttoxml.dicttoxml(meta_data.dict()))
 
-print("Script 02_02 done.")
+    assert RAW_TXT.exists(), f"Output directory {RAW_TXT} does not exist."
+
+    return True

@@ -15,41 +15,47 @@ RAW_TXT = path.RAW_TXT
 SPEECH_CONTENT_OUTPUT = path.SPEECH_CONTENT_STAGE_01
 SPEECH_CONTENT_OUTPUT.mkdir(parents=True, exist_ok=True)
 
-president_pattern_str = r"(?P<position_raw>Präsident(?:in)?|Vizepräsident(?:in)?|Alterspräsident(?:in)?|Bundespräsident(?:in)?|Bundeskanzler(?:in)?)\s+(?P<name_raw>[A-ZÄÖÜß](?:[^:([}{\]\)\s]+\s?){1,5})\s?:\s?"
 
-faction_speaker_pattern_str = r"{3}(?P<name_raw>[A-ZÄÖÜß][^:([{{}}\]\)\n]+?)(\s*{0}(?P<constituency>[^:(){{}}[\]\n]+){1})*\s*{0}(?P<position_raw>{2}){1}(\s*{0}(?P<constituency>[^:(){{}}[\]\n]+){1})*\s?:\s?"
+def main(task):
+    print("Starting..")
 
-minister_pattern_str = r"{0}(?P<name_raw>[A-ZÄÖÜß](?:[^:([{{}}\]\)\s]+\s?){{1,5}}?),\s?(?P<position_raw>(?P<short_position>Bundesminister(?:in)?|Staatsminister(?:in)?|(?:Parl\s?\.\s)?Staatssekretär(?:in)?|Präsident(?:in)?|Bundeskanzler(?:in)?|Schriftführer(?:in)?|Senator(?:in)?\s?(?:{1}(?P<constituency>[^:([{{}}\]\)\s]+){2})?|Berichterstatter(?:in)?)\s?([^:([\]{{}}\)\n]{{0,76}}?\n?){{1,2}})\s?:\s?"
+    for folder_path in sorted(RAW_TXT.iterdir()):
+        process_period(folder_path)
 
-parties = [
-    r"(?:Gast|-)?(?:\s*C\s*[DSMU]\s*S?[DU]\s*(?:\s*[/,':!.-]?)*\s*(?:\s*C+\s*[DSs]?\s*[UÙ]?\s*)?)(?:-?Hosp\.|-Gast|1)?",
-    r"\s*'?S(?:PD|DP)(?:\.|-Gast)?",
-    r"\s*F\.?\s*[PDO][.']?[DP]\.?",
-    r"(?:BÜNDNIS\s*(?:90)?/?(?:\s*D[1I]E)?|Bündnis\s*90/(?:\s*D[1I]E)?)?\s*[GC]R[UÜ].?\s*[ÑN]EN?(?:/Bündnis 90)?",
-    r"DIE LINKE",
-    r"(?:Gruppe\s*der\s*)?PDS(?:/(?:LL|Linke Liste))?",
-    r"(fraktionslos|Parteilos)",
-    r"(?:GB[/-]\s*)?BHE(?:-DG)?",
-    "DP",
-    "KPD",
-    "Z",
-    "BP",
-    "FU",
-    "WAV",
-    r"DRP(\-Hosp\.)",
-    "FVP",
-    "SSW",
-    "SRP",
-    "DA",
-    "Gast",
-    "DBP",
-    "NR",
-]
-
-print("Starting..")
+    return True
 
 
 def process_period(folder_path: Path):
+    president_pattern_str = r"(?P<position_raw>Präsident(?:in)?|Vizepräsident(?:in)?|Alterspräsident(?:in)?|Bundespräsident(?:in)?|Bundeskanzler(?:in)?)\s+(?P<name_raw>[A-ZÄÖÜß](?:[^:([}{\]\)\s]+\s?){1,5})\s?:\s?"
+
+    faction_speaker_pattern_str = r"{3}(?P<name_raw>[A-ZÄÖÜß][^:([{{}}\]\)\n]+?)(\s*{0}(?P<constituency>[^:(){{}}[\]\n]+){1})*\s*{0}(?P<position_raw>{2}){1}(\s*{0}(?P<constituency>[^:(){{}}[\]\n]+){1})*\s?:\s?"
+
+    minister_pattern_str = r"{0}(?P<name_raw>[A-ZÄÖÜß](?:[^:([{{}}\]\)\s]+\s?){{1,5}}?),\s?(?P<position_raw>(?P<short_position>Bundesminister(?:in)?|Staatsminister(?:in)?|(?:Parl\s?\.\s)?Staatssekretär(?:in)?|Präsident(?:in)?|Bundeskanzler(?:in)?|Schriftführer(?:in)?|Senator(?:in)?\s?(?:{1}(?P<constituency>[^:([{{}}\]\)\s]+){2})?|Berichterstatter(?:in)?)\s?([^:([\]{{}}\)\n]{{0,76}}?\n?){{1,2}})\s?:\s?"
+
+    parties = [
+        r"(?:Gast|-)?(?:\s*C\s*[DSMU]\s*S?[DU]\s*(?:\s*[/,':!.-]?)*\s*(?:\s*C+\s*[DSs]?\s*[UÙ]?\s*)?)(?:-?Hosp\.|-Gast|1)?",
+        r"\s*'?S(?:PD|DP)(?:\.|-Gast)?",
+        r"\s*F\.?\s*[PDO][.']?[DP]\.?",
+        r"(?:BÜNDNIS\s*(?:90)?/?(?:\s*D[1I]E)?|Bündnis\s*90/(?:\s*D[1I]E)?)?\s*[GC]R[UÜ].?\s*[ÑN]EN?(?:/Bündnis 90)?",
+        r"DIE LINKE",
+        r"(?:Gruppe\s*der\s*)?PDS(?:/(?:LL|Linke Liste))?",
+        r"(fraktionslos|Parteilos)",
+        r"(?:GB[/-]\s*)?BHE(?:-DG)?",
+        "DP",
+        "KPD",
+        "Z",
+        "BP",
+        "FU",
+        "WAV",
+        r"DRP(\-Hosp\.)",
+        "FVP",
+        "SSW",
+        "SRP",
+        "DA",
+        "Gast",
+        "DBP",
+        "NR",
+    ]
     if not folder_path.is_dir():
         return
 
@@ -170,12 +176,3 @@ def process_session(session_path: Path, patterns: list[regex.Pattern], save_path
     session_df["speech_content"] = speech_content
 
     session_df.to_pickle(save_path / (session_path.stem + ".pkl"))
-
-
-for folder_path in sorted(RAW_TXT.iterdir()):
-    process_period(folder_path)
-
-assert SPEECH_CONTENT_OUTPUT.exists()
-assert len(list(SPEECH_CONTENT_OUTPUT.glob("*_pp*"))) == len(
-    list(RAW_TXT.glob("*_pp*"))
-)

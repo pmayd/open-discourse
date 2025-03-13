@@ -14,7 +14,7 @@ DATA_FINAL = DATA / "03_final"
 FINAL = DATA / "03_final"
 
 # MP_BASE_DATA _________________________________________________________________________
-MP_BASE_DATA = DATA_RAW / "MP_BASE_DATA" / "MDB_STAMMDATEN.XML"
+MP_BASE_DATA = DATA_RAW / "MP_BASE_DATA"
 
 # RAW __________________________________________________________________________________
 RAW_ZIP = DATA_RAW / "zip"
