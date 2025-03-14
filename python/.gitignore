@@ -1,2 +1,5 @@
 *.egg-info
 dist
+
+# ignore databases from doit
+*.db
