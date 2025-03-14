@@ -17,7 +17,7 @@ dependencies = [
     "pyparsing>=3.2.1",
     "pydantic>=2.10.6",
     "psycopg2-binary>=2.9.10",
-    "doit>=0.36.0",
+    "doit[doit-graph]>=0.36.0",
 ]
 
 
@@ -38,6 +38,7 @@ line-length = 88
 
 [tool.uv]
 dev-dependencies = [
+    "doit-graph>=0.3.0",
     "pre-commit>=4.0.1",
     "pytest>=8.3.4",
     "pytest-cov>=6.0.0",
