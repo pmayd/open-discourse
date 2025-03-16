@@ -49,7 +49,7 @@ Attributes:
 - Input:
   - `None`
 - Output:
-  - `./data/02_cached/electoral_term_pp20/stage_01/*`
+  - `./data/02_cached/electoral_term_20/stage_01/*`
 
 ## 02_preprocessing
 
@@ -90,9 +90,9 @@ Function:
 Attributes:
 
 - Input:
-  - `./data/02_cached/electoral_term_pp20/stage_01/*`
+  - `./data/02_cached/electoral_term_20/stage_01/*`
 - Output:
-  - `./data/02_cached/electoral_term_pp20/stage_02/*`
+  - `./data/02_cached/electoral_term_20/stage_02/*`
 
 ### 4. [Extract MPs from personal details](./02_preprocessing/04_extract_mps_from_mp_base_data.py)
 

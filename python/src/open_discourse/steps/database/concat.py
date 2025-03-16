@@ -11,7 +11,7 @@ from open_discourse.definitions import path
 # input directory
 RAW_XML = path.RAW_XML
 SPEECH_CONTENT_INPUT = path.SPEECH_CONTENT_STAGE_04
-SPEECH_CONTENT_INPUT_PP_20 = path.DATA_CACHE / "electoral_term_pp20" / "stage_03"
+SPEECH_CONTENT_INPUT_TERM_20 = path.DATA_CACHE / "electoral_term_20" / "stage_03"
 CONTRIBUTIONS_EXTENDED_INPUT = path.CONTRIBUTIONS_EXTENDED_STAGE_03
 
 # output directory
@@ -68,14 +68,10 @@ def main(task):
         if not folder_path.is_dir():
             continue
 
-        term_number = regex.search(r"(?<=electoral_term_pp)\d{2}", folder_path.stem)
+        term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
         if term_number is None:
             continue
         term_number = int(term_number.group(0))
-
-        if len(sys.argv) > 1:
-            if str(term_number) not in sys.argv:
-                continue
 
         for xml_plenar_file_path in sorted(folder_path.glob("*.xml")):
             tree = et.parse(xml_plenar_file_path)
@@ -108,7 +104,7 @@ def main(task):
     )
 
     speech_content_20 = pd.read_pickle(
-        SPEECH_CONTENT_INPUT_PP_20 / "speech_content" / "speech_content.pkl"
+        SPEECH_CONTENT_INPUT_TERM_20 / "speech_content" / "speech_content.pkl"
     )
 
     speech_content_20 = speech_content_20.loc[
@@ -156,7 +152,7 @@ def main(task):
         if not folder_path.is_dir():
             continue
 
-        term_number = regex.search(r"(?<=electoral_term_pp)\d{2}", folder_path.stem)
+        term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
         if term_number is None:
             continue
         term_number = int(term_number.group(0))

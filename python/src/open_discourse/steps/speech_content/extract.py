@@ -1,5 +1,4 @@
 import concurrent.futures
-import sys
 from pathlib import Path
 
 import pandas as pd
@@ -59,8 +58,8 @@ def process_period(folder_path: Path):
     if not folder_path.is_dir():
         return
 
-    term_number = regex.search(r"(?<=electoral_term_pp)\d{2}", folder_path.stem)
-
+    term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+    print(term_number)
     if term_number is None:
         return
 
@@ -76,10 +75,6 @@ def process_period(folder_path: Path):
         prefix = r"(?<=\n)"
     else:
         raise ValueError("You should not land here.")
-
-    if len(sys.argv) > 1:
-        if str(term_number) not in sys.argv:
-            return
 
     faction_speaker_pattern = regex.compile(
         faction_speaker_pattern_str.format(

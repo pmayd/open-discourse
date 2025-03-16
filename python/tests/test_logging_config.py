@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
-from open_discourse.helper_functions.logging_config import setup_and_get_logger
+from open_discourse.helper.logging_config import setup_and_get_logger
 
 # Definition Named Tuple for test cases, don't name it Testcase!!!
 CaseDataforTest = namedtuple("CaseDataforTest", ["input", "expected", "exception"])
@@ -26,7 +26,7 @@ def patch_log_path(tmp_path):
     # LOGS DIR
     mocked_LOGS_DIR = tmp_path / "logs"
 
-    with patch("open_discourse.definitions.path_definitions.LOGS_DIR", mocked_LOGS_DIR):
+    with patch("open_discourse.definitions.path.LOGS_DIR", mocked_LOGS_DIR):
         yield {"LOGS_DIR": mocked_LOGS_DIR}
 
 

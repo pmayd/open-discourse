@@ -10,8 +10,8 @@ DATA_FOLDER = path.RAW_XML
 
 
 def xml_files():
-    return list((DATA_FOLDER / "electoral_term_pp01.zip").glob("*.xml")) + list(
-        (DATA_FOLDER / "electoral_term_pp02.zip").glob("*.xml")
+    return list((DATA_FOLDER / "electoral_term_01").glob("*.xml")) + list(
+        (DATA_FOLDER / "electoral_term_02").glob("*.xml")
     )
 
 
