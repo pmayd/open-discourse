@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, List, Callable
+from typing import Callable, Dict, List
 
 from open_discourse.steps.doit_config import DoitTaskConfig
 
