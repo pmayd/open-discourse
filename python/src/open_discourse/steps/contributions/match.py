@@ -1,5 +1,3 @@
-import sys
-
 import pandas as pd
 import regex
 from tqdm import tqdm

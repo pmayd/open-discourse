@@ -1,5 +1,4 @@
 import datetime
-import sys
 import time
 import xml.etree.ElementTree as et
 
