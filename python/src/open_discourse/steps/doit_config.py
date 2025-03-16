@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Callable
+from typing import Callable, List
 
 from pydantic import BaseModel
 
