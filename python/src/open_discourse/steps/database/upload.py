@@ -15,9 +15,7 @@ CONTRIBUTIONS_SIMPLIFIED = (
     path.CONTRIBUTIONS_SIMPLIFIED / "contributions_simplified.pkl"
 )
 CONTRIBUTIONS_SIMPLIFIED_WP20 = (
-    path.CONTRIBUTIONS_SIMPLIFIED
-    / "electoral_term_pp20"
-    / "contributions_simplified.pkl"
+    path.CONTRIBUTIONS_SIMPLIFIED / "electoral_term_20" / "contributions_simplified.pkl"
 )
 ELECTORAL_TERMS = path.ELECTORAL_TERMS / "electoral_terms.csv"
 

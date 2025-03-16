@@ -64,6 +64,8 @@ def main(task):
                 with open(save_path / "meta_data.xml", "wb") as result_file:
                     result_file.write(dicttoxml.dicttoxml(meta_data.dict()))
 
-    assert RAW_TXT.exists(), f"Output directory {RAW_TXT} does not exist."
+    if not len(list(RAW_TXT.rglob("*.txt"))):
+        print(f"{RAW_TXT} should not be empty.")
+        return False
 
     return True

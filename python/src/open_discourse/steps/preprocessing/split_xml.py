@@ -42,10 +42,6 @@ def main(task):
             r"\(Schlu(ß|ss)\s?:?(.*?)\d{1,2}\D+(\d{1,2})?(.*?)\)?|\(Ende der Sitzung: \d{1,2}\D+(\d{1,2}) Uhr\.?\)"
         )
 
-        if len(sys.argv) > 1:
-            if str(term_number) not in sys.argv:
-                continue
-
         for xml_file_path in tqdm(
             list(folder_path.iterdir()), desc=f"Parsing term {term_number:>2}..."
         ):
@@ -225,6 +221,8 @@ def main(task):
                 with open(save_path / "meta_data.xml", "wb") as result_file:
                     result_file.write(dicttoxml.dicttoxml(meta_data))
 
-    assert RAW_TXT.exists(), f"Output directory {RAW_TXT}does not exist."
+    if not len(list(RAW_TXT.rglob("*.txt"))):
+        print(f"{RAW_TXT} should not be empty.")
+        return False
 
     return True

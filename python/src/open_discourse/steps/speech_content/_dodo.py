@@ -5,51 +5,46 @@ import open_discourse.steps.speech_content.clean as step2
 import open_discourse.steps.speech_content.extract as step1
 import open_discourse.steps.speech_content.match_names as step3
 from open_discourse.definitions import path
+from open_discourse.steps.task_factory import TaskFactory
 
-# Define the tasks for downloading the data.
-# `name` is taken from the module name.
-# `actions` is a list of functions to be executed.
-#   The first action is the main function of the module.
-#   The second action is to create a file that marks the task as done.
-# `targets` is a list of files that are created by the task
-#   and that can be used by downstream tasks as file dependency.
-# `uptodate` is a list of functions that check if the task is up-to-date.
-# `task_dep` is a list of tasks that have to run before this task.
-# `file_dep` is a list of files that are required for this task.
+# Define targets
 TARGET_TASK1 = path.SPEECH_CONTENT_STAGE_01 / "05_01.done"
 TARGET_TASK2 = path.SPEECH_CONTENT_STAGE_02 / "05_02.done"
 TARGET_TASK3 = path.SPEECH_CONTENT_STAGE_03 / "05_03.done"
 
+# Create task factory
+factory = TaskFactory(
+    task_group="05_speech_content",
+    task_description="Extracts and processes speech content by cleaning the text and matching speaker names.",
+)
 
+# Define tasks using factory
 TASK_DEFINITION = {
-    "step1": {
-        "name": step1.__name__.split(".")[-1],
-        "actions": [step1.main, f"touch {TARGET_TASK1}"],
-        "targets": [TARGET_TASK1],
-        "task_dep": ["02_preprocessing:split_xml"],
-        "file_dep": [preprocessing_task.TARGET_TASK2],
-    },
-    "step2": {
-        "name": step2.__name__.split(".")[-1],
-        "actions": [step2.main, f"touch {TARGET_TASK2}"],
-        "targets": [TARGET_TASK2],
-        "task_dep": [
+    "step1": factory.create_task(
+        step_module=step1,
+        target_paths=[TARGET_TASK1],
+        task_deps=[
+            "02_preprocessing:split_xml_electoral_term_1_and_2",
+            "02_preprocessing:split_xml",
+        ],
+        file_deps=[preprocessing_task.TARGET_TASK1, preprocessing_task.TARGET_TASK2],
+    ),
+    "step2": factory.create_task(
+        step_module=step2,
+        target_paths=[TARGET_TASK2],
+        task_deps=[
             "03_factions:add_abbreviations_and_ids",
             "05_speech_content:extract",
         ],
-        "file_dep": [factions_task.TARGET_TASK2, TARGET_TASK1],
-    },
-    "step3": {
-        "name": step3.__name__.split(".")[-1],
-        "actions": [step3.main, f"touch {TARGET_TASK3}"],
-        "targets": [TARGET_TASK3],
-        "task_dep": ["04_politicians:merge", "05_speech_content:clean"],
-        "file_dep": [politicians_task.TARGET_TASK3, TARGET_TASK2],
-    },
+        file_deps=[factions_task.TARGET_TASK2, TARGET_TASK1],
+    ),
+    "step3": factory.create_task(
+        step_module=step3,
+        target_paths=[TARGET_TASK3],
+        task_deps=["04_politicians:merge", "05_speech_content:clean"],
+        file_deps=[politicians_task.TARGET_TASK3, TARGET_TASK2],
+    ),
 }
 
-
-def task_05_speech_content():
-    """Preprocess/split the XML data."""
-    for _, task_definition in TASK_DEFINITION.items():
-        yield task_definition
+# Create task function
+task_05_speech_content = factory.create_task_function(TASK_DEFINITION)
