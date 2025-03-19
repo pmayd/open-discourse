@@ -17,7 +17,8 @@ dependencies = [
     "pyparsing>=3.2.1",
     "pydantic>=2.10.6",
     "psycopg2-binary>=2.9.10",
-    "doit[doit-graph]>=0.36.0",
+    "pendulum>=3.0.0",
+    "doit>=0.36.0",
 ]
 
 [project.optional-dependencies]
