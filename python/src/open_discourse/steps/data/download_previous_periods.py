@@ -1,15 +1,15 @@
 import io
+import time
 import zipfile
 
 import regex
 import requests
+from requests.adapters import HTTPAdapter, Retry
 from tqdm import tqdm
 
 from open_discourse.definitions import path
 
-# output directory
-RAW_XML = path.RAW_XML
-
+# input
 zip_links = [
     "https://www.bundestag.de/resource/blob/487966/4078f01fb3198dc3cee8945d6db3b231/pp01.zip",
     "https://www.bundestag.de/resource/blob/487968/5792895a5cf4ab51ed94c77157297031/pp02.zip",
@@ -32,22 +32,44 @@ zip_links = [
     "https://www.bundestag.de/resource/blob/870686/91b713c492499db98eec5b2f8f142d20/pp19.zip",
 ]
 
-for link in tqdm(zip_links, desc="Download & unzip election period data..."):
-    # Extract election period from URL
-    electoral_term_str = "electoral_term_" + regex.search(r"pp(\d+).zip$", link).group(
-        0
-    )
+# output directory
+RAW_XML = path.RAW_XML
 
-    print(f"Download & unzip '{electoral_term_str}'...", end="", flush=True)
 
-    r = requests.get(link)
+def main(task):
+    # Setup retries
+    session = requests.Session()
+    retries = Retry(total=5, backoff_factor=2, status_forcelist=[500, 502, 503, 504])
+    session.mount("https://", HTTPAdapter(max_retries=retries))
 
-    with zipfile.ZipFile(io.BytesIO(r.content)) as z:
-        save_path = RAW_XML / electoral_term_str
-        save_path.mkdir(parents=True, exist_ok=True)
-        z.extractall(save_path)
+    for link in tqdm(zip_links, desc="Download & unzip election period data..."):
+        electoral_term_str = "electoral_term_" + regex.search(r"pp(\d+).zip$", link).group(1)
+        print(f"Downloading & unzipping '{electoral_term_str}'...", end="", flush=True)
 
-assert RAW_XML.exists()
-assert len(list(RAW_XML.glob("*.zip"))) == len(zip_links)
+        file_buffer = download_file(link, session)
+        if file_buffer is None:
+            print(f"Skipping {electoral_term_str} due to repeated failures.")
+            continue
 
-print("Script 01_01 done.")
+        with zipfile.ZipFile(file_buffer) as z:
+            save_path = RAW_XML / electoral_term_str
+            save_path.mkdir(parents=True, exist_ok=True)
+            z.extractall(save_path)
+
+        time.sleep(1)
+
+    return True
+
+
+def download_file(link, session):
+    try:
+        with session.get(link, stream=True, timeout=30) as r:
+            r.raise_for_status()  # Ensure request was successful
+            file_buffer = io.BytesIO()
+            for chunk in r.iter_content(chunk_size=1024**2):  # 1MB chunks
+                file_buffer.write(chunk)
+            file_buffer.seek(0)
+            return file_buffer
+    except requests.exceptions.RequestException as e:
+        print(f"Download failed: {e}")
+        return None

@@ -17,6 +17,12 @@ dependencies = [
     "pyparsing>=3.2.1",
     "pydantic>=2.10.6",
     "psycopg2-binary>=2.9.10",
+    "doit[doit-graph]>=0.36.0",
+]
+
+[project.optional-dependencies]
+doit-graph = [
+    "doit>=0.36.0",
 ]
 
 
@@ -32,7 +38,7 @@ include = ["open_discourse*"]
 open_discourse = ["*"]
 
 [tool.ruff]
-exclude = ["__pycache__", ".git", ".github", ".ruff_cache", ".venv"]
+exclude = ["__pycache__", ".git", ".github", ".ruff_cache", ".venv", "dodo.py"]
 line-length = 88
 
 [tool.uv]
