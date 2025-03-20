@@ -1,6 +1,8 @@
 import pytest
 
-from open_discourse.extract_mps_from_mp_base_data import is_valid_date
+from open_discourse.steps.preprocessing.extract_mps_from_mp_base_data import (
+    is_valid_date,
+)
 
 # Definiere Testfälle als Liste von Tupeln
 test_cases = [
