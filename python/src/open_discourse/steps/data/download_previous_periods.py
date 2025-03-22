@@ -43,7 +43,7 @@ def main(task):
     session.mount("https://", HTTPAdapter(max_retries=retries))
 
     for link in tqdm(zip_links, desc="Download & unzip election period data..."):
-        electoral_term_str = "electoral_term_" + regex.search(r"pp(\d+).zip$", link).group(1)
+        electoral_term_str = "electoral_term_" + regex.search(r"pp(\d+).zip$", link).group(0)
         print(f"Downloading & unzipping '{electoral_term_str}'...", end="", flush=True)
 
         file_buffer = download_file(link, session)
@@ -73,3 +73,6 @@ def download_file(link, session):
     except requests.exceptions.RequestException as e:
         print(f"Download failed: {e}")
         return None
+
+if __name__ == "__main__":
+    main(None)

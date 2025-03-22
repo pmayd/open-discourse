@@ -23,3 +23,7 @@ def main(task):
     mps.to_pickle(POLITICIANS_OUTPUT / "mps.pkl")
 
     return True
+
+
+if __name__ == "__main__":
+    main(None)

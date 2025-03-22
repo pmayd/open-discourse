@@ -22,3 +22,7 @@ def main(task):
         z.extractall(mp_base_data_path)
 
     return True
+
+
+if __name__ == "__main__":
+    main(None)

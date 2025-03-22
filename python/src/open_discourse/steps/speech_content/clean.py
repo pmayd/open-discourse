@@ -22,7 +22,7 @@ def main(task):
         if not folder_path.is_dir():
             continue
 
-        term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+        term_number = regex.search(r"(?<=electoral_term_pp)\d{2}", folder_path.stem)
         if term_number is None:
             continue
         term_number = int(term_number.group(0))
@@ -148,6 +148,7 @@ def main(task):
                         speech_content.at[index, "faction_id"] = -1
 
             speech_content = speech_content.drop(columns=["position_raw", "name_raw"])
+            print(save_path,speech_content_file)
             speech_content.to_pickle(save_path / speech_content_file.name)
 
 
@@ -200,3 +201,8 @@ def _get_position_short_and_long(position):
         return "Secretary of State", position
     else:
         return "Not found", None
+
+
+if __name__ == "__main__":
+    main(None)
+

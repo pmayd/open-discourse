@@ -25,7 +25,7 @@ def main(task):
         if not folder_path.is_dir():
             continue
 
-        term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+        term_number = regex.search(r"(?<=electoral_term_pp)\d{2}", folder_path.stem)
         if term_number is None:
             continue
         term_number = int(term_number.group(0))
@@ -83,3 +83,7 @@ def main(task):
     )
 
     return True
+
+
+if __name__ == "__main__":
+    main(None)

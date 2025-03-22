@@ -48,3 +48,7 @@ def main(task):
     pd.DataFrame(electoral_terms).to_csv(save_path, index=False)
 
     return True
+
+
+if __name__ == "__main__":
+    main(None)
