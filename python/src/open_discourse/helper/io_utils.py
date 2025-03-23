@@ -9,20 +9,20 @@ error handling and logging.
 import pandas as pd
 import logging
 from pathlib import Path
-from typing import Optional, Any, Union
+from typing import Optional, Any
 
 
 def load_pickle(file_path: Path, logger: logging.Logger) -> Optional[Any]:
     """
     Safely load a pickle file with comprehensive error handling.
-    
+
     Args:
         file_path (Path): Path to the pickle file to be loaded
         logger (logging.Logger): Logger instance for reporting success or errors
-        
+
     Returns:
         Optional[Any]: The loaded data object if successful, None if loading failed
-        
+
     Raises:
         No exceptions are raised as they are caught and logged internally
     """
@@ -44,18 +44,18 @@ def load_pickle(file_path: Path, logger: logging.Logger) -> Optional[Any]:
 def save_pickle(data: Any, file_path: Path, logger: logging.Logger) -> bool:
     """
     Safely save data to a pickle file with comprehensive error handling.
-    
+
     Args:
         data (Any): The data object to save (typically a pandas DataFrame or Series)
         file_path (Path): Path where to save the pickle file
         logger (logging.Logger): Logger instance for reporting success or errors
-        
+
     Returns:
         bool: True if saving succeeded, False if any error occurred
-        
+
     Raises:
         No exceptions are raised as they are caught and logged internally
-        
+
     Note:
         The data object must support the to_pickle() method (like pandas objects)
     """

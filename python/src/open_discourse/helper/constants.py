@@ -1,27 +1,61 @@
 """
 Constants used across the Open Discourse project.
 
-This module provides centralized access to constants used by various parts of the 
+This module provides centralized access to constants used by various parts of the
 Open Discourse pipeline, including factions processing and politicians processing.
 """
 
 # Constants for the factions processing
 ADDITIONAL_FACTIONS = [
     "Südschleswigscher Wählerverband",  # A regional party in Germany
-    "Gast",                             # Represents guest speakers or members
-    "Gruppe Nationale Rechte",          # A group with national right-wing affiliations
-    "Deutsche Soziale Union",           # A social union in Germany
+    "Gast",  # Represents guest speakers or members
+    "Gruppe Nationale Rechte",  # A group with national right-wing affiliations
+    "Deutsche Soziale Union",  # A social union in Germany
 ]
 
 # Constants for the politicians processing
 ELECTORAL_TERMS = {
     "from": [
-        1949, 1953, 1957, 1961, 1965, 1969, 1972, 1976, 1980, 
-        1983, 1987, 1990, 1994, 1998, 2002, 2005, 2009, 2013, 2017,
+        1949,
+        1953,
+        1957,
+        1961,
+        1965,
+        1969,
+        1972,
+        1976,
+        1980,
+        1983,
+        1987,
+        1990,
+        1994,
+        1998,
+        2002,
+        2005,
+        2009,
+        2013,
+        2017,
     ],
     "until": [
-        1953, 1957, 1961, 1965, 1969, 1972, 1976, 1980, 1983, 
-        1987, 1990, 1994, 1998, 2002, 2005, 2009, 2013, 2017, -1,
+        1953,
+        1957,
+        1961,
+        1965,
+        1969,
+        1972,
+        1976,
+        1980,
+        1983,
+        1987,
+        1990,
+        1994,
+        1998,
+        2002,
+        2005,
+        2009,
+        2013,
+        2017,
+        -1,
     ],
 }
 
