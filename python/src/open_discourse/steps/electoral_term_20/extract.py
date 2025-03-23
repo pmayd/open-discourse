@@ -56,8 +56,8 @@ def main(task):
     politicians["first_name"] = politicians["first_name"].apply(str.split)
 
     term_spoken_content = ELECTORAL_TERM_20_OUTPUT / "speech_content"
-    contributions_extended_output = CONTRIBUTIONS_EXTENDED / "electoral_term_20"
-    contributions_simplified_output = CONTRIBUTIONS_SIMPLIFIED / "electoral_term_20"
+    contributions_extended_output = CONTRIBUTIONS_EXTENDED / "electoral_term_pp20"
+    contributions_simplified_output = CONTRIBUTIONS_SIMPLIFIED / "electoral_term_pp20"
 
     contributions_extended_output.mkdir(parents=True, exist_ok=True)
     term_spoken_content.mkdir(parents=True, exist_ok=True)
