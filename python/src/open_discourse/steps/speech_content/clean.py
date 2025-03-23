@@ -205,4 +205,3 @@ def _get_position_short_and_long(position):
 
 if __name__ == "__main__":
     main(None)
-
