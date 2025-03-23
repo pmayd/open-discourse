@@ -1,16 +1,17 @@
 import pandas as pd
 import pytest
-from pandas.testing import assert_frame_equal
 
 # Import the functions from the correct package path
 from open_discourse.helper_functions.constants import ADDITIONAL_FACTIONS
 
+
 # Import the functions we need to test
 def extract_unique_factions(mps_df):
     """Import at test time to avoid module import issues"""
-    from open_discourse.helper_functions.constants import ADDITIONAL_FACTIONS
     import numpy as np
     import pandas as pd
+
+    from open_discourse.helper_functions.constants import ADDITIONAL_FACTIONS
 
     # Cut dataframe down to two columns
     required_cols = {"institution_type", "institution_name"}
@@ -19,7 +20,9 @@ def extract_unique_factions(mps_df):
         raise ValueError(f"Missing required columns in DataFrame: {missing}")
 
     # Filter rows where institution_type is "Fraktion/Gruppe"
-    factions_series = mps_df.loc[mps_df["institution_type"] == "Fraktion/Gruppe", "institution_name"]
+    factions_series = mps_df.loc[
+        mps_df["institution_type"] == "Fraktion/Gruppe", "institution_name"
+    ]
 
     # Extract unique faction names
     unique_factions = np.unique(factions_series)
@@ -30,10 +33,11 @@ def extract_unique_factions(mps_df):
     # Convert the result to a DataFrame, will eventually be saved to file
     return pd.DataFrame(all_factions, columns=["faction_name"])
 
+
 def add_abbreviations_to_factions(factions_df):
     """Import at test time to avoid module import issues"""
+
     from open_discourse.helper_functions.constants import FACTION_ABBREVIATIONS
-    import pandas as pd
 
     # Create a copy to avoid modifying the input DataFrame
     result_df = factions_df.copy()
@@ -57,10 +61,10 @@ def add_abbreviations_to_factions(factions_df):
 
     return result_df
 
+
 def assign_ids_to_factions(factions_df):
     """Import at test time to avoid module import issues"""
     import numpy as np
-    import pandas as pd
 
     # Create a copy to avoid modifying the input DataFrame
     result_df = factions_df.copy()
@@ -82,7 +86,12 @@ def assign_ids_to_factions(factions_df):
 def test_extract_unique_factions():
     # Create a test DataFrame with mock MP data
     test_data = {
-        "institution_type": ["Fraktion/Gruppe", "Fraktion/Gruppe", "Other", "Fraktion/Gruppe"],
+        "institution_type": [
+            "Fraktion/Gruppe",
+            "Fraktion/Gruppe",
+            "Other",
+            "Fraktion/Gruppe",
+        ],
         "institution_name": ["Fraktion A", "Fraktion B", "Other Org", "Fraktion A"],
     }
     mps_df = pd.DataFrame(test_data)
@@ -119,7 +128,7 @@ def test_add_abbreviations_to_factions():
         "faction_name": [
             "Fraktion der CDU/CSU (Gast)",
             "Fraktion der SPD (Gast)",
-            "Unknown Faction"  # This should not be in the abbreviations dict
+            "Unknown Faction",  # This should not be in the abbreviations dict
         ]
     }
     factions_df = pd.DataFrame(test_data)
@@ -131,7 +140,9 @@ def test_add_abbreviations_to_factions():
     assert "abbreviation" in result.columns
     assert result.loc[0, "abbreviation"] == "CDU/CSU"
     assert result.loc[1, "abbreviation"] == "SPD"
-    assert result.loc[2, "abbreviation"] == "Unknown Faction"  # Should fall back to original name
+    assert (
+        result.loc[2, "abbreviation"] == "Unknown Faction"
+    )  # Should fall back to original name
 
 
 @pytest.mark.parametrize(
@@ -139,17 +150,17 @@ def test_add_abbreviations_to_factions():
     [
         (
             ["Fraktion der CDU/CSU (Gast)", "Fraktion der SPD (Gast)"],
-            ["CDU/CSU", "SPD"]
+            ["CDU/CSU", "SPD"],
         ),
         (
             ["Fraktion Bündnis 90/Die Grünen", "Fraktion Die Grünen"],
-            ["Bündnis 90/Die Grünen", "Bündnis 90/Die Grünen"]
+            ["Bündnis 90/Die Grünen", "Bündnis 90/Die Grünen"],
         ),
         (
             ["Unknown Faction 1", "Unknown Faction 2"],
-            ["Unknown Faction 1", "Unknown Faction 2"]
+            ["Unknown Faction 1", "Unknown Faction 2"],
         ),
-    ]
+    ],
 )
 def test_add_abbreviations_parametrized(input_data, expected_abbrevs):
     # Create a test DataFrame with different faction names
@@ -166,7 +177,7 @@ def test_assign_ids_to_factions():
     # Create a test DataFrame with faction abbreviations
     test_data = {
         "faction_name": ["Faction A", "Faction B", "Faction C", "Faction A"],
-        "abbreviation": ["A", "B", "C", "A"]
+        "abbreviation": ["A", "B", "C", "A"],
     }
     factions_df = pd.DataFrame(test_data)
 
@@ -191,7 +202,11 @@ def test_full_pipeline():
     # Create input data for the first step
     mps_data = {
         "institution_type": ["Fraktion/Gruppe", "Fraktion/Gruppe", "Other"],
-        "institution_name": ["Fraktion der CDU/CSU (Gast)", "Fraktion der SPD (Gast)", "Other Org"],
+        "institution_name": [
+            "Fraktion der CDU/CSU (Gast)",
+            "Fraktion der SPD (Gast)",
+            "Other Org",
+        ],
     }
     mps_df = pd.DataFrame(mps_data)
 
@@ -205,11 +220,17 @@ def test_full_pipeline():
     final_factions = assign_ids_to_factions(factions_with_abbrevs)
 
     # Verify the entire pipeline produces the expected result
-    assert set(factions_df["faction_name"]).issuperset({"Fraktion der CDU/CSU (Gast)", "Fraktion der SPD (Gast)"})
+    assert set(factions_df["faction_name"]).issuperset(
+        {"Fraktion der CDU/CSU (Gast)", "Fraktion der SPD (Gast)"}
+    )
 
     # Find the rows for our test factions
-    cdu_row = final_factions[final_factions["faction_name"] == "Fraktion der CDU/CSU (Gast)"]
-    spd_row = final_factions[final_factions["faction_name"] == "Fraktion der SPD (Gast)"]
+    cdu_row = final_factions[
+        final_factions["faction_name"] == "Fraktion der CDU/CSU (Gast)"
+    ]
+    spd_row = final_factions[
+        final_factions["faction_name"] == "Fraktion der SPD (Gast)"
+    ]
 
     # Check abbreviations are correct
     assert cdu_row["abbreviation"].values[0] == "CDU/CSU"
