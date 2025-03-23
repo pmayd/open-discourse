@@ -87,10 +87,7 @@ class TestScrapeMGs:
         """
         mock_get.return_value = mock_response
         
-        # Create a real BeautifulSoup object from our HTML
-        html = BeautifulSoup(mock_response.text, "html.parser")
-        mock_find_result = html.find("div", {"id": "mw-content-text"})
-        
+        # Just call the function with our mocked response
         result = fetch_wikipedia_content("https://example.com")
         
         # Check that the function called our mocked get

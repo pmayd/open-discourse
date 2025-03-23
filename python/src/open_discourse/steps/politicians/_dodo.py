@@ -5,10 +5,7 @@ This module defined the politicians processing tasks for the old doit system.
 It's kept for backward compatibility.
 """
 
-from pathlib import Path
-
 from open_discourse.definitions import path
-from open_discourse.steps.task_factory import TaskFactory
 
 # Define targets for backward compatibility
 TARGET_TASK1 = path.POLITICIANS_STAGE_02 / "04_01.done"
