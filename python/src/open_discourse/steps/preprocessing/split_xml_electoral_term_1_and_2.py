@@ -1,4 +1,4 @@
-import xml.etree.ElementTree as Et
+import xml.etree.ElementTree as et
 
 import dicttoxml
 from tqdm import tqdm
@@ -36,7 +36,7 @@ def main(task):
             list(folder_path.iterdir()), desc=f"Parsing term {term_number:>2}..."
         ):
             if xml_file_path.suffix == ".xml":
-                tree = Et.parse(xml_file_path)
+                tree = et.parse(xml_file_path)
 
                 meta_data = get_doc_metadata(tree)
                 text_corpus = tree.find("TEXT").text
