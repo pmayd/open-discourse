@@ -1,3 +1,10 @@
+"""
+Constants used across the Open Discourse project.
+
+This module provides centralized access to constants used by various parts of the 
+Open Discourse pipeline, including factions processing and politicians processing.
+"""
+
 # Constants for the factions processing
 ADDITIONAL_FACTIONS = [
     "Südschleswigscher Wählerverband",  # A regional party in Germany
