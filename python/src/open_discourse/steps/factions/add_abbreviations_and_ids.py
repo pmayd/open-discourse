@@ -17,6 +17,7 @@ import pandas as pd
 # Project-specific imports
 from open_discourse.definitions import path
 from open_discourse.helper.constants import FACTION_ABBREVIATIONS
+from open_discourse.helper.io_utils import load_pickle, save_pickle
 from open_discourse.helper.logging_config import setup_and_get_logger
 
 # Configure a logger for this script
@@ -138,21 +139,9 @@ def main(task):
 
     # Load the factions data
     input_file = FACTIONS_STAGE_01 / "factions.pkl"
-    try:
-        factions = pd.read_pickle(input_file)
-        logger.info(f"Loaded factions data from {input_file}")
-    except FileNotFoundError as e:
-        logger.error(f"File not found at {input_file}: {e}")
-        return False
-    except (pd.errors.EmptyDataError, pd.errors.ParserError) as e:
-        logger.error(f"Data parsing error for {input_file}: {e}")
-        return False
-    except PermissionError as e:
-        logger.error(f"Permission denied accessing {input_file}: {e}")
-        return False
-    except Exception as e:
-        logger.error(f"Unexpected error loading {input_file}: {e}")
-        return False
+    factions = load_pickle(input_file, logger)
+    if factions is None:
+        return False  # Early return if loading failed
     # Process the data: add abbreviations and IDs
     try:
         # Add abbreviations
@@ -176,18 +165,8 @@ def main(task):
         return False
     # Save the processed data
     output_file = DATA_FINAL / "factions.pkl"
-    try:
-        final_factions.to_pickle(output_file)
-        logger.info(f"Saved processed factions data to {output_file}")
-    except PermissionError as e:
-        logger.error(f"Permission denied when saving to {output_file}: {e}")
-        return False
-    except OSError as e:
-        logger.error(f"OS error when saving to {output_file}: {e}")
-        return False
-    except Exception as e:
-        logger.error(f"Unexpected error saving to {output_file}: {e}")
-        return False
+    if not save_pickle(final_factions, output_file, logger):
+        return False  # Early return if saving failed
 
     logger.info("Script completed: factions abbreviations and IDs added.")
     return True
