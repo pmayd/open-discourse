@@ -1,6 +1,5 @@
 import pandas as pd
 import pytest
-import numpy as np
 
 # Import the functions from the correct package path
 from open_discourse.helper.constants import ADDITIONAL_FACTIONS, FACTION_ABBREVIATIONS
