@@ -148,7 +148,6 @@ def main(task):
                         speech_content.at[index, "faction_id"] = -1
 
             speech_content = speech_content.drop(columns=["position_raw", "name_raw"])
-            print(save_path,speech_content_file)
             speech_content.to_pickle(save_path / speech_content_file.name)
 
 
@@ -205,4 +204,3 @@ def _get_position_short_and_long(position):
 
 if __name__ == "__main__":
     main(None)
-
