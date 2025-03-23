@@ -1,22 +1,23 @@
 """Tests for the merge_politicians module."""
 
+from pathlib import Path
+from unittest.mock import patch
+
 import pandas as pd
 import pytest
-from unittest.mock import patch
-from pathlib import Path
 
-from open_discourse.steps.politicians.merge_politicians import (
-    load_politicians_data,
-    get_faction_abbrev,
-    get_electoral_term,
-    normalize_name,
-    _fix_special_case_names,
-    find_matching_politician,
-    create_government_position_entry,
-    merge_government_members,
-    main,
-)
 from open_discourse.helper.constants import FACTION_PATTERNS
+from open_discourse.steps.politicians.merge_politicians import (
+    _fix_special_case_names,
+    create_government_position_entry,
+    find_matching_politician,
+    get_electoral_term,
+    get_faction_abbrev,
+    load_politicians_data,
+    main,
+    merge_government_members,
+    normalize_name,
+)
 
 
 class TestMergePoliticians:

@@ -8,16 +8,17 @@ This script is part of the Open Discourse data processing pipeline and performs 
 4. Saves the government members data for further processing in the politicians pipeline
 """
 
+from typing import Optional, Tuple
+
 import pandas as pd
 import regex
 import requests
 from bs4 import BeautifulSoup
-from typing import Tuple, Optional
 
 # Project-specific imports
 from open_discourse.definitions import path
-from open_discourse.helper.logging_config import setup_and_get_logger
 from open_discourse.helper.io_utils import save_pickle
+from open_discourse.helper.logging_config import setup_and_get_logger
 
 # Constants
 WIKIPEDIA_URL = (

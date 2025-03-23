@@ -1,17 +1,18 @@
 """Tests for the government members scraping module."""
 
+from unittest.mock import MagicMock, Mock, patch
+
 import pandas as pd
 import pytest
-from unittest.mock import MagicMock, patch, Mock
 from bs4 import BeautifulSoup
 
 from open_discourse.steps.politicians.scrape_mgs import (
-    fetch_wikipedia_content,
-    extract_birth_death_years,
-    parse_government_position,
-    extract_politician_data,
-    main,
     DEFAULT_VALUE,
+    extract_birth_death_years,
+    extract_politician_data,
+    fetch_wikipedia_content,
+    main,
+    parse_government_position,
 )
 
 

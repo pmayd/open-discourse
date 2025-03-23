@@ -9,14 +9,15 @@ This script is part of the Open Discourse data processing pipeline and performs 
 5. Saves the enhanced politicians data for further processing
 """
 
-import pandas as pd
 from pathlib import Path
-from typing import Tuple, Optional
+from typing import Optional, Tuple
+
+import pandas as pd
 
 # Project-specific imports
 from open_discourse.definitions import path
-from open_discourse.helper.logging_config import setup_and_get_logger
 from open_discourse.helper.io_utils import load_pickle, save_pickle
+from open_discourse.helper.logging_config import setup_and_get_logger
 
 # Configure a logger for this script
 logger = setup_and_get_logger("process_politicians")

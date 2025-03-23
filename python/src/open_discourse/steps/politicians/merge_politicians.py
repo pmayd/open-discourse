@@ -10,17 +10,18 @@ This script is part of the Open Discourse data processing pipeline and performs 
 6. Saves the merged politicians data for further processing
 """
 
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, Union
+
 import pandas as pd
 import regex
 from tqdm import tqdm
-from typing import Dict, List, Union, Optional, Any, Tuple
-from pathlib import Path
 
 # Project-specific imports
 from open_discourse.definitions import path
-from open_discourse.helper.logging_config import setup_and_get_logger
-from open_discourse.helper.io_utils import load_pickle
 from open_discourse.helper.constants import ELECTORAL_TERMS, FACTION_PATTERNS
+from open_discourse.helper.io_utils import load_pickle
+from open_discourse.helper.logging_config import setup_and_get_logger
 
 # Configure a logger for this script
 logger = setup_and_get_logger("merge_politicians")

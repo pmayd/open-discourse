@@ -1,13 +1,14 @@
 """Tests for the add_faction_id_to_mps module."""
 
+from pathlib import Path
+from unittest.mock import patch
+
 import pandas as pd
 import pytest
-from unittest.mock import patch
-from pathlib import Path
 
 from open_discourse.steps.politicians.add_faction_id_to_mps import (
-    load_required_data,
     add_faction_ids,
+    load_required_data,
     main,
 )
 
