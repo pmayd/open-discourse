@@ -286,3 +286,7 @@ def main(task):
     politicians.to_csv(FACTIONS_PATH / "politicians.csv", index=False)
 
     return True
+
+
+if __name__ == "__main__":
+    main(None)
