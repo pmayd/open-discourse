@@ -38,21 +38,27 @@ class TestScrapeMGs:
 
     def test_parse_government_position_simple(self):
         """Test parsing a simple government position."""
-        position, from_year, until_year = parse_government_position("1990–1995 Minister for Finance")
+        position, from_year, until_year = parse_government_position(
+            "1990–1995 Minister for Finance"
+        )
         assert position == "Minister for Finance"
         assert from_year == 1990
         assert until_year == 1995
 
     def test_parse_government_position_seit(self):
         """Test parsing an ongoing government position with 'seit'."""
-        position, from_year, until_year = parse_government_position("seit 2020 Minister for Environment")
+        position, from_year, until_year = parse_government_position(
+            "seit 2020 Minister for Environment"
+        )
         assert position == "Minister for Environment"
         assert from_year == 2020
         assert until_year == DEFAULT_VALUE
 
     def test_parse_government_position_single_year(self):
         """Test parsing a position with only one year."""
-        position, from_year, until_year = parse_government_position("2018 Special Envoy")
+        position, from_year, until_year = parse_government_position(
+            "2018 Special Envoy"
+        )
         assert position == "Special Envoy"
         assert from_year == 2018
         assert until_year == 2018
@@ -86,10 +92,10 @@ class TestScrapeMGs:
         </html>
         """
         mock_get.return_value = mock_response
-        
+
         # Just call the function with our mocked response
         result = fetch_wikipedia_content("https://example.com")
-        
+
         # Check that the function called our mocked get
         mock_get.assert_called_once_with("https://example.com")
         assert result is not None
@@ -101,9 +107,9 @@ class TestScrapeMGs:
         mock_response = Mock()
         mock_response.text = "<html><body>No content div</body></html>"
         mock_get.return_value = mock_response
-        
+
         result = fetch_wikipedia_content("https://example.com")
-        
+
         assert result is None
 
     @patch("requests.get")
@@ -111,9 +117,9 @@ class TestScrapeMGs:
         """Test handling of request error."""
         # Mock a request exception
         mock_get.side_effect = Exception("Connection error")
-        
+
         result = fetch_wikipedia_content("https://example.com")
-        
+
         assert result is None
 
     def test_extract_politician_data(self):
@@ -140,11 +146,11 @@ class TestScrapeMGs:
         </div>
         """
         content_div = BeautifulSoup(html, "html.parser")
-        
+
         # Call the function with our test HTML
-        with patch('open_discourse.steps.politicians.scrape_mgs.logger'):
+        with patch("open_discourse.steps.politicians.scrape_mgs.logger"):
             result_df = extract_politician_data(content_div)
-        
+
         # Check the result
         assert isinstance(result_df, pd.DataFrame)
         assert not result_df.empty
@@ -153,10 +159,12 @@ class TestScrapeMGs:
         assert "last_name" in result_df.columns
         assert "position" in result_df.columns
 
-    @patch('open_discourse.steps.politicians.scrape_mgs.fetch_wikipedia_content')
-    @patch('open_discourse.steps.politicians.scrape_mgs.extract_politician_data')
-    @patch('open_discourse.steps.politicians.scrape_mgs.save_pickle')
-    def test_main_success(self, mock_save_pickle, mock_extract_data, mock_fetch_content):
+    @patch("open_discourse.steps.politicians.scrape_mgs.fetch_wikipedia_content")
+    @patch("open_discourse.steps.politicians.scrape_mgs.extract_politician_data")
+    @patch("open_discourse.steps.politicians.scrape_mgs.save_pickle")
+    def test_main_success(
+        self, mock_save_pickle, mock_extract_data, mock_fetch_content
+    ):
         """Test successful execution of the main function."""
         # Setup mocks
         mock_content = MagicMock()
@@ -164,41 +172,41 @@ class TestScrapeMGs:
         mock_fetch_content.return_value = mock_content
         mock_extract_data.return_value = mock_df
         mock_save_pickle.return_value = True
-        
+
         # Call the main function
         result = main(None)
-        
+
         # Verify the result and that all expected functions were called
         assert result is True
         mock_fetch_content.assert_called_once()
         mock_extract_data.assert_called_once_with(mock_content)
         mock_save_pickle.assert_called_once()
 
-    @patch('open_discourse.steps.politicians.scrape_mgs.fetch_wikipedia_content')
+    @patch("open_discourse.steps.politicians.scrape_mgs.fetch_wikipedia_content")
     def test_main_fetch_content_failure(self, mock_fetch_content):
         """Test main function handling when fetch_wikipedia_content fails."""
         # Setup mock to return None (failure)
         mock_fetch_content.return_value = None
-        
+
         # Call the main function
         result = main(None)
-        
+
         # Verify the result
         assert result is False
         mock_fetch_content.assert_called_once()
 
-    @patch('open_discourse.steps.politicians.scrape_mgs.fetch_wikipedia_content')
-    @patch('open_discourse.steps.politicians.scrape_mgs.extract_politician_data')
+    @patch("open_discourse.steps.politicians.scrape_mgs.fetch_wikipedia_content")
+    @patch("open_discourse.steps.politicians.scrape_mgs.extract_politician_data")
     def test_main_extract_data_failure(self, mock_extract_data, mock_fetch_content):
         """Test main function handling when extract_politician_data fails."""
         # Setup mocks
         mock_content = MagicMock()
         mock_fetch_content.return_value = mock_content
         mock_extract_data.side_effect = Exception("Extraction error")
-        
+
         # Call the main function
         result = main(None)
-        
+
         # Verify the result
         assert result is False
         mock_fetch_content.assert_called_once()
