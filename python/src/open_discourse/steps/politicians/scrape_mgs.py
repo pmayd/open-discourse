@@ -370,3 +370,7 @@ def main(task) -> bool:
 
     logger.info("Script completed: scrape_mgs done.")
     return True
+
+
+if __name__ == "__main__":
+    main(None)

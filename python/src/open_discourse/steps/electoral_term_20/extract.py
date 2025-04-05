@@ -10,12 +10,12 @@ from open_discourse.definitions import path, pattern
 from open_discourse.helper.extract_contributions import extract
 
 # input directory
-ELECTORAL_TERM_20_INPUT = path.DATA_CACHE / "electoral_term_20" / "stage_02"
+ELECTORAL_TERM_20_INPUT = path.DATA_CACHE / "electoral_term_pp20" / "stage_02"
 FACTIONS = path.DATA_FINAL
 POLITICIANS = path.DATA_FINAL
 
 # output directory
-ELECTORAL_TERM_20_OUTPUT = path.DATA_CACHE / "electoral_term_20" / "stage_03"
+ELECTORAL_TERM_20_OUTPUT = path.DATA_CACHE / "electoral_term_pp20" / "stage_03"
 CONTRIBUTIONS_SIMPLIFIED = path.CONTRIBUTIONS_SIMPLIFIED
 CONTRIBUTIONS_EXTENDED = path.CONTRIBUTIONS_EXTENDED_STAGE_01
 
@@ -56,8 +56,8 @@ def main(task):
     politicians["first_name"] = politicians["first_name"].apply(str.split)
 
     term_spoken_content = ELECTORAL_TERM_20_OUTPUT / "speech_content"
-    contributions_extended_output = CONTRIBUTIONS_EXTENDED / "electoral_term_20"
-    contributions_simplified_output = CONTRIBUTIONS_SIMPLIFIED / "electoral_term_20"
+    contributions_extended_output = CONTRIBUTIONS_EXTENDED / "electoral_term_pp20"
+    contributions_simplified_output = CONTRIBUTIONS_SIMPLIFIED / "electoral_term_pp20"
 
     contributions_extended_output.mkdir(parents=True, exist_ok=True)
     term_spoken_content.mkdir(parents=True, exist_ok=True)
@@ -365,3 +365,7 @@ def get_faction_abbrev(faction):
         if regex.search(faction_pattern, faction):
             return faction_abbrev
     return None
+
+
+if __name__ == "__main__":
+    main(None)

@@ -41,7 +41,7 @@ def task_04_politicians():
     yield {
         'name': 'merge',
         'actions': [
-            'python -m open_discourse.steps.politicians.merge_politicians'
+            'python -m open_discourse.steps.politicians.merge'
         ],
         'file_dep': [TARGET_TASK1, TARGET_TASK2],
         'targets': [TARGET_TASK3],

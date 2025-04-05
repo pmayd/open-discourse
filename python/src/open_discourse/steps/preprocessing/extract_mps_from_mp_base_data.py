@@ -115,3 +115,7 @@ def main(task):
     mps.to_pickle(save_path)
 
     return True
+
+
+if __name__ == "__main__":
+    main(None)

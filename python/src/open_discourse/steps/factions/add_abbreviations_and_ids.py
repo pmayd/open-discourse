@@ -78,3 +78,7 @@ def main(task):
     factions.to_pickle(DATA_FINAL / "factions.pkl")
 
     return True
+
+
+if __name__ == "__main__":
+    main(None)

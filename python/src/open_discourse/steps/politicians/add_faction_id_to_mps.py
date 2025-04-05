@@ -159,3 +159,7 @@ def main(task) -> bool:
 
     logger.info("Script completed: add_faction_id_to_mps done.")
     return True
+
+
+if __name__ == "__main__":
+    main(None)

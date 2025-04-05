@@ -33,3 +33,7 @@ def main(task):
     unique_factions.to_pickle(save_path_factions)
 
     return True
+
+
+if __name__ == "__main__":
+    main(None)

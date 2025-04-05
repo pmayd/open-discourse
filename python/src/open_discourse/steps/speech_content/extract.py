@@ -58,7 +58,7 @@ def process_period(folder_path: Path):
     if not folder_path.is_dir():
         return
 
-    term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+    term_number = regex.search(r"(?<=electoral_term_pp)\d{2}", folder_path.stem)
     print(term_number)
     if term_number is None:
         return
@@ -171,3 +171,7 @@ def process_session(session_path: Path, patterns: list[regex.Pattern], save_path
     session_df["speech_content"] = speech_content
 
     session_df.to_pickle(save_path / (session_path.stem + ".pkl"))
+
+
+if __name__ == "__main__":
+    main(None)

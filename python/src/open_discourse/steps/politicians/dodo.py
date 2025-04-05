@@ -13,7 +13,7 @@ from pathlib import Path
 from open_discourse.definitions import path
 from open_discourse.steps.politicians.scrape_mgs import main as scrape_mgs_main
 from open_discourse.steps.politicians.add_faction_id_to_mps import main as add_faction_id_main
-from open_discourse.steps.politicians.merge_politicians import main as merge_politicians_main
+from open_discourse.steps.politicians.merge import main as merge_politicians_main
 
 
 def task_scrape_mgs():
