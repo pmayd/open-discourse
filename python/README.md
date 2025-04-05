@@ -5,7 +5,21 @@ The python service processes and creates all of the open-discourse data
 ## Folders
 
 - The `data` folder contains all of the cached data
-- The `src/open_discourse` folder contains all of the python scripts. More infornmation on these can be found in the [README in src](./src/README.md)
+- The `src/open_discourse` folder contains all of the python scripts. More information on these can be found in the [README in src](./src/open_discourse/README.md)
+
+## Data Processing Pipeline
+
+The Python component of Open Discourse implements a multi-stage data processing pipeline that:
+
+1. Downloads raw XML data from the Bundestag
+2. Preprocesses and cleans the data
+3. Extracts structured information (speeches, politicians, factions, etc.)
+4. Processes and transforms the data for analysis
+5. Loads the final data into a database
+
+### Important Data Conversion Note
+
+During preprocessing, the `extract_mps_from_mp_base_data.py` script extracts data from XML files and converts it into pandas DataFrames, which are then serialized as PKL (pickle) files. This conversion from XML to DataFrame allows for more efficient processing and analysis of the politicians' data throughout the pipeline.
 
 ## Commands
 

@@ -98,14 +98,16 @@ Attributes:
 
 Function:
 
-- Parses the personal details into a Dataframe
+- Parses the personal details from XML into a structured DataFrame
+- Extracts MP data including names, birth dates, constituencies, and other biographical information
+- Processes the XML data and converts it into a serialized Python object (pickle file)
 
 Attributes:
 
 - Input:
   - `./data/01_raw/MP_BASE_DATA/MDB_STAMMDATEN.XML`
 - Output:
-  - `./data/02_cached/politicians/stage_01/mps.pkl`
+  - `./data/02_cached/politicians/stage_01/mps.pkl` (serialized pandas DataFrame in pickle format)
 
 ### 5. [Create Electoral Terms](./02_preprocessing/05_create_electoral_terms.py)
 
