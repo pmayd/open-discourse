@@ -207,7 +207,7 @@ def single_session_special_text_split(meta_data: dict, text_corpus: str) -> str:
 
 def main(task):
     logger = setup_and_get_logger(__file__, logging.DEBUG)
-    logging.info("Script 02_01 starts")
+    logger.info("Script 02_01 starts")
 
     # input directory
     RAW_XML = path.RAW_XML
