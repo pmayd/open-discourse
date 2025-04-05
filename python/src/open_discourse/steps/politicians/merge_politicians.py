@@ -457,7 +457,8 @@ def merge_government_members(
             else:
                 new_politicians += 1
                 # Generate new unique ID
-                new_ui = max(result_df["ui"].astype(str).tolist()) + 1
+                max_ui = max([int(ui) if str(ui).isdigit() else 0 for ui in result_df["ui"].tolist()])
+                new_ui = str(max_ui + 1)  # Make sure we're using string for ui
 
                 # Basic politician data
                 politician_data = {
