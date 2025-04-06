@@ -221,7 +221,7 @@ def main(task):
     # electoral term
     electoral_terms = create_electoral_terms()
     max_term = max(electoral_terms)
-    while electoral_terms[max_term]["number_of sessions"] is None:
+    while electoral_terms[max_term]["number_of_sessions"] is None:
         max_term -= 1
         if max_term < 1:
             msg = "No valid completed electoral term found. Check SESSIONS_PER_TERM."
