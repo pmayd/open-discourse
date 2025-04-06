@@ -170,29 +170,107 @@ Attributes:
 
 Function:
 
-- Scrapes every Government Member off of Wikipedia
+- Scrapes every Government Member (ministers) from Wikipedia
+- Creates a structured DataFrame of government ministers and stores it as a pickle file
 
 Attributes:
 
 - Input:
   - `None`
 - Output:
-  - `./data/02_cached/politicians/stage_01/mgs.pkl`
+  - `./data/02_cached/politicians/stage_01/mgs.pkl` (serialized pandas DataFrame in pickle format)
+
+> **Why scrape Wikipedia when we already have the MPs XML data?**
+>
+> The pipeline processes two distinct datasets that are later merged:
+>
+> 1. **Parliament Members (MPs/MdBs)**: Extracted from the official Bundestag XML file
+>    - Contains data about elected members of parliament
+>    - Stored in `mps.pkl`
+>
+> 2. **Government Members (Ministers)**: Scraped from Wikipedia
+>    - Contains data about federal government ministers/cabinet members
+>    - Stored in `mgs.pkl`
+>
+> This distinction is important because **not all government ministers are necessarily members of parliament**. In the German political system:
+> - The Chancellor and ministers form the federal government (Bundesregierung)
+> - While many ministers are also elected MPs, this is not constitutionally required
+> - The government can include experts/technocrats who weren't elected to parliament
+> - Historical governments especially had members who weren't MPs
+>
+> By collecting both datasets separately, we ensure complete coverage of all political figures who participated in parliamentary proceedings.
 
 ### 3. [Merge Politicians](./04_politicians/03_merge_politicians.py)
 
 Function:
 
-- Merges the `mps.pkl`and `mgs.pkl` Dataframe
+- Merges the `mps.pkl` and `mgs.pkl` DataFrames into a unified politicians dataset
+- Matches government members to existing MP records where possible
+- Creates new politician entries for government members not found in the MPs data
+- Standardizes and consolidates the data
 
 Attributes:
 
 - Input:
-  - `./data/02_cached/politicians/stage_02/mps.pkl`
-  - `./data/02_cached/politicians/stage_01/mgs.pkl`
-  - `./data/03_final/factions.pkl`
+  - `./data/02_cached/politicians/stage_02/mps.pkl` (MPs with faction IDs)
+  - `./data/02_cached/politicians/stage_01/mgs.pkl` (Government members)
+  - `./data/03_final/factions.pkl` (Standardized faction information)
 - Output:
-  - `./data/03_final/politicians.csv`
+  - `./data/03_final/politicians.csv` (Comprehensive dataset of all politicians)
+
+> **The Detailed Merge Process:**
+>
+> The merging process follows these key steps:
+>
+> **1. Preparation for Merging**
+> - A working copy of the MPs DataFrame is created
+> - First names are normalized (hyphens replaced with spaces) to improve matching
+> - Statistics counters are initialized
+>
+> **2. Processing Each Government Member**
+> - **Name & Special Cases Handling**: 
+>   - Special case names are managed (e.g., "Joschka" Fischer → "Joseph" Fischer)
+>   - Names are normalized for consistent matching
+> - **Faction Standardization**:
+>   - Faction names are mapped to standardized abbreviations and IDs
+> - **Electoral Term Calculation**:
+>   - The relevant electoral terms are determined for each government position
+>   - This tracks when each person held specific government positions
+> - **Politician Matching**:
+>   - Searches for matching MPs based on last name, first name, and birth date
+>   - Uses a two-step approach, first with partial name, then with full name if needed
+>
+> **3. Entry Creation Based on Match Results**
+>
+> The system handles three possible matching outcomes:
+>
+> - **Exact Match (One MP Found)**:
+>   - Uses existing MP's data as the base
+>   - Creates new entries for each electoral term in government
+>   - Maintains the same unique ID (`ui`) across all entries
+>
+> - **Multiple Matches (Rare)**:
+>   - Uses the first match and logs a warning
+>   - Proceeds as with exact matches
+>
+> - **No Match Found**:
+>   - Creates an entirely new politician entry
+>   - Generates a new unique ID
+>   - Creates entries for each electoral term in government
+>
+> **4. Handling Multiple Roles for Same Person**
+>
+> - Each role gets its own separate row in the DataFrame
+> - The same person can appear multiple times with different roles
+> - All entries for the same person share the same `ui` (unique identifier)
+> - Entries differ in their `institution_name` (specific role) and potentially `faction_id`
+> - Electoral terms distinguish when different positions were held
+>
+> For example, Angela Merkel would have multiple entries:
+> - Original MP entries for her parliamentary work
+> - Additional entries for her Chancellor position (same `ui`, different position)
+>
+> This approach creates a comprehensive dataset that accounts for politicians who held multiple roles throughout their careers while maintaining data integrity through shared unique identifiers.
 
 ## Speech Content
 

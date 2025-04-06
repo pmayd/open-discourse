@@ -11,20 +11,92 @@ The python service processes and creates all of the open-discourse data
 
 The Python component of Open Discourse implements a multi-stage data processing pipeline that:
 
-1. Downloads raw XML data from the Bundestag
+1. Downloads raw XML data from the Bundestag and scrapes supplementary data
 2. Preprocesses and cleans the data
 3. Extracts structured information (speeches, politicians, factions, etc.)
 4. Processes and transforms the data for analysis
 5. Loads the final data into a database
 
-### Important Data Conversion Note
+### Data Formats and Conversion
 
-During preprocessing, the `extract_mps_from_mp_base_data.py` script extracts data from XML files and converts it into pandas DataFrames, which are then serialized as PKL (pickle) files. This conversion from XML to DataFrame allows for more efficient processing and analysis of the politicians' data throughout the pipeline.
+The pipeline processes data through several formats:
+
+1. **XML files**: Raw data from the Bundestag (speeches, MP information)
+2. **pandas DataFrames**: In-memory data structures for processing 
+3. **PKL (pickle) files**: Serialized DataFrames stored as intermediate outputs
+4. **CSV files**: Final output format for database loading
+
+During preprocessing:
+- The `extract_mps_from_mp_base_data.py` script extracts MP data from XML files and converts it into pandas DataFrames
+- These DataFrames are serialized as PKL files for efficient storage between processing steps
+- Government member data is scraped from Wikipedia and also stored as DataFrames/PKL files
+- The two datasets (MPs and government members) are later merged to create a comprehensive politicians dataset
+
+### How Data Merging Works
+
+The merging of parliament members (MPs) and government ministers is a key aspect of the pipeline:
+
+1. **Politician Identity Management**: 
+   - Each politician gets a unique identifier (`ui`)
+   - Politicians who served as both MPs and ministers maintain the same `ui` across all roles
+   - This allows tracking individuals across different positions and electoral terms
+
+2. **Multiple Roles Handling**:
+   - Each role for a person gets its own row in the final dataset
+   - A politician can appear multiple times with the same `ui` but different roles
+   - For example, Angela Merkel would have entries as an MP and additional entries as Chancellor
+
+3. **Matching Process**:
+   - Government members are matched to existing MPs by name and birth date
+   - When matches are found, the government position is added while preserving the MP's `ui`
+   - New entries are created for government members with no MP match
+
+This approach ensures comprehensive coverage of all politicians while maintaining the relationships between their different roles and positions.
+
+The serialization of intermediate results as pickle files enables efficient processing of the large dataset and supports the modular pipeline structure.
 
 ## Commands
 
 - To setup the python environment, please run `make install-dev`
 - To build the open-discourse data, please run `make full-run`
+
+## Visual Progress Tracking
+
+The pipeline now includes a visual progress tracker that updates the ExecutionGraph image as tasks complete. This helps you:
+
+- Visualize which steps in the pipeline have completed
+- See which step is currently executing
+- Understand the overall progress through the data processing workflow
+
+### Using the Progress Tracker
+
+The progress tracking is automatically enabled when you run tasks through doit:
+
+```bash
+# Run the entire pipeline with progress tracking
+uv run doit
+
+# Run a specific group of tasks
+uv run doit 04_politicians
+
+# View the current progress at any time
+uv run doit show_progress
+```
+
+As tasks run, the ExecutionGraph_progress.png file will be updated showing:
+- Green boxes with checkmarks for completed tasks
+- Yellow boxes for currently running tasks
+- Original colors for pending tasks
+
+### Demo the Progress Tracker
+
+To see the progress tracker in action without running the actual tasks:
+
+```bash
+uv run python demo_progress_tracker.py
+```
+
+This will simulate the pipeline execution and show the visual progress updates.
 
 **Note**: If you are on Windows and have trouble installing `make`, I recommend you look into [Chocolatey](https://chocolatey.org/install) and then run `choco install make` or you directly use [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install), which I strongly recommend anyways, as it gives you full Linux OS under Windows that integrates smoothly with Windows. If you do not want to install additional programs, you can also directly inspect the [Makefile](./Makefile) and look up the commands that are execute for a given `make` command and run everything manually.
 
