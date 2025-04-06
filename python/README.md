@@ -60,43 +60,55 @@ The serialization of intermediate results as pickle files enables efficient proc
 - To setup the python environment, please run `make install-dev`
 - To build the open-discourse data, please run `make full-run`
 
-## Visual Progress Tracking
+## Open Issues
 
-The pipeline now includes a visual progress tracker that updates the ExecutionGraph image as tasks complete. This helps you:
+Below is a comprehensive list of open issues in the Open Discourse project. These are taken directly from the GitHub repository and represent both bugs and feature requests that need attention.
 
-- Visualize which steps in the pipeline have completed
-- See which step is currently executing
-- Understand the overall progress through the data processing workflow
+### Bug Reports
 
-### Using the Progress Tracker
+1. **[Issue #115](https://github.com/open-discourse/open-discourse/issues/115): Matching beginning of the spoken content in electoral term 1&2**
+   - The regex pattern for detecting the beginning of spoken contents in the first two electoral terms needs improvement
+   - Current pattern fails to match newline characters and some specific opening formats
+   - Suggested solution available via modified regex pattern
 
-The progress tracking is automatically enabled when you run tasks through doit:
+2. **[Issue #104](https://github.com/open-discourse/open-discourse/issues/104): Wrong assignment of speeches to speakers in various instances**
+   - Multiple cases where speeches are incorrectly attributed
+   - Three main patterns identified:
+     - Interruptions splitting single speeches
+     - Indirect speech followed by colons being treated as new speeches
+     - Bundeskanzler (Chancellor) speeches improperly parsed due to pattern issues
 
-```bash
-# Run the entire pipeline with progress tracking
-uv run doit
+3. **[Issue #81](https://github.com/open-discourse/open-discourse/issues/81): Fragestunden are not included in the 19th election period**
+   - Question sessions (Fragestunden) missing from the data for the 19th electoral term
+   - Possibly due to unhandled XML tags in the processing scripts
 
-# Run a specific group of tasks
-uv run doit 04_politicians
+4. **[Issue #63](https://github.com/open-discourse/open-discourse/issues/63): Slow search**
+   - Database search performance is too slow
+   - Suggests increasing Postgres configuration parameters:
+     - `shared_buffers=1GB`
+     - `work_mem=128MB`
 
-# View the current progress at any time
-uv run doit show_progress
-```
+### Feature Requests
 
-As tasks run, the ExecutionGraph_progress.png file will be updated showing:
-- Green boxes with checkmarks for completed tasks
-- Yellow boxes for currently running tasks
-- Original colors for pending tasks
+5. **[Issue #80](https://github.com/open-discourse/open-discourse/issues/80): Extend Search Functionality by DIP Meta Data**
+   - Request to add more metadata to the search functionality
+   - Specifically mentions DIP (Documentation and Information System for Parliamentary Materials)
 
-### Demo the Progress Tracker
+6. **[Issue #58](https://github.com/open-discourse/open-discourse/issues/58): Replace Contributions Placeholder in Full-Text-Search**
+   - Current implementation uses placeholders for contributions in search
+   - Request to replace these with actual contribution text
 
-To see the progress tracker in action without running the actual tasks:
+7. **[Issue #56](https://github.com/open-discourse/open-discourse/issues/56): Add Custom Runner and setup cronjob to re-create database**
+   - Request for an automated process to update the database
+   - Suggests implementing a custom runner and cronjob
 
-```bash
-uv run python demo_progress_tracker.py
-```
+8. **[Issue #54](https://github.com/open-discourse/open-discourse/issues/54): Progress logs in build.sh pipeline**
+   - Need for better progress logging during data pipeline execution
 
-This will simulate the pipeline execution and show the visual progress updates.
+9. **[Issue #49](https://github.com/open-discourse/open-discourse/issues/49): Add unique Wikidata item to all former and recent Bundestag politicians**
+   - Request to integrate Wikidata identifiers for all politicians
+   - Would enable linking to external data sources
+   - Includes a sample SPARQL query and CSV data
 
 **Note**: If you are on Windows and have trouble installing `make`, I recommend you look into [Chocolatey](https://chocolatey.org/install) and then run `choco install make` or you directly use [WSL2](https://learn.microsoft.com/en-us/windows/wsl/install), which I strongly recommend anyways, as it gives you full Linux OS under Windows that integrates smoothly with Windows. If you do not want to install additional programs, you can also directly inspect the [Makefile](./Makefile) and look up the commands that are execute for a given `make` command and run everything manually.
 
