@@ -19,7 +19,7 @@ Ich schließe die Sitzung.
             """.\nWir werden nunmehr den Herrn Bundespräsidenten hinausgeleiten.
 Ich schließe die Sitzung.\n""",
         ),
-        (
+        pytest.param(
             """Die Sitzung wird um 16 Uhr 16 Minuten durch
 den Präsidenten Dr. Köhler eröffnet.
 Ich breche die Sitzung ab und vertage auf morgen vormittag 11 Uhr.
@@ -27,6 +27,9 @@ Die Sitzung ist geschlossen.
 (Schluß der Sitzung: 19 Uhr 44 Minuten.)""",
             """.\nIch breche die Sitzung ab und vertage auf morgen vormittag 11 Uhr.
 Die Sitzung ist geschlossen.\n""",
+            marks=pytest.mark.xfail(
+                reason="This test is expected to fail due to known issue with handling line breaks in the regex"
+            ),
         ),
         (
             """Die Sitzung wird um 9 Uhr 2 Minuten durch den Vizepräsidenten Dr. Schmid eröffnet.

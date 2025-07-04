@@ -57,3 +57,7 @@ clean-data:
 .PHONY: list-tasks
 list-tasks:
 	$(UV) run doit list --all --deps
+
+.PHONY: test
+test:
+	$(UV) run pytest -vv tests
