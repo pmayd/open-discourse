@@ -31,6 +31,7 @@ def split_single_session_xml_data(xml_file_path: Path) -> tuple:
     # Cancel if not xml file, this case should not occur
     if (not xml_file_path.is_file()) or xml_file_path.suffix != ".xml":
         msg = f"xml file expected {xml_file_path}"
+        logging.error(msg)
         raise FileNotFoundError(msg)
 
     meta_data = {}
@@ -228,6 +229,7 @@ def main(task):
             raise ValueError(msg)
     # change here for testing with single terms or sessions
     # for input_file_path in tqdm(session_file_iterator(RAW_XML,4, 19)):
+    logger.debug("Processing electoral terms from 3 to %s.", max_term)
     for input_file_path in tqdm(session_file_iterator(RAW_XML, (3, max_term))):
         # ========================================
         # 1 split xml

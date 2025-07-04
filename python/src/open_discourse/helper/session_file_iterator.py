@@ -20,7 +20,9 @@ from open_discourse.helper.create_electoral_terms import create_electoral_terms
 from open_discourse.helper.utils import get_term_from_path
 
 
-def validate_term_session(param: int | tuple[int, int], max_value: int, param_name: str) -> list[int]:
+def validate_term_session(
+    param: int | tuple[int, int], max_value: int, param_name: str
+) -> list[int]:
     """Check for valid term session.
 
     Conditions:
@@ -68,7 +70,10 @@ def validate_term_session(param: int | tuple[int, int], max_value: int, param_na
             raise TypeError(msg)
 
         if any(x < 1 or x > max_value for x in param) or param[0] > param[1]:
-            msg = f"Invalid arg: {param_name} {param} " f"contains values outside valid range."
+            msg = (
+                f"Invalid arg: {param_name} {param} "
+                f"contains values outside valid range."
+            )
             raise ValueError(msg)
 
         return list(range(param[0], param[1] + 1))
@@ -135,7 +140,9 @@ def session_file_iterator(
 
     if session is not None:
         if term is None or len(term_list) != 1:
-            msg = f"Invalid arg: exact one term must be set when session {session} is set"
+            msg = (
+                f"Invalid arg: exact one term must be set when session {session} is set"
+            )
             raise ValueError(msg)
         else:
             term = term_list[0]
@@ -145,7 +152,11 @@ def session_file_iterator(
     # search for file_pattern
     tqdm_bar = None
     for term_number in term_list:
-        total_per_term = electoral_terms[term_number]["number_of_sessions"] if not session else len(session_list)
+        total_per_term = (
+            electoral_terms[term_number]["number_of_sessions"]
+            if not session
+            else len(session_list)
+        )
         # tqdm bar
         if tqdm_bar is not None:
             tqdm_bar.close()
@@ -174,7 +185,9 @@ def session_file_iterator(
                     check_session = int(input_path.stem[2:])
                     check_dir = input_path.parent
                 except ValueError:
-                    logging.warning(f"Invalid file: {input_path} should not exist " f"in directoy!")
+                    logging.warning(
+                        f"Invalid file: {input_path} should not exist " f"in directoy!"
+                    )
                     continue
 
             # Check for relevant session
