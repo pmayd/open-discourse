@@ -18,7 +18,9 @@ class TaskFactory:
         uptodate: List[Callable] | None = None,
     ) -> Dict:
         """Create a standardized doit task configuration."""
-        touch_commands = [f"touch {target}" for target in target_paths]
+        touch_commands = [
+            lambda: Path(target).touch(exist_ok=True) for target in target_paths
+        ]
 
         return DoitTaskConfig(
             name=step_module.__name__.split(".")[-1],
