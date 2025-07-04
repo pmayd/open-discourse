@@ -18,38 +18,18 @@ CaseDataforTest = namedtuple("CaseDataforTest", ["input", "expected", "exception
 # ======================================================================================
 test_cases = []
 test_cases.append(CaseDataforTest((5, 5, "single"), expected=[5], exception=None))
-test_cases.append(
-    CaseDataforTest((0, 4, "single"), expected=None, exception=ValueError)
-)
+test_cases.append(CaseDataforTest((0, 4, "single"), expected=None, exception=ValueError))
 test_cases.append(CaseDataforTest((5, 6, "single"), expected=[5], exception=None))
-test_cases.append(
-    CaseDataforTest((5, 4, "single"), expected=None, exception=ValueError)
-)
-test_cases.append(
-    CaseDataforTest((5, -1, "single"), expected=None, exception=ValueError)
-)
-test_cases.append(
-    CaseDataforTest(("5", 4, "single"), expected=None, exception=ValueError)
-)
-test_cases.append(
-    CaseDataforTest((5, "5", "single"), expected=None, exception=ValueError)
-)
+test_cases.append(CaseDataforTest((5, 4, "single"), expected=None, exception=ValueError))
+test_cases.append(CaseDataforTest((5, -1, "single"), expected=None, exception=ValueError))
+test_cases.append(CaseDataforTest(("5", 4, "single"), expected=None, exception=TypeError))
+test_cases.append(CaseDataforTest((5, "5", "single"), expected=None, exception=TypeError))
 
-test_cases.append(
-    CaseDataforTest(((4, 5), 5, "double"), expected=[4, 5], exception=None)
-)
-test_cases.append(
-    CaseDataforTest(((5, 4), 5, "double"), expected=None, exception=ValueError)
-)
-test_cases.append(
-    CaseDataforTest(((3, 6), 5, "double"), expected=None, exception=ValueError)
-)
-test_cases.append(
-    CaseDataforTest(((-1, 6), 7, "double"), expected=None, exception=ValueError)
-)
-test_cases.append(
-    CaseDataforTest(((3.0, 6), 7, "double"), expected=None, exception=ValueError)
-)
+test_cases.append(CaseDataforTest(((4, 5), 5, "double"), expected=[4, 5], exception=None))
+test_cases.append(CaseDataforTest(((5, 4), 5, "double"), expected=None, exception=ValueError))
+test_cases.append(CaseDataforTest(((3, 6), 5, "double"), expected=None, exception=ValueError))
+test_cases.append(CaseDataforTest(((-1, 6), 7, "double"), expected=None, exception=ValueError))
+test_cases.append(CaseDataforTest(((3.0, 6), 7, "double"), expected=None, exception=TypeError))
 
 
 @pytest.mark.parametrize("case", test_cases)
@@ -243,18 +223,14 @@ def prepare_valid_test_files(dynamic_patch_paths):
             elif elem == "RAW_TXT":
                 for s in session_list:
                     # create sub directory
-                    create_dir = Path(
-                        test_dir, f"electoral_term_pp{t:02}.zip", f"{t:02}{s:03}"
-                    )
+                    create_dir = Path(test_dir, f"electoral_term_pp{t:02}.zip", f"{t:02}{s:03}")
                     create_dir.mkdir(parents=True, exist_ok=True)
                     sample_file = create_dir / "session_content.txt"
                     sample_file.write_text("<content>Test</content>")
 
 
 @pytest.mark.parametrize("case", test_cases)
-def test_session_file_iterator(
-    case: namedtuple, dynamic_patch_paths, prepare_valid_test_files
-):
+def test_session_file_iterator(case: namedtuple, dynamic_patch_paths, prepare_valid_test_files):
     test_dir = dynamic_patch_paths[case.input["source_dir"]]
     assert "pytest" in str(test_dir)
 
@@ -262,9 +238,7 @@ def test_session_file_iterator(
         with pytest.raises(case.exception):
             next(session_file_iterator(*case.input))
     else:
-        result = session_file_iterator(
-            test_dir, case.input["term"], case.input["session"]
-        )
+        result = session_file_iterator(test_dir, case.input["term"], case.input["session"])
         assert isinstance(result, GeneratorType)
         result_list = list(result)
         assert len(result_list) == len(case.expected)

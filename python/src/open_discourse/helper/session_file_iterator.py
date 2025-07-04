@@ -20,11 +20,10 @@ from open_discourse.helper.create_electoral_terms import create_electoral_terms
 from open_discourse.helper.utils import get_term_from_path
 
 
-def validate_term_session(
-    param: int | tuple[int, int], max_value: int, param_name: str
-):
-    """
-    Check for valid param. Conditions:
+def validate_term_session(param: int | tuple[int, int], max_value: int, param_name: str) -> list[int]:
+    """Check for valid term session.
+
+    Conditions:
     type(param) == int and 0 < param <= max_value
     type(param) == tuple(int,int) and 0 < param[0] <= param[1] <= max_value
 
@@ -35,42 +34,44 @@ def validate_term_session(
         max_value (int):                max_value for param
         param_name (str):               name of param (only used for error msg!)
 
-    Returns: Range(int,int)
+    Returns: List of valid integers, either a single value or all integers in a range.
 
     """
-    if not isinstance(max_value, int) or max_value < 1:
-        msg = f"Invalid arg: max_value {max_value}."
+    if param is None:
+        msg = f"Invalid arg: param {param_name} is None."
         raise ValueError(msg)
-    if param is not None:
-        if isinstance(param, int):
-            if not (1 <= param <= max_value):
-                msg = f"Invalid arg: {param_name} {param} outside valid range."
-                raise ValueError(msg)
-            else:
-                return list(range(param, param + 1))
-        elif isinstance(param, tuple):
-            if (
-                len(param) != 2
-                or not isinstance(param[0], int)
-                or not isinstance(param[1], int)
-            ):
-                msg = f"Invalid arg: {param_name} {param} not a tuple[int,int]."
-                raise ValueError(msg)
-            elif not (
-                (1 <= param[0] <= max_value)
-                and (1 <= param[1] <= max_value)
-                and (param[0] <= param[1])
-            ):
-                msg = (
-                    f"Invalid arg: {param_name} {param} "
-                    f"contains values outside valid range."
-                )
-                raise ValueError(msg)
-            else:
-                return list(range(param[0], param[1] + 1))
-        else:
-            msg = f"Invalid type {type(param)} for arg: {param_name} {param}."
+
+    if not isinstance(max_value, int):
+        msg = "Invalid type: max_value must be of type int."
+        raise TypeError(msg)
+
+    if max_value < 1:
+        msg = f"Invalid arg: max_value {max_value} less than 1."
+        raise ValueError(msg)
+
+    if not isinstance(param, (int, tuple)):
+        raise TypeError(f"Invalid type: {param_name} has type {type(param)}.")
+
+    if isinstance(param, int):
+        if not (1 <= param <= max_value):
+            msg = f"Invalid arg: {param_name} {param} outside valid range."
             raise ValueError(msg)
+        return [param]
+
+    elif isinstance(param, tuple):
+        if len(param) != 2:
+            msg = f"Invalid arg: {param_name} {param} needs exactly two arguments."
+            raise ValueError(msg)
+
+        if not all(isinstance(x, int) for x in param):
+            msg = f"Invalid type: All elements in {param_name} should be integers."
+            raise TypeError(msg)
+
+        if any(x < 1 or x > max_value for x in param) or param[0] > param[1]:
+            msg = f"Invalid arg: {param_name} {param} " f"contains values outside valid range."
+            raise ValueError(msg)
+
+        return list(range(param[0], param[1] + 1))
 
 
 def session_file_iterator(
@@ -129,9 +130,7 @@ def session_file_iterator(
 
     if session is not None:
         if not term or len(term_list) != 1:
-            msg = (
-                f"Invalid arg: exact one term must be set when session {session} is set"
-            )
+            msg = f"Invalid arg: exact one term must be set when session {session} is set"
             raise ValueError(msg)
         else:
             max_session = electoral_terms[term]["number_of_sessions"]
@@ -141,11 +140,7 @@ def session_file_iterator(
     # ==================================================================================
     tqdm_bar = None
     for term_number in term_list:
-        total_per_term = (
-            electoral_terms[term_number]["number_of_sessions"]
-            if not session
-            else len(session_list)
-        )
+        total_per_term = electoral_terms[term_number]["number_of_sessions"] if not session else len(session_list)
         # tqdm bar
         if tqdm_bar is not None:
             tqdm_bar.close()
@@ -179,10 +174,7 @@ def session_file_iterator(
                         check_session = int(input_path.stem[2:])
                         check_dir = input_path.parent
                     except ValueError:
-                        logging.warning(
-                            f"Invalid file {input_path} should not exist "
-                            f"in directoy!"
-                        )
+                        logging.warning(f"Invalid file {input_path} should not exist " f"in directoy!")
                         continue
 
                 # Check for relevant session
