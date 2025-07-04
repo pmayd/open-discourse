@@ -1,51 +1,60 @@
-from datetime import datetime
+import logging
 
 import pandas as pd
+import pendulum
 
 from open_discourse.definitions import path
-
-# output directory
-ELECTORAL_TERMS = path.ELECTORAL_TERMS
-ELECTORAL_TERMS.mkdir(parents=True, exist_ok=True)
+from open_discourse.helper.create_electoral_terms import create_electoral_terms
+from open_discourse.helper.logging_config import setup_and_get_logger
 
 
 def main(task):
-    electoral_terms = [
-        {"start_date": "1949-09-07", "end_date": "1953-10-05"},
-        {"start_date": "1953-10-06", "end_date": "1957-10-14"},
-        {"start_date": "1957-10-15", "end_date": "1961-10-16"},
-        {"start_date": "1961-10-17", "end_date": "1965-10-18"},
-        {"start_date": "1965-10-19", "end_date": "1969-10-19"},
-        {"start_date": "1969-10-20", "end_date": "1972-12-12"},
-        {"start_date": "1972-12-13", "end_date": "1976-12-13"},
-        {"start_date": "1976-12-14", "end_date": "1980-11-03"},
-        {"start_date": "1980-11-04", "end_date": "1983-03-28"},
-        {"start_date": "1983-03-29", "end_date": "1987-02-17"},
-        {"start_date": "1987-02-18", "end_date": "1990-12-19"},
-        {"start_date": "1990-12-20", "end_date": "1994-11-09"},
-        {"start_date": "1994-11-10", "end_date": "1998-10-25"},
-        {"start_date": "1998-10-26", "end_date": "2002-10-16"},
-        {"start_date": "2002-10-17", "end_date": "2005-10-17"},
-        {"start_date": "2005-10-18", "end_date": "2009-10-26"},
-        {"start_date": "2009-10-27", "end_date": "2013-10-21"},
-        {"start_date": "2013-10-22", "end_date": "2017-10-23"},
-        {"start_date": "2017-10-24", "end_date": "2021-10-26"},
-        {"start_date": "2021-10-27", "end_date": "2025-10-29"},
-    ]
+    logger = setup_and_get_logger(__file__, logging.DEBUG)
+    logger.info("Script 02_05 starts.")
 
-    def string_to_seconds(date_string, ref_date=datetime(year=1970, month=1, day=1)):
-        date = datetime.strptime(date_string, "%Y-%m-%d")
-        return (date - ref_date).total_seconds()
+    # output directory
+    FINAL = path.FINAL
+    FINAL.mkdir(parents=True, exist_ok=True)
 
-    # convert dates to total seconds and add 1-based id to each term
-    electoral_terms = [
-        {key: string_to_seconds(date_string) for key, date_string in term.items()}
-        | {"id": idx + 1}
-        for idx, term in enumerate(electoral_terms)
-    ]
+    electoral_terms = create_electoral_terms()
 
-    save_path = ELECTORAL_TERMS / "electoral_terms.csv"
-    pd.DataFrame(electoral_terms).to_csv(save_path, index=False)
+    # use pendulum timestamp to ensure compatibility with Windows version
+    electoral_terms = {
+        term: {
+            **data,
+            "id": term,
+            "start_date": pendulum.parse(data["start_date"]).int_timestamp,
+            "end_date": (
+                pendulum.parse(data["end_date"]).int_timestamp
+                if data["end_date"]
+                else None
+            ),
+        }
+        for term, data in electoral_terms.items()
+    }
+
+    df = pd.DataFrame.from_dict(electoral_terms, orient="index")
+    df.index.name = "id"
+    df["start_date"] = df["start_date"].astype("float64")
+    df["end_date"] = df["end_date"].astype("float64")
+    # TODO To be compatible in refactoring delete number_of_sessions and
+    # reproduce errors, but this block should be deleted after refactoring!
+    df = df.drop("number_of_sessions", axis=1)
+    df.drop(21, inplace=True)
+    df.at[19, "end_date"] = 1635206400.0
+    df.at[20, "start_date"] = 1635292800.0
+    df.at[20, "end_date"] = 1761696000.0
+    msg = (
+        "The result of this script 'electoral_terms.csv' is intentionally incorrect "
+        "and incomplete to ensure compatibility during refactoring!"
+    )
+    logger.warning(msg)
+    # End TODO
+
+    save_path = FINAL / "electoral_terms.csv"
+    df.to_csv(save_path, index=False)
+
+    logger.info("Script 02_05 ends.")
 
     return True
 
