@@ -74,6 +74,16 @@ def validate_term_session(param: int | tuple[int, int], max_value: int, param_na
         return list(range(param[0], param[1] + 1))
 
 
+def _get_glob(file_pattern: str, term: int):
+    if file_pattern == "*.xml":
+        glob_pattern = f"electoral_term_pp{term:02}.zip/{file_pattern}"
+    elif file_pattern == "session_content.txt":
+        glob_pattern = f"electoral_term_pp{term:02}.zip/*/{file_pattern}"
+    else:
+        glob_pattern = f"electoral_term_pp{term:02}.zip/{file_pattern}"
+    return glob_pattern
+
+
 def session_file_iterator(
     source_dir: Path,
     term: int | tuple[int, int] | None = None,
@@ -87,37 +97,32 @@ def session_file_iterator(
 
     Args:
         source_dir (Path):  Path to input directory
-        term (int):         electoral term
-        session (int):      session number in electoral term
+        term (int or tuple, optional):         electoral term
+        session (int or tuple, optional):      session number in electoral term
 
     Returns:
         Generator[Path, None, None]: input_file_path form Generator
 
     """
+    file_pattern = {
+        RAW_XML: "*.xml",
+        RAW_TXT: "session_content.txt",
+        SPEECH_CONTENT_STAGE_01: "*.pkl",
+        SPEECH_CONTENT_STAGE_02: "*.pkl",
+        SPEECH_CONTENT_STAGE_03: "*.pkl",
+        SPEECH_CONTENT_STAGE_04: "*.pkl",
+        CONTRIBUTIONS_EXTENDED_STAGE_01: "*.pkl",
+        CONTRIBUTIONS_EXTENDED_STAGE_02: "*.pkl",
+        CONTRIBUTIONS_EXTENDED_STAGE_03: "*.pkl",
+        CONTRIBUTIONS_EXTENDED_STAGE_04: "*.pkl",
+    }
 
-    # ==================================================================================
-    # Check args
-    # ==================================================================================
-    pkl_path_list = (
-        SPEECH_CONTENT_STAGE_01,
-        SPEECH_CONTENT_STAGE_02,
-        SPEECH_CONTENT_STAGE_03,
-        SPEECH_CONTENT_STAGE_04,
-        CONTRIBUTIONS_EXTENDED_STAGE_01,
-        CONTRIBUTIONS_EXTENDED_STAGE_02,
-        CONTRIBUTIONS_EXTENDED_STAGE_03,
-        CONTRIBUTIONS_EXTENDED_STAGE_04,
-    )
+    if source_dir not in file_pattern:
+        raise ValueError(f"Value for {source_dir} currently not supported.")
 
-    if source_dir == RAW_XML:
-        file_pattern = "*.xml"
-    elif source_dir == RAW_TXT:
-        file_pattern = "session_content.txt"
-    elif source_dir in pkl_path_list:
-        file_pattern = "*.pkl"
-    else:
-        raise NotImplementedError(f"Nothing implemented for {source_dir}.")
-    assert source_dir.exists(), f"Input directory {source_dir} does not exist."
+    assert source_dir.exists(), f"Input directory {source_dir} should exist"
+
+    file_pattern = file_pattern[source_dir]
 
     # Don't process sub_directories outside scope of this function,
     # that is term 1 to the highest term in SESSIONS_PER_TERM or term in args
@@ -129,15 +134,15 @@ def session_file_iterator(
         term_list = validate_term_session(term, max_term, "term")
 
     if session is not None:
-        if not term or len(term_list) != 1:
+        if term is None or len(term_list) != 1:
             msg = f"Invalid arg: exact one term must be set when session {session} is set"
             raise ValueError(msg)
         else:
+            term = term_list[0]
             max_session = electoral_terms[term]["number_of_sessions"]
             session_list = validate_term_session(session, max_session, "session")
-    # ==================================================================================
+
     # search for file_pattern
-    # ==================================================================================
     tqdm_bar = None
     for term_number in term_list:
         total_per_term = electoral_terms[term_number]["number_of_sessions"] if not session else len(session_list)
@@ -151,49 +156,44 @@ def session_file_iterator(
             position=0,
         )
 
-        if file_pattern == "*.xml":
-            glob_pattern = f"electoral_term_pp{term_number:02}.zip/{file_pattern}"
-        elif file_pattern == "session_content.txt":
-            glob_pattern = f"electoral_term_pp{term_number:02}.zip/*/{file_pattern}"
-        else:
-            glob_pattern = f"electoral_term_pp{term_number:02}.zip/{file_pattern}"
+        glob_pattern = _get_glob(file_pattern=file_pattern, term=term_number)
 
-        file_list = sorted(list(source_dir.glob(glob_pattern)), key=lambda x: x.name)
+        file_list = sorted(source_dir.glob(glob_pattern), key=lambda x: x.name)
         for input_path in file_list:
             if not input_path.is_file():
                 continue
+
+            # session_content.txt-files are in a deeper directory
+            if file_pattern == "session_content.txt":
+                check_term = int(input_path.parent.name[:2])
+                check_session = int(input_path.parent.name[2:])
+                check_dir = input_path.parent.parent
             else:
-                # session_content.txt-files are in a deeper directory
-                if file_pattern == "session_content.txt":
-                    check_term = int(input_path.parent.name[:2])
-                    check_session = int(input_path.parent.name[2:])
-                    check_dir = input_path.parent.parent
-                else:
-                    try:
-                        check_term = int(input_path.stem[:2])
-                        check_session = int(input_path.stem[2:])
-                        check_dir = input_path.parent
-                    except ValueError:
-                        logging.warning(f"Invalid file {input_path} should not exist " f"in directoy!")
-                        continue
+                try:
+                    check_term = int(input_path.stem[:2])
+                    check_session = int(input_path.stem[2:])
+                    check_dir = input_path.parent
+                except ValueError:
+                    logging.warning(f"Invalid file: {input_path} should not exist " f"in directoy!")
+                    continue
 
-                # Check for relevant session
-                if session is not None:
-                    if check_session not in session_list:
-                        continue
+            # Check for relevant session
+            if session is not None:
+                if check_session not in session_list:
+                    continue
 
-                parent = input_path.parent
-                # are there any sub_directories?
-                if any(child.is_dir() for child in input_path.parent.iterdir()):
-                    logging.warning(f"Path {parent} should not contain sub_dirs!")
+            parent = input_path.parent
+            # are there any sub_directories?
+            if any(child.is_dir() for child in input_path.parent.iterdir()):
+                logging.warning(f"Path {parent} should not contain sub_dirs!")
 
-                # check consistency in dir-name electoral_term
-                term_in_path = get_term_from_path(str(check_dir))
-                if term_in_path != check_term:
-                    raise ValueError(f"inconsitent {input_path} {check_dir}")
+            # check consistency in dir-name electoral_term
+            term_in_path = get_term_from_path(str(check_dir))
+            if term_in_path != check_term:
+                raise ValueError(f"inconsitent {input_path} {check_dir}")
 
-                tqdm_bar.update(1)
-                yield input_path
+            tqdm_bar.update(1)
+            yield input_path
 
     if tqdm_bar is not None:
         tqdm_bar.close()  # Schließt den letzten Fortschrittsbalken

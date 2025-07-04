@@ -246,7 +246,8 @@ def test_session_file_iterator(case: namedtuple, dynamic_patch_paths, prepare_va
         for r in result_list:
             # special handling of text, due to session_content as filename and
             # additional sub directory
-            if "raw\\txt" in str(test_dir):
+            print("test_dir:", test_dir.parts)
+            if set(("01_raw", "txt")).issubset(test_dir.parts):
                 assert r.stem == "session_content"
                 result_short_list.append(r.parent.stem)
             else:
@@ -259,14 +260,14 @@ test_cases.append(
     CaseDataforTest(
         {"source_dir": "anydir"},
         expected=None,
-        exception=NotImplementedError,
+        exception=ValueError,
     )
 )
 test_cases.append(
     CaseDataforTest(
         {"source_dir": "SPEECH_CONTENT", "term": 4, "session": 19},
         expected=None,
-        exception=NotImplementedError,
+        exception=ValueError,
     )
 )
 
