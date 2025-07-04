@@ -27,7 +27,9 @@ Die Sitzung ist geschlossen.
 (Schluß der Sitzung: 19 Uhr 44 Minuten.)""",
             """.\nIch breche die Sitzung ab und vertage auf morgen vormittag 11 Uhr.
 Die Sitzung ist geschlossen.\n""",
-            marks=pytest.mark.xfail(reason="This test is expected to fail due to known issue with handling line breaks in the regex"),
+            marks=pytest.mark.xfail(
+                reason="This test is expected to fail due to known issue with handling line breaks in the regex"
+            ),
         ),
         (
             """Die Sitzung wird um 9 Uhr 2 Minuten durch den Vizepräsidenten Dr. Schmid eröffnet.
