@@ -6,10 +6,10 @@ from tqdm import tqdm
 from open_discourse.definitions import path
 
 # input directory
-INPUT_PATH = path.DATA_CACHE / "electoral_term_pp20" / "stage_01"
+INPUT_PATH = path.DATA_CACHE / "electoral_term_20" / "stage_01"
 
 # output directory
-OUTPUT_PATH = path.DATA_CACHE / "electoral_term_pp20" / "stage_02"
+OUTPUT_PATH = path.DATA_CACHE / "electoral_term_20" / "stage_02"
 
 
 def main(task):
