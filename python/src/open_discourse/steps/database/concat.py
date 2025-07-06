@@ -1,8 +1,7 @@
-import datetime
-import time
 import xml.etree.ElementTree as et
 
 import pandas as pd
+import pendulum
 import regex
 
 from open_discourse.definitions import path
@@ -78,14 +77,15 @@ def main(task):
             # meta_data["document_number"].append(tree.find("NR").text)
             # meta_data["date"].append(tree.find("DATUM").text)
             # document_number = tree.find("NR").text
-            date = time.mktime(
-                datetime.datetime.strptime(
-                    tree.find("DATUM").text, "%d.%m.%Y"
-                ).timetuple()
-            )
+
+            # date_str a date string like "27.10.2009"
+            date_str = tree.find("DATUM").text
+
+            dt = pendulum.from_format(date_str, "DD.MM.YYYY")
+
             document_number = xml_plenar_file_path.stem
             document_number = int(document_number)
-            meta_data[document_number] = date
+            meta_data[document_number] = dt.int_timestamp
 
     speech_content_01_19.insert(1, "electoral_term", -1)
     speech_content_01_19.insert(4, "document_url", "")
