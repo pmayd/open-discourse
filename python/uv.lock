@@ -596,8 +596,8 @@ dev = [
 requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.13.3" },
     { name = "dicttoxml", specifier = ">=1.7.16" },
-    { name = "doit", specifier = ">=0.36.0" },
     { name = "doit", marker = "extra == 'doit-graph'", specifier = ">=0.36.0" },
+    { name = "doit", extras = ["doit-graph"], specifier = ">=0.36.0" },
     { name = "levenshtein", specifier = ">=0.27.1" },
     { name = "numpy", specifier = ">=2.0.0" },
     { name = "pandas", specifier = ">=2.2.2" },

@@ -163,7 +163,7 @@ def session_file_iterator(
 
         tqdm_bar = tqdm(
             total=total_per_term,
-            desc=f"Parsing term" f" {term_number:>2}...,",
+            desc=f"Parsing term {term_number:>2}...,",
             position=0,
         )
 
@@ -186,7 +186,7 @@ def session_file_iterator(
                     check_dir = input_path.parent
                 except ValueError:
                     logging.warning(
-                        f"Invalid file: {input_path} should not exist " f"in directoy!"
+                        f"Invalid file: {input_path} should not exist in directoy!"
                     )
                     continue
 

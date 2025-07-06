@@ -58,12 +58,12 @@ def split_single_session_xml_data(xml_file_path: Path) -> tuple:
 
     # Are filename and meta_data consistent?
     if (
-        xml_file_path.stem != f"{int(meta_data["term"]):02d}"
-        f"{int(meta_data["document_number"].split("/")[1]):03d}"
+        xml_file_path.stem != f"{int(meta_data['term']):02d}"
+        f"{int(meta_data['document_number'].split('/')[1]):03d}"
     ):
         msg = (
             f"meta_data / filepath not consistent: {str(xml_file_path)} "
-            f"{meta_data["document_number"]}"
+            f"{meta_data['document_number']}"
         )
         logging.warning(msg)
 
