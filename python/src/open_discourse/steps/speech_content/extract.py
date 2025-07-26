@@ -19,18 +19,68 @@ def main(task):
     print("Starting..")
 
     for folder_path in sorted(RAW_TXT.iterdir()):
-        process_period(folder_path)
+
+        # Get regex helpers based on folder name/term
+        open_brackets, close_brackets, prefix = get_bracket_and_prefix_from_term_number(folder_path)
+        if open_brackets is None:
+            continue  # skip if not a valid folder
+
+        president_pattern = get_president_pattern()
+
+        faction_speaker_pattern = get_faction_speaker_pattern(
+            term_number=int(folder_path.stem[-2:]),
+            folder_path=folder_path,
+            open_brackets=open_brackets,
+            close_brackets=close_brackets,
+            prefix=prefix
+        )
+
+        minister_pattern = get_minister_pattern(open_brackets, close_brackets, prefix)
+
+        process_period(folder_path, president_pattern, faction_speaker_pattern, minister_pattern)
 
     return True
 
+def get_bracket_and_prefix_from_term_number(folder_path: Path):
+    """
+    Extracts the term number from the folder name and returns
+    open_brackets, close_brackets, and prefix for regex patterns.
+    """
+    if not folder_path.is_dir():
+        return None, None, None
 
-def process_period(folder_path: Path):
-    president_pattern_str = r"(?P<position_raw>Präsident(?:in)?|Vizepräsident(?:in)?|Alterspräsident(?:in)?|Bundespräsident(?:in)?|Bundeskanzler(?:in)?)\s+(?P<name_raw>[A-ZÄÖÜß](?:[^:([}{\]\)\s]+\s?){1,5})\s?:\s?"
+    match = regex.search(r"(?<=electoral_term_pp)\d{2}", folder_path.stem)
+    if match is None:
+        return None, None, None
 
-    faction_speaker_pattern_str = r"{3}(?P<name_raw>[A-ZÄÖÜß][^:([{{}}\]\)\n]+?)(\s*{0}(?P<constituency>[^:(){{}}[\]\n]+){1})*\s*{0}(?P<position_raw>{2}){1}(\s*{0}(?P<constituency>[^:(){{}}[\]\n]+){1})*\s?:\s?"
+    term_number = int(match.group())
+    if term_number <= 10:
+        open_brackets = r"[({\[]"
+        close_brackets = r"[)}\]]"
+        prefix = r"(?<=\n)"
+    elif 10 < term_number <= 19:
+        open_brackets = r"[(]"
+        close_brackets = r"[)]"
+        prefix = r"(?<=\n)"
+    else:
+        raise ValueError("You should not land here.")
 
+    return open_brackets, close_brackets, prefix
+
+def get_president_pattern():
+    return regex.compile(
+        r"(?P<position_raw>Präsident(?:in)?|Vizepräsident(?:in)?|Alterspräsident(?:in)?|Bundespräsident(?:in)?|Bundeskanzler(?:in)?)\s+(?P<name_raw>[A-ZÄÖÜß](?:[^:([}{\]\)\s]+\s?){1,5})\s?:\s?"
+
+    )
+
+def get_minister_pattern(open_brackets, close_brackets, prefix):
     minister_pattern_str = r"{0}(?P<name_raw>[A-ZÄÖÜß](?:[^:([{{}}\]\)\s]+\s?){{1,5}}?),\s?(?P<position_raw>(?P<short_position>Bundesminister(?:in)?|Staatsminister(?:in)?|(?:Parl\s?\.\s)?Staatssekretär(?:in)?|Präsident(?:in)?|Bundeskanzler(?:in)?|Schriftführer(?:in)?|Senator(?:in)?\s?(?:{1}(?P<constituency>[^:([{{}}\]\)\s]+){2})?|Berichterstatter(?:in)?)\s?([^:([\]{{}}\)\n]{{0,76}}?\n?){{1,2}})\s?:\s?"
 
+    return regex.compile(
+        minister_pattern_str.format(prefix, open_brackets, close_brackets)
+    )
+
+def get_faction_speaker_pattern(term_number: int, folder_path: Path, open_brackets, close_brackets, prefix):
     parties = [
         r"(?:Gast|-)?(?:\s*C\s*[DSMU]\s*S?[DU]\s*(?:\s*[/,':!.-]?)*\s*(?:\s*C+\s*[DSs]?\s*[UÙ]?\s*)?)(?:-?Hosp\.|-Gast|1)?",
         r"\s*'?S(?:PD|DP)(?:\.|-Gast)?",
@@ -55,37 +105,16 @@ def process_period(folder_path: Path):
         "DBP",
         "NR",
     ]
-    if not folder_path.is_dir():
-        return
 
-    term_number = regex.search(r"(?<=electoral_term_pp)\d{2}", folder_path.stem)
-    print(term_number)
-    if term_number is None:
-        return
+    faction_speaker_pattern_str = r"{3}(?P<name_raw>[A-ZÄÖÜß][^:([{{}}\]\)\n]+?)(\s*{0}(?P<constituency>[^:(){{}}[\]\n]+){1})*\s*{0}(?P<position_raw>{2}){1}(\s*{0}(?P<constituency>[^:(){{}}[\]\n]+){1})*\s?:\s?"
 
-    term_number = int(term_number.group(0))
-
-    if term_number <= 10:
-        open_brackets = r"[({\[]"
-        close_brackets = r"[)}\]]"
-        prefix = r"(?<=\n)"
-    elif 10 < term_number <= 19:
-        open_brackets = r"[(]"
-        close_brackets = r"[)]"
-        prefix = r"(?<=\n)"
-    else:
-        raise ValueError("You should not land here.")
-
-    faction_speaker_pattern = regex.compile(
+    return regex.compile(
         faction_speaker_pattern_str.format(
             open_brackets, close_brackets, "|".join(parties), prefix
         )
     )
-    president_pattern = regex.compile(president_pattern_str)
-    minister_pattern = regex.compile(
-        minister_pattern_str.format(prefix, open_brackets, close_brackets)
-    )
 
+def process_period(folder_path: Path, president_pattern, faction_speaker_pattern, minister_pattern):
     patterns = [president_pattern, faction_speaker_pattern, minister_pattern]
 
     save_path = SPEECH_CONTENT_OUTPUT / folder_path.stem
