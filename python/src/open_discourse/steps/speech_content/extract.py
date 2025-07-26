@@ -70,7 +70,6 @@ def get_bracket_and_prefix_from_term_number(folder_path: Path):
 def get_president_pattern():
     return regex.compile(
         r"(?P<position_raw>Präsident(?:in)?|Vizepräsident(?:in)?|Alterspräsident(?:in)?|Bundespräsident(?:in)?|Bundeskanzler(?:in)?)\s+(?P<name_raw>[A-ZÄÖÜß](?:[^:([}{\]\)\s]+\s?){1,5})\s?:\s?"
-
     )
 
 def get_minister_pattern(open_brackets, close_brackets, prefix):
