@@ -6,6 +6,7 @@ import regex
 from tqdm import tqdm
 
 from open_discourse.definitions import path
+from open_discourse.helper.utils import get_term_from_path
 
 # input directory
 RAW_TXT = path.RAW_TXT
@@ -49,11 +50,10 @@ def get_bracket_and_prefix_from_term_number(folder_path: Path) -> tuple[str, str
     if not folder_path.is_dir():
         return "", "", ""
 
-    match = regex.search(r"(?<=electoral_term_pp)\d{2}", folder_path.stem)
-    if match is None:
+    term_number = get_term_from_path(folder_path)
+    if term_number is None:
         return "", "", ""
 
-    term_number = int(match.group())
     prefix = r"(?<=\n)"
 
     if term_number <= 10:
