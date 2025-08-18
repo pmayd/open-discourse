@@ -41,17 +41,17 @@ def main(task):
 
     return True
 
-def get_bracket_and_prefix_from_term_number(folder_path: Path):
+def get_bracket_and_prefix_from_term_number(folder_path: Path) -> tuple[str, str, str]:
     """
     Extracts the term number from the folder name and returns
     open_brackets, close_brackets, and prefix for regex patterns.
     """
     if not folder_path.is_dir():
-        return None, None, None
+        return "", "", ""
 
     match = regex.search(r"(?<=electoral_term_pp)\d{2}", folder_path.stem)
     if match is None:
-        return None, None, None
+        return "", "", ""
 
     term_number = int(match.group())
     prefix = r"(?<=\n)"
@@ -63,7 +63,7 @@ def get_bracket_and_prefix_from_term_number(folder_path: Path):
         open_brackets = r"[(]"
         close_brackets = r"[)]"
     else:
-        raise ValueError("You should not land here.")
+        raise ValueError("The term number is greater than 19")
 
     return open_brackets, close_brackets, prefix
 
