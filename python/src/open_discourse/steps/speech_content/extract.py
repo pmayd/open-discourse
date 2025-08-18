@@ -20,9 +20,10 @@ def main(task):
     print("Starting..")
 
     for folder_path in sorted(RAW_TXT.iterdir()):
-
         # Get regex helpers based on folder name/term
-        open_brackets, close_brackets, prefix = get_bracket_and_prefix_from_term_number(folder_path)
+        open_brackets, close_brackets, prefix = get_bracket_and_prefix_from_term_number(
+            folder_path
+        )
         if open_brackets is None:
             continue  # skip if not a valid folder
 
@@ -33,14 +34,17 @@ def main(task):
             folder_path=folder_path,
             open_brackets=open_brackets,
             close_brackets=close_brackets,
-            prefix=prefix
+            prefix=prefix,
         )
 
         minister_pattern = get_minister_pattern(open_brackets, close_brackets, prefix)
 
-        process_period(folder_path, president_pattern, faction_speaker_pattern, minister_pattern)
+        process_period(
+            folder_path, president_pattern, faction_speaker_pattern, minister_pattern
+        )
 
     return True
+
 
 def get_bracket_and_prefix_from_term_number(folder_path: Path) -> tuple[str, str, str]:
     """
@@ -67,10 +71,12 @@ def get_bracket_and_prefix_from_term_number(folder_path: Path) -> tuple[str, str
 
     return open_brackets, close_brackets, prefix
 
+
 def get_president_pattern():
     return regex.compile(
         r"(?P<position_raw>Präsident(?:in)?|Vizepräsident(?:in)?|Alterspräsident(?:in)?|Bundespräsident(?:in)?|Bundeskanzler(?:in)?)\s+(?P<name_raw>[A-ZÄÖÜß](?:[^:([}{\]\)\s]+\s?){1,5})\s?:\s?"
     )
+
 
 def get_minister_pattern(open_brackets, close_brackets, prefix):
     minister_pattern_str = r"{0}(?P<name_raw>[A-ZÄÖÜß](?:[^:([{{}}\]\)\s]+\s?){{1,5}}?),\s?(?P<position_raw>(?P<short_position>Bundesminister(?:in)?|Staatsminister(?:in)?|(?:Parl\s?\.\s)?Staatssekretär(?:in)?|Präsident(?:in)?|Bundeskanzler(?:in)?|Schriftführer(?:in)?|Senator(?:in)?\s?(?:{1}(?P<constituency>[^:([{{}}\]\)\s]+){2})?|Berichterstatter(?:in)?)\s?([^:([\]{{}}\)\n]{{0,76}}?\n?){{1,2}})\s?:\s?"
@@ -79,7 +85,10 @@ def get_minister_pattern(open_brackets, close_brackets, prefix):
         minister_pattern_str.format(prefix, open_brackets, close_brackets)
     )
 
-def get_faction_speaker_pattern(term_number: int, folder_path: Path, open_brackets, close_brackets, prefix):
+
+def get_faction_speaker_pattern(
+    term_number: int, folder_path: Path, open_brackets, close_brackets, prefix
+):
     parties = [
         r"(?:Gast|-)?(?:\s*C\s*[DSMU]\s*S?[DU]\s*(?:\s*[/,':!.-]?)*\s*(?:\s*C+\s*[DSs]?\s*[UÙ]?\s*)?)(?:-?Hosp\.|-Gast|1)?",
         r"\s*'?S(?:PD|DP)(?:\.|-Gast)?",
@@ -113,7 +122,10 @@ def get_faction_speaker_pattern(term_number: int, folder_path: Path, open_bracke
         )
     )
 
-def process_period(folder_path: Path, president_pattern, faction_speaker_pattern, minister_pattern):
+
+def process_period(
+    folder_path: Path, president_pattern, faction_speaker_pattern, minister_pattern
+):
     patterns = [president_pattern, faction_speaker_pattern, minister_pattern]
 
     save_path = SPEECH_CONTENT_OUTPUT / folder_path.stem
