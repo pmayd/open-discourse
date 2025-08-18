@@ -54,14 +54,14 @@ def get_bracket_and_prefix_from_term_number(folder_path: Path):
         return None, None, None
 
     term_number = int(match.group())
+    prefix = r"(?<=\n)"
+
     if term_number <= 10:
         open_brackets = r"[({\[]"
         close_brackets = r"[)}\]]"
-        prefix = r"(?<=\n)"
     elif 10 < term_number <= 19:
         open_brackets = r"[(]"
         close_brackets = r"[)]"
-        prefix = r"(?<=\n)"
     else:
         raise ValueError("You should not land here.")
 
