@@ -24,24 +24,6 @@ from open_discourse.helper.logging_config import setup_and_get_logger
 logger = setup_and_get_logger("process_factions")
 
 
-def _get_abbreviation(faction_name: str) -> str:
-    """
-    Get the standardized abbreviation for a faction name.
-
-    Args:
-        faction_name (str): The full faction name to look up in the FACTION_ABBREVIATIONS dictionary
-
-    Returns:
-        str: The standardized abbreviation if the faction name is found in FACTION_ABBREVIATIONS,
-             otherwise returns the original faction_name as a fallback
-    """
-    if faction_name in FACTION_ABBREVIATIONS:
-        return FACTION_ABBREVIATIONS[faction_name]
-    else:
-        # Return the faction name itself as a fallback
-        return faction_name
-
-
 def add_abbreviations_to_factions(factions_df: pd.DataFrame) -> pd.DataFrame:
     """
     Adds abbreviations to faction names based on predefined mapping.
@@ -70,7 +52,7 @@ def add_abbreviations_to_factions(factions_df: pd.DataFrame) -> pd.DataFrame:
 
     # Helper function to track missing factions while getting abbreviation
     def track_and_get_abbreviation(faction_name):
-        abbreviation = _get_abbreviation(faction_name)
+        abbreviation = FACTION_ABBREVIATIONS.get(faction_name, faction_name)
         if abbreviation == faction_name and faction_name not in FACTION_ABBREVIATIONS:
             missing_factions.append(faction_name)
         return abbreviation
