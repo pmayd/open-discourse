@@ -92,13 +92,12 @@ def assign_ids_to_factions(factions_df: pd.DataFrame) -> pd.DataFrame:
 
     # Get unique abbreviations and generate sequential IDs
     unique_abbreviations = np.unique(result_df["abbreviation"])
-    faction_ids = list(range(len(unique_abbreviations)))
 
     # Insert new ID column at the beginning with default value -1
     result_df.insert(0, "id", -1)
 
-    # Assign IDs based on abbreviations
-    for abbrev, id_value in zip(unique_abbreviations, faction_ids):
+    # Assign IDs based on abbreviations using enumerate
+    for id_value, abbrev in enumerate(unique_abbreviations):
         result_df.loc[result_df["abbreviation"] == abbrev, "id"] = id_value
 
     logger.info(f"Assigned {len(unique_abbreviations)} unique IDs to factions")
