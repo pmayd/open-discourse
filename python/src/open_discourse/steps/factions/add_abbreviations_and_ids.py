@@ -50,16 +50,17 @@ def add_abbreviations_to_factions(factions_df: pd.DataFrame) -> pd.DataFrame:
     # Track missing factions to log once at the end
     missing_factions = set()
 
-    # Helper function to track missing factions while getting abbreviation
-    def track_and_get_abbreviation(faction_name):
-        abbreviation = FACTION_ABBREVIATIONS.get(faction_name, faction_name)
-        if abbreviation == faction_name and faction_name not in FACTION_ABBREVIATIONS:
+    # Helper function to get abbreviation and track missing ones
+    def get_and_track_abbreviation(faction_name):
+        abbreviation = FACTION_ABBREVIATIONS.get(faction_name)
+        if abbreviation is None:
             missing_factions.add(faction_name)
+            return faction_name
         return abbreviation
 
     # Apply the function to each faction name
     result_df["abbreviation"] = result_df["faction_name"].apply(
-        track_and_get_abbreviation
+        get_and_track_abbreviation
     )
 
     # Log any missing factions as warnings
