@@ -66,7 +66,7 @@ def extract_unique_factions(mps: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(all_factions, columns=["faction_name"])
 
 
-def main(task):
+def main(task) -> bool:
     """
     Main function that loads the mps DataFrame, extracts unique factions,
     and saves them to 'factions.pkl' in the designated output directory.

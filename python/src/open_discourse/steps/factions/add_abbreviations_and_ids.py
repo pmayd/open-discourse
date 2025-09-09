@@ -92,7 +92,7 @@ def assign_ids_to_factions(factions_df: pd.DataFrame) -> None:
     logger.info(f"Assigned {len(unique_abbreviations)} unique IDs to factions")
 
 
-def main(task):
+def main(task) -> bool:
     """
     Main function that loads factions data, adds abbreviations and IDs,
     and saves the result to the final directory.
