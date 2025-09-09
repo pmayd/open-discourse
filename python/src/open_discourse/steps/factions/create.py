@@ -52,12 +52,12 @@ def extract_unique_factions(mps: pd.DataFrame) -> pd.DataFrame:
         raise ValueError(f"Missing required columns in DataFrame: {missing}")
 
     # Filter rows where institution_type is "Fraktion/Gruppe"
-    factions_series = mps.loc[
+    factions = mps.loc[
         mps["institution_type"] == "Fraktion/Gruppe", "institution_name"
     ]
 
     # Extract unique faction names
-    unique_factions = np.unique(factions_series)
+    unique_factions = np.unique(factions)
 
     # Append additional predefined factions
     all_factions = np.append(unique_factions, ADDITIONAL_FACTIONS)
