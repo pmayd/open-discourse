@@ -160,12 +160,8 @@ def test_full_pipeline():
     )
 
     # Find the rows for our test factions
-    cdu_row = factions_df[
-        factions_df["faction_name"] == "Fraktion der CDU/CSU (Gast)"
-    ]
-    spd_row = factions_df[
-        factions_df["faction_name"] == "Fraktion der SPD (Gast)"
-    ]
+    cdu_row = factions_df[factions_df["faction_name"] == "Fraktion der CDU/CSU (Gast)"]
+    spd_row = factions_df[factions_df["faction_name"] == "Fraktion der SPD (Gast)"]
 
     # Check abbreviations are correct
     assert cdu_row["abbreviation"].values[0] == "CDU/CSU"
@@ -179,42 +175,44 @@ def test_full_pipeline():
 def test_create_main_function():
     """Test the main() function from create.py."""
     # Create test data
-    test_mps = pd.DataFrame({
-        "institution_type": ["Fraktion/Gruppe", "Fraktion/Gruppe"],
-        "institution_name": ["Test Faction 1", "Test Faction 2"]
-    })
-    
+    test_mps = pd.DataFrame(
+        {
+            "institution_type": ["Fraktion/Gruppe", "Fraktion/Gruppe"],
+            "institution_name": ["Test Faction 1", "Test Faction 2"],
+        }
+    )
+
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir)
-        
+
         # Mock the path module to use our temp directory
-        with patch('open_discourse.steps.factions.create.path') as mock_path:
+        with patch("open_discourse.steps.factions.create.path") as mock_path:
             # Setup mock paths
             mock_path.POLITICIANS_STAGE_01 = tmp_path / "politicians_stage_01"
             mock_path.FACTIONS_STAGE_01 = tmp_path / "factions_stage_01"
-            
+
             # Create the input directory and file
             mock_path.POLITICIANS_STAGE_01.mkdir(parents=True, exist_ok=True)
             mps_file = mock_path.POLITICIANS_STAGE_01 / "mps.pkl"
-            
+
             # Save test data
             test_mps.to_pickle(mps_file)
-            
+
             # Run the main function
             result = create_main(None)
-            
+
             # Check that it succeeded
             assert result is True
-            
+
             # Check that output file was created
             output_file = mock_path.FACTIONS_STAGE_01 / "factions.pkl"
             assert output_file.exists()
-            
+
             # Load and verify the output
             created_factions = pd.read_pickle(output_file)
             assert "faction_name" in created_factions.columns
             assert len(created_factions) >= 2  # At least our test factions
-            
+
             # Verify test factions are present
             faction_names = set(created_factions["faction_name"])
             assert "Test Faction 1" in faction_names
@@ -224,56 +222,68 @@ def test_create_main_function():
 def test_add_abbreviations_and_ids_main_function():
     """Test the main() function from add_abbreviations_and_ids.py."""
     # Create test factions data
-    test_factions = pd.DataFrame({
-        "faction_name": [
-            "Fraktion der CDU/CSU (Gast)",
-            "Fraktion der SPD (Gast)",
-            "Unknown Faction"
-        ]
-    })
-    
+    test_factions = pd.DataFrame(
+        {
+            "faction_name": [
+                "Fraktion der CDU/CSU (Gast)",
+                "Fraktion der SPD (Gast)",
+                "Unknown Faction",
+            ]
+        }
+    )
+
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir)
-        
+
         # Mock the path module
-        with patch('open_discourse.steps.factions.add_abbreviations_and_ids.path') as mock_path:
+        with patch(
+            "open_discourse.steps.factions.add_abbreviations_and_ids.path"
+        ) as mock_path:
             # Setup mock paths
             mock_path.FACTIONS_STAGE_01 = tmp_path / "factions_stage_01"
             mock_path.DATA_FINAL = tmp_path / "data_final"
-            
+
             # Create input directory and file
             mock_path.FACTIONS_STAGE_01.mkdir(parents=True, exist_ok=True)
             input_file = mock_path.FACTIONS_STAGE_01 / "factions.pkl"
-            
+
             # Save test data
             test_factions.to_pickle(input_file)
-            
+
             # Run the main function
             result = add_abbrevs_main(None)
-            
+
             # Check that it succeeded
             assert result is True
-            
+
             # Check that output file was created
             output_file = mock_path.DATA_FINAL / "factions.pkl"
             assert output_file.exists()
-            
+
             # Load and verify the output
             final_factions = pd.read_pickle(output_file)
-            
+
             # Check all expected columns exist
             assert "id" in final_factions.columns
             assert "abbreviation" in final_factions.columns
             assert "faction_name" in final_factions.columns
-            
+
             # Check column order (id, abbreviation, faction_name)
-            assert list(final_factions.columns) == ["id", "abbreviation", "faction_name"]
-            
+            assert list(final_factions.columns) == [
+                "id",
+                "abbreviation",
+                "faction_name",
+            ]
+
             # Verify abbreviations were added correctly
-            cdu_row = final_factions[final_factions["faction_name"] == "Fraktion der CDU/CSU (Gast)"]
+            cdu_row = final_factions[
+                final_factions["faction_name"] == "Fraktion der CDU/CSU (Gast)"
+            ]
             assert len(cdu_row) == 1
             assert cdu_row["abbreviation"].values[0] == "CDU/CSU"
-            
+
             # Verify IDs were assigned
             assert final_factions["id"].min() >= 0
-            assert len(final_factions["id"].unique()) == len(final_factions["abbreviation"].unique())
+            assert len(final_factions["id"].unique()) == len(
+                final_factions["abbreviation"].unique()
+            )
