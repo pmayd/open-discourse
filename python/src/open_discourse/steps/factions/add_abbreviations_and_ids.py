@@ -119,17 +119,8 @@ def main(task):
         assign_ids_to_factions(factions)
 
         logger.info("Successfully processed factions data")
-    except TypeError as e:
-        logger.error(f"Type error during faction processing: {e}")
-        return False
-    except ValueError as e:
-        logger.error(f"Value error during faction processing: {e}")
-        return False
-    except KeyError as e:
-        logger.error(f"Key error during faction processing (missing column?): {e}")
-        return False
     except Exception as e:
-        logger.error(f"Unexpected error processing factions data: {e}")
+        logger.error(f"Error processing factions data: {e}")
         return False
     # Save the processed data
     output_file = DATA_FINAL / "factions.pkl"
