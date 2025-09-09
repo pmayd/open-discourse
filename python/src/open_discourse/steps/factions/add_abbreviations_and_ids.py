@@ -24,28 +24,22 @@ from open_discourse.helper.logging_config import setup_and_get_logger
 logger = setup_and_get_logger("process_factions")
 
 
-def add_abbreviations_to_factions(factions_df: pd.DataFrame) -> pd.DataFrame:
+def add_abbreviations_to_factions(factions_df: pd.DataFrame) -> None:
     """
     Adds abbreviations to faction names based on predefined mapping.
+    Modifies the input DataFrame in-place.
 
     Args:
-        factions_df (pd.DataFrame): DataFrame containing faction names in the 'faction_name' column
-
-    Returns:
-        pd.DataFrame: DataFrame with an additional 'abbreviation' column at index 0. The original
-                      data is preserved, and for faction names without a standard abbreviation,
-                      the original faction name is used as the abbreviation.
+        factions_df (pd.DataFrame): DataFrame containing faction names in the 'faction_name' column.
+                                   Will be modified in-place to include 'abbreviation' column.
 
     Raises:
         KeyError: If 'faction_name' column is missing from the input DataFrame
     """
     logger.info("Adding abbreviations to factions")
 
-    # Create a copy to avoid modifying the input DataFrame
-    result_df = factions_df.copy()
-
     # Insert new column at the beginning
-    result_df.insert(0, "abbreviation", "")
+    factions_df.insert(0, "abbreviation", "")
 
     # Track missing factions to log once at the end
     missing_factions = set()
@@ -59,7 +53,7 @@ def add_abbreviations_to_factions(factions_df: pd.DataFrame) -> pd.DataFrame:
         return abbreviation
 
     # Apply the function to each faction name
-    result_df["abbreviation"] = result_df["faction_name"].apply(
+    factions_df["abbreviation"] = factions_df["faction_name"].apply(
         get_and_track_abbreviation
     )
 
@@ -70,39 +64,32 @@ def add_abbreviations_to_factions(factions_df: pd.DataFrame) -> pd.DataFrame:
         )
         logger.warning("Using original names as abbreviations for these factions")
 
-    return result_df
 
-
-def assign_ids_to_factions(factions_df: pd.DataFrame) -> pd.DataFrame:
+def assign_ids_to_factions(factions_df: pd.DataFrame) -> None:
     """
     Assigns unique IDs to factions based on their abbreviations.
+    Modifies the input DataFrame in-place.
 
     Args:
-        factions_df (pd.DataFrame): DataFrame containing faction abbreviations in the 'abbreviation' column
-
-    Returns:
-        pd.DataFrame: DataFrame with an additional 'id' column at index 0
+        factions_df (pd.DataFrame): DataFrame containing faction abbreviations in the 'abbreviation' column.
+                                   Will be modified in-place to include 'id' column.
 
     Raises:
         KeyError: If 'abbreviation' column is missing from the input DataFrame
     """
     logger.info("Assigning IDs to factions based on abbreviations")
 
-    # Create a copy to avoid modifying the input DataFrame
-    result_df = factions_df.copy()
-
     # Get unique abbreviations and generate sequential IDs
-    unique_abbreviations = np.unique(result_df["abbreviation"])
+    unique_abbreviations = np.unique(factions_df["abbreviation"])
 
     # Insert new ID column at the beginning with default value -1
-    result_df.insert(0, "id", -1)
+    factions_df.insert(0, "id", -1)
 
     # Assign IDs based on abbreviations using enumerate
     for id_value, abbrev in enumerate(unique_abbreviations):
-        result_df.loc[result_df["abbreviation"] == abbrev, "id"] = id_value
+        factions_df.loc[factions_df["abbreviation"] == abbrev, "id"] = id_value
 
     logger.info(f"Assigned {len(unique_abbreviations)} unique IDs to factions")
-    return result_df
 
 
 def main(task):
@@ -126,10 +113,10 @@ def main(task):
     # Process the data: add abbreviations and IDs
     try:
         # Add abbreviations
-        factions_with_abbrevs = add_abbreviations_to_factions(factions)
+        add_abbreviations_to_factions(factions)
 
         # Add IDs based on abbreviations
-        final_factions = assign_ids_to_factions(factions_with_abbrevs)
+        assign_ids_to_factions(factions)
 
         logger.info("Successfully processed factions data")
     except TypeError as e:
@@ -146,7 +133,7 @@ def main(task):
         return False
     # Save the processed data
     output_file = DATA_FINAL / "factions.pkl"
-    if not save_pickle(final_factions, output_file, logger):
+    if not save_pickle(factions, output_file, logger):
         return False  # Early return if saving failed
 
     logger.info("Script completed: factions abbreviations and IDs added.")
