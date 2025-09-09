@@ -1,18 +1,21 @@
 import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pandas as pd
 import pytest
 
 # Import the functions from the correct package path
-from open_discourse.helper.constants import ADDITIONAL_FACTIONS, FACTION_ABBREVIATIONS
-from open_discourse.steps.factions.create import extract_unique_factions, main as create_main
+from open_discourse.helper.constants import ADDITIONAL_FACTIONS
 from open_discourse.steps.factions.add_abbreviations_and_ids import (
     add_abbreviations_to_factions,
     assign_ids_to_factions,
-    main as add_abbrevs_main
 )
+from open_discourse.steps.factions.add_abbreviations_and_ids import (
+    main as add_abbrevs_main,
+)
+from open_discourse.steps.factions.create import extract_unique_factions
+from open_discourse.steps.factions.create import main as create_main
 
 
 def test_extract_unique_factions():
