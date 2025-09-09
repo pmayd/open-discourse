@@ -3,3 +3,6 @@ dist
 
 # ignore databases from doit
 *.db
+
+# Documentation and notes
+REFACTORING_GUIDELINES.md
