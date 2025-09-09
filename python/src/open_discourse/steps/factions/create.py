@@ -88,6 +88,7 @@ def main(task):
     mps_path = POLITICIANS_STAGE_01 / "mps.pkl"
     mps = load_pickle(mps_path, logger)
     if mps is None:
+        logger.error(f"Failed to load politicians data from {mps_path}")
         return False  # Early return if loading failed
 
     # Extract the unique names of factions/groups from the politicians' data via extract_unique_factions()
