@@ -7,6 +7,7 @@ from open_discourse.steps.speech_content.extract import (
     get_faction_speaker_pattern,
 )
 
+
 @pytest.mark.parametrize(
     "folder_name, expected_open, expected_close, expected_prefix",
     [
@@ -16,12 +17,16 @@ from open_discourse.steps.speech_content.extract import (
         ("electoral_term_pp19", r"[(]", r"[)]", r"(?<=\n)"),
     ],
 )
-def test_bracket_extraction_valid_terms(tmp_path, folder_name, expected_open, expected_close, expected_prefix):
+def test_bracket_extraction_valid_terms(
+    tmp_path, folder_name, expected_open, expected_close, expected_prefix
+):
     """Test bracket extraction for various valid terms"""
     folder = tmp_path / folder_name
     folder.mkdir()
 
-    open_brackets, close_brackets, prefix = get_bracket_and_prefix_from_term_number(folder)
+    open_brackets, close_brackets, prefix = get_bracket_and_prefix_from_term_number(
+        folder
+    )
 
     assert open_brackets == expected_open
     assert close_brackets == expected_close
@@ -32,11 +37,14 @@ def test_invalid_folder(tmp_path):
     """Test with non-existent folder"""
     folder = tmp_path / "nonexistent"
 
-    open_brackets, close_brackets, prefix = get_bracket_and_prefix_from_term_number(folder)
+    open_brackets, close_brackets, prefix = get_bracket_and_prefix_from_term_number(
+        folder
+    )
 
     assert open_brackets == ""
     assert close_brackets == ""
     assert prefix == ""
+
 
 @pytest.mark.parametrize(
     "text, expected_position, expected_name",
@@ -46,9 +54,21 @@ def test_invalid_folder(tmp_path):
         ("Vizepräsident Frau Renger: Zusatzfrage", "Vizepräsident", "Frau Renger"),
         ("Präsidentin Müller: Guten Tag", "Präsidentin", "Müller"),
         ("Vizepräsidentin Schmidt: Danke", "Vizepräsidentin", "Schmidt"),
-        ("Alterspräsident Otto Schily: Herzlich willkommen", "Alterspräsident", "Otto Schily"),
-        ("Bundeskanzler Schröder: Sehr geehrte Damen und Herren", "Bundeskanzler", "Schröder"),
-        ("Bundeskanzlerin Merkel: Liebe Kolleginnen und Kollegen", "Bundeskanzlerin", "Merkel"),
+        (
+            "Alterspräsident Otto Schily: Herzlich willkommen",
+            "Alterspräsident",
+            "Otto Schily",
+        ),
+        (
+            "Bundeskanzler Schröder: Sehr geehrte Damen und Herren",
+            "Bundeskanzler",
+            "Schröder",
+        ),
+        (
+            "Bundeskanzlerin Merkel: Liebe Kolleginnen und Kollegen",
+            "Bundeskanzlerin",
+            "Merkel",
+        ),
     ],
 )
 def test_president_pattern_matches(text, expected_position, expected_name):
@@ -81,6 +101,7 @@ def test_president_pattern_no_matches(text):
 def minister_pattern():
     """Fixture to provide minister pattern with standard brackets"""
     return get_minister_pattern(r"[({\[]", r"[)}\]]", r"(?<=\n)")
+
 
 @pytest.mark.parametrize(
     "test_text, expected_name, expected_position, expected_constituency",
@@ -159,7 +180,9 @@ def minister_pattern():
         ),
     ],
 )
-def test_minister_pattern(minister_pattern, test_text, expected_name, expected_position, expected_constituency):
+def test_minister_pattern(
+    minister_pattern, test_text, expected_name, expected_position, expected_constituency
+):
     """Test minister pattern for all supported titles"""
     match = minister_pattern.search(test_text)
 
@@ -173,15 +196,18 @@ def test_minister_pattern(minister_pattern, test_text, expected_name, expected_p
         try:
             constituency = match.group("constituency")
             assert constituency is None
-        except IndexError: # IndexError is expected when constituency group doesn't exist
+        except (
+            IndexError
+        ):  # IndexError is expected when constituency group doesn't exist
             pass
+
 
 @pytest.mark.parametrize(
     "test_text, reason",
     [
         (
             "\nZinn (SPD), Berichterstatter: Meine Damen und Herren! Gegen zwei Mitglieder des Hauses.",
-            "Party affiliation before position not supported"
+            "Party affiliation before position not supported",
         )
     ],
 )
@@ -214,6 +240,7 @@ def faction_speaker_pattern_term14(tmp_path):
 
     return get_faction_speaker_pattern(14, session_dir, r"[(]", r"[)]", r"(?<=\n)")
 
+
 @pytest.mark.parametrize(
     "text, expected_name, expected_party",
     [
@@ -222,17 +249,22 @@ def faction_speaker_pattern_term14(tmp_path):
         ("\nWeber (F.D.P.): Die Bundesregierung", "Weber", "F.D.P."),
         ("\nFischer (GRÜNEN): Die Bundesregierung", "Fischer", "GRÜNEN"),
         ("\nPetra Pau (fraktionslos): Ich:", "Petra Pau", "fraktionslos"),
-        ("\nHans-Christian Ströbele (GRÜNEN): Meine Damen", "Hans-Christian Ströbele", "GRÜNEN"),
+        (
+            "\nHans-Christian Ströbele (GRÜNEN): Meine Damen",
+            "Hans-Christian Ströbele",
+            "GRÜNEN",
+        ),
     ],
 )
-def test_faction_speaker_pattern_term8(faction_speaker_pattern_term8, text, expected_name, expected_party):
+def test_faction_speaker_pattern_term8(
+    faction_speaker_pattern_term8, text, expected_name, expected_party
+):
     """Test faction speaker pattern for term <= 10"""
     match = faction_speaker_pattern_term8.search(text)
 
     assert match is not None, f"Should match: {text}"
     assert match.group("name_raw") == expected_name
     assert match.group("position_raw") == expected_party
-
 
 
 @pytest.mark.parametrize(
@@ -244,9 +276,15 @@ def test_faction_speaker_pattern_term8(faction_speaker_pattern_term8, text, expe
             "CDU/CSU",
             "Bonn",
         )
-    ]
+    ],
 )
-def test_faction_speaker_pattern_term14_with_constituency(faction_speaker_pattern_term14, text, expected_name, expected_party, expected_constituency):
+def test_faction_speaker_pattern_term14_with_constituency(
+    faction_speaker_pattern_term14,
+    text,
+    expected_name,
+    expected_party,
+    expected_constituency,
+):
     """Test faction speaker pattern for term > 10 with constituency"""
     match = faction_speaker_pattern_term14.search(text)
 
