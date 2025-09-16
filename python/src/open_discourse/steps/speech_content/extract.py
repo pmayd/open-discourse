@@ -21,9 +21,14 @@ def main(task):
 
     for folder_path in sorted(RAW_TXT.iterdir()):
         # Get regex helpers based on folder name/term
-        open_brackets, close_brackets, prefix = get_bracket_and_prefix_from_term_number(
-            folder_path
-        )
+        try:
+            open_brackets, close_brackets, prefix = get_bracket_and_prefix_from_term_number(
+                folder_path
+            )
+        except ValueError as e:
+            print(f"Skipping folder {folder_path.name}: {e}")
+            continue
+
         if open_brackets is None:
             continue  # skip if not a valid folder
 
@@ -54,7 +59,7 @@ def get_bracket_and_prefix_from_term_number(folder_path: Path) -> tuple[str, str
     if not folder_path.is_dir():
         return "", "", ""
 
-    term_number = get_term_from_path(folder_path)
+    term_number = get_term_from_path(str(folder_path))
     if term_number is None:
         return "", "", ""
 
