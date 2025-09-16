@@ -78,12 +78,22 @@ def get_bracket_and_prefix_from_term_number(folder_path: Path) -> tuple[str, str
 
 
 def get_president_pattern():
+    """
+    Create regex pattern to match presidential speakers in parliamentary transcripts.
+    Matches various president titles (Präsident, Vizepräsident, Bundespräsident, etc.)
+    and extracts the speaker's name and position.
+    """
     return regex.compile(
         r"(?P<position_raw>Präsident(?:in)?|Vizepräsident(?:in)?|Alterspräsident(?:in)?|Bundespräsident(?:in)?|Bundeskanzler(?:in)?)\s+(?P<name_raw>[A-ZÄÖÜß](?:[^:([}{\]\)\s]+\s?){1,5})\s?:\s?"
     )
 
 
 def get_minister_pattern(open_brackets, close_brackets, prefix):
+    """
+    Create regex pattern to match government ministers and officials.
+    Matches titles like Bundesminister, Staatsminister, Staatssekretär, etc.
+    Extracts name, position, and optional constituency information.
+    """
     minister_pattern_str = r"{0}(?P<name_raw>[A-ZÄÖÜß](?:[^:([{{}}\]\)\s]+\s?){{1,5}}?),\s?(?P<position_raw>(?P<short_position>Bundesminister(?:in)?|Staatsminister(?:in)?|(?:Parl\s?\.\s)?Staatssekretär(?:in)?|Präsident(?:in)?|Bundeskanzler(?:in)?|Schriftführer(?:in)?|Senator(?:in)?\s?(?:{1}(?P<constituency>[^:([{{}}\]\)\s]+){2})?|Berichterstatter(?:in)?)\s?([^:([\]{{}}\)\n]{{0,76}}?\n?){{1,2}})\s?:\s?"
 
     return regex.compile(
@@ -94,6 +104,11 @@ def get_minister_pattern(open_brackets, close_brackets, prefix):
 def get_faction_speaker_pattern(
     term_number: int, folder_path: Path, open_brackets, close_brackets, prefix
 ):
+    """
+    Create regex pattern to match parliamentary faction speakers (MPs).
+    Matches members of parliament with their party affiliations (SPD, CDU/CSU, etc.)
+    and optional constituency information. Pattern varies by electoral term.
+    """
     parties = [
         r"(?:Gast|-)?(?:\s*C\s*[DSMU]\s*S?[DU]\s*(?:\s*[/,':!.-]?)*\s*(?:\s*C+\s*[DSs]?\s*[UÙ]?\s*)?)(?:-?Hosp\.|-Gast|1)?",
         r"\s*'?S(?:PD|DP)(?:\.|-Gast)?",
@@ -131,6 +146,11 @@ def get_faction_speaker_pattern(
 def process_period(
     folder_path: Path, president_pattern, faction_speaker_pattern, minister_pattern
 ):
+    """
+    Process all parliamentary sessions within an electoral term period.
+    Uses multithreading to process sessions in parallel, applying regex patterns
+    to extract speaker information and save results as pickle files.
+    """
     patterns = [president_pattern, faction_speaker_pattern, minister_pattern]
 
     save_path = SPEECH_CONTENT_OUTPUT / folder_path.stem
@@ -152,6 +172,12 @@ def process_period(
 
 
 def process_session(session_path: Path, patterns: list[regex.Pattern], save_path: Path):
+    """
+    Extract speaker information and speech content from a single parliamentary session.
+    Applies regex patterns to session transcript, sorts speakers chronologically,
+    and saves structured data including names, positions, and speech content.
+    """
+
     # Skip e.g. the .DS_Store file.
     if not session_path.is_dir():
         return
