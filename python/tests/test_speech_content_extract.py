@@ -2,9 +2,9 @@ import pytest
 
 from open_discourse.steps.speech_content.extract import (
     get_bracket_and_prefix_from_term_number,
-    get_president_pattern,
-    get_minister_pattern,
     get_faction_speaker_pattern,
+    get_minister_pattern,
+    get_president_pattern,
 )
 
 
