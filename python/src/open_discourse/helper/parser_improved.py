@@ -3,17 +3,20 @@ from xml.etree.ElementTree import ElementTree
 import regex
 from pydantic import BaseModel
 
-# Improved pattern that handles newlines and alternative opening words
-# More permissive: allows any characters except parentheses between components
+# Improved patterns that handle newlines and alternative words
 BEGIN_PATTERN = regex.compile(
-    r"Die[^(]*?Sitzung[^(]*?wird[^(]*?\d{1,2}[^(]*?Uhr[^(]*?"
-    r"(durch[^(]*?den.*?)?(eröffnet|eingeleitet|wieder\s*aufgenommen)",
+    r"Die[^\.]*?Sitzung[^\.]*?wird[^\.]*?\d{1,2}[^\.]*?Uhr[^\.]*?"
+    r"(durch[^\.]*?den.*?)?(eröffnet|eingeleitet|wieder\s*aufgenommen)[^\.]*?[.]?",
     regex.V0 | regex.DOTALL
 )
 
-# Pattern for session endings (including alternative spelling)
 APPENDIX_PATTERN = regex.compile(
     r"\((?:Schluß|Schluss)[^)]*?Sitzung[^)]*?Uhr[^)]*?\)"
+)
+
+INTERRUPTION_PATTERN = regex.compile(
+    r"\(Unterbrechung[^)]*?Sitzung[^)]*?\)",
+    regex.V0 | regex.DOTALL
 )
 
 
@@ -30,7 +33,6 @@ def get_session_content(text_corpus: str) -> str:
     - Newlines in session opening statements
     - Alternative opening words (eröffnet, eingeleitet, wieder aufgenommen)
     - Session interruptions and resumptions
-    - Sessions without formal endings
 
     Args:
         text_corpus (str): The text corpus to extract the spoken content from.
@@ -40,13 +42,7 @@ def get_session_content(text_corpus: str) -> str:
     """
     find_beginnings = list(BEGIN_PATTERN.finditer(text_corpus))
     find_endings = list(APPENDIX_PATTERN.finditer(text_corpus))
-
-    # Detect interruptions in the session
-    interruption_pattern = regex.compile(
-        r"\(Unterbrechung[^)]*?Sitzung[^)]*?\)",
-        regex.V0 | regex.DOTALL
-    )
-    find_interruptions = list(interruption_pattern.finditer(text_corpus))
+    find_interruptions = list(INTERRUPTION_PATTERN.finditer(text_corpus))
 
     session_content = ""
 
@@ -62,20 +58,20 @@ def get_session_content(text_corpus: str) -> str:
             find_beginnings[0].span()[1] : find_endings[-1].span()[0]
         ]
 
-    # Strategy 2: More beginnings than endings with multiple endings (handle interruptions)
+    # Strategy 2: More beginnings than endings with exactly one ending
+    elif len(find_beginnings) > len(find_endings) and len(find_endings) == 1:
+        session_content = text_corpus[
+            find_beginnings[0].span()[1] : find_endings[0].span()[0]
+        ]
+
+    # Strategy 3: More beginnings than endings with multiple endings (handle interruptions)
     elif len(find_beginnings) > len(find_endings) and len(find_endings) > 1:
         # Extract from first beginning to last ending
         session_content = text_corpus[
             find_beginnings[0].span()[1] : find_endings[-1].span()[0]
         ]
 
-    # Strategy 3: More beginnings than endings with exactly one ending
-    elif len(find_beginnings) > len(find_endings) and len(find_endings) == 1:
-        session_content = text_corpus[
-            find_beginnings[0].span()[1] : find_endings[0].span()[0]
-        ]
-
-    # Strategy 4: Equal beginnings and endings - pair them up
+    # Strategy 4: Equal beginnings and endings
     elif len(find_beginnings) == len(find_endings) and find_endings:
         for begin, end in zip(find_beginnings, find_endings):
             session_content += text_corpus[begin.span()[1] : end.span()[0]]
