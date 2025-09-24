@@ -141,9 +141,9 @@ def test_setup_and_get_logger(case: namedtuple, patch_log_path, capfd):
     )
 
     # Test 1: exact two handlers
-    assert (
-        len(logger.handlers) == 2
-    ), "Logger should have exact 2 Handler(file & console)"
+    assert len(logger.handlers) == 2, (
+        "Logger should have exact 2 Handler(file & console)"
+    )
 
     # Test 2: log file created?
     assert os.path.exists(log_file_path)

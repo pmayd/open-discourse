@@ -1,8 +1,7 @@
-import datetime
-import time
 import xml.etree.ElementTree as et
 
 import pandas as pd
+import pendulum
 import regex
 
 from open_discourse.definitions import path
@@ -10,7 +9,7 @@ from open_discourse.definitions import path
 # input directory
 RAW_XML = path.RAW_XML
 SPEECH_CONTENT_INPUT = path.SPEECH_CONTENT_STAGE_04
-SPEECH_CONTENT_INPUT_TERM_20 = path.DATA_CACHE / "electoral_term_20" / "stage_03"
+SPEECH_CONTENT_INPUT_TERM_20 = path.DATA_CACHE / "electoral_term_pp20" / "stage_03"
 CONTRIBUTIONS_EXTENDED_INPUT = path.CONTRIBUTIONS_EXTENDED_STAGE_03
 
 # output directory
@@ -67,7 +66,7 @@ def main(task):
         if not folder_path.is_dir():
             continue
 
-        term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+        term_number = regex.search(r"(?<=electoral_term_pp)\d{2}", folder_path.stem)
         if term_number is None:
             continue
         term_number = int(term_number.group(0))
@@ -78,14 +77,15 @@ def main(task):
             # meta_data["document_number"].append(tree.find("NR").text)
             # meta_data["date"].append(tree.find("DATUM").text)
             # document_number = tree.find("NR").text
-            date = time.mktime(
-                datetime.datetime.strptime(
-                    tree.find("DATUM").text, "%d.%m.%Y"
-                ).timetuple()
-            )
+
+            # date_str a date string like "27.10.2009"
+            date_str = tree.find("DATUM").text
+
+            dt = pendulum.from_format(date_str, "DD.MM.YYYY")
+
             document_number = xml_plenar_file_path.stem
             document_number = int(document_number)
-            meta_data[document_number] = date
+            meta_data[document_number] = dt.int_timestamp
 
     speech_content_01_19.insert(1, "electoral_term", -1)
     speech_content_01_19.insert(4, "document_url", "")
@@ -151,7 +151,7 @@ def main(task):
         if not folder_path.is_dir():
             continue
 
-        term_number = regex.search(r"(?<=electoral_term_)\d{2}", folder_path.stem)
+        term_number = regex.search(r"(?<=electoral_term_pp)\d{2}", folder_path.stem)
         if term_number is None:
             continue
         term_number = int(term_number.group(0))
@@ -204,3 +204,7 @@ def main(task):
     )
 
     return True
+
+
+if __name__ == "__main__":
+    main(None)

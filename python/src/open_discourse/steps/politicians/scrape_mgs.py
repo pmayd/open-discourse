@@ -13,7 +13,10 @@ URL = "https://de.wikipedia.org/wiki/Liste_der_deutschen_Regierungsmitglieder_se
 
 
 def main(task):
-    page = requests.get(URL)
+    headers = {
+        "User-Agent": "open-discourse/1.0 (https://github.com/pmayd/open-discourse; michael.aydinbas@gmail.com) requests/2.31"
+    }
+    page = requests.get(URL, headers=headers)
     soup = BeautifulSoup(page.text, "html.parser")
     main_section = soup.find("div", {"id": "mw-content-text"}).find("div")
 
