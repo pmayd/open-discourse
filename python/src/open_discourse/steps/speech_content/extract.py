@@ -6,6 +6,7 @@ import regex
 from tqdm import tqdm
 
 from open_discourse.definitions import path
+from open_discourse.helper.utils import get_term_from_path
 
 # input directory
 RAW_TXT = path.RAW_TXT
@@ -19,18 +20,95 @@ def main(task):
     print("Starting..")
 
     for folder_path in sorted(RAW_TXT.iterdir()):
-        process_period(folder_path)
+        # Get regex helpers based on folder name/term
+        try:
+            open_brackets, close_brackets, prefix = (
+                get_bracket_and_prefix_from_term_number(folder_path)
+            )
+        except ValueError as e:
+            print(f"Skipping folder {folder_path.name}: {e}")
+            continue
+
+        if open_brackets is None:
+            continue  # skip if not a valid folder
+
+        president_pattern = get_president_pattern()
+
+        faction_speaker_pattern = get_faction_speaker_pattern(
+            term_number=int(folder_path.stem[-2:]),
+            folder_path=folder_path,
+            open_brackets=open_brackets,
+            close_brackets=close_brackets,
+            prefix=prefix,
+        )
+
+        minister_pattern = get_minister_pattern(open_brackets, close_brackets, prefix)
+
+        process_period(
+            folder_path, president_pattern, faction_speaker_pattern, minister_pattern
+        )
 
     return True
 
 
-def process_period(folder_path: Path):
-    president_pattern_str = r"(?P<position_raw>Präsident(?:in)?|Vizepräsident(?:in)?|Alterspräsident(?:in)?|Bundespräsident(?:in)?|Bundeskanzler(?:in)?)\s+(?P<name_raw>[A-ZÄÖÜß](?:[^:([}{\]\)\s]+\s?){1,5})\s?:\s?"
+def get_bracket_and_prefix_from_term_number(folder_path: Path) -> tuple[str, str, str]:
+    """
+    Extracts the term number from the folder name and returns
+    open_brackets, close_brackets, and prefix for regex patterns.
+    """
+    if not folder_path.is_dir():
+        return "", "", ""
 
-    faction_speaker_pattern_str = r"{3}(?P<name_raw>[A-ZÄÖÜß][^:([{{}}\]\)\n]+?)(\s*{0}(?P<constituency>[^:(){{}}[\]\n]+){1})*\s*{0}(?P<position_raw>{2}){1}(\s*{0}(?P<constituency>[^:(){{}}[\]\n]+){1})*\s?:\s?"
+    term_number = get_term_from_path(str(folder_path))
+    if term_number is None:
+        return "", "", ""
 
+    prefix = r"(?<=\n)"
+
+    if term_number <= 10:
+        open_brackets = r"[({\[]"
+        close_brackets = r"[)}\]]"
+    elif 10 < term_number <= 19:
+        open_brackets = r"[(]"
+        close_brackets = r"[)]"
+    else:
+        raise ValueError("The term number is greater than 19")
+
+    return open_brackets, close_brackets, prefix
+
+
+def get_president_pattern():
+    """
+    Create regex pattern to match presidential speakers in parliamentary transcripts.
+    Matches various president titles (Präsident, Vizepräsident, Bundespräsident, etc.)
+    and extracts the speaker's name and position.
+    """
+    return regex.compile(
+        r"(?P<position_raw>Präsident(?:in)?|Vizepräsident(?:in)?|Alterspräsident(?:in)?|Bundespräsident(?:in)?|Bundeskanzler(?:in)?)\s+(?P<name_raw>[A-ZÄÖÜß](?:[^:([}{\]\)\s]+\s?){1,5})\s?:\s?"
+    )
+
+
+def get_minister_pattern(open_brackets, close_brackets, prefix):
+    """
+    Create regex pattern to match government ministers and officials.
+    Matches titles like Bundesminister, Staatsminister, Staatssekretär, etc.
+    Extracts name, position, and optional constituency information.
+    """
     minister_pattern_str = r"{0}(?P<name_raw>[A-ZÄÖÜß](?:[^:([{{}}\]\)\s]+\s?){{1,5}}?),\s?(?P<position_raw>(?P<short_position>Bundesminister(?:in)?|Staatsminister(?:in)?|(?:Parl\s?\.\s)?Staatssekretär(?:in)?|Präsident(?:in)?|Bundeskanzler(?:in)?|Schriftführer(?:in)?|Senator(?:in)?\s?(?:{1}(?P<constituency>[^:([{{}}\]\)\s]+){2})?|Berichterstatter(?:in)?)\s?([^:([\]{{}}\)\n]{{0,76}}?\n?){{1,2}})\s?:\s?"
 
+    return regex.compile(
+        minister_pattern_str.format(prefix, open_brackets, close_brackets)
+    )
+
+
+def get_faction_speaker_pattern(
+    term_number: int, folder_path: Path, open_brackets, close_brackets, prefix
+):
+    """
+    Create regex pattern to match parliamentary faction speakers (MPs).
+    Matches members of parliament with their party affiliations (SPD, CDU/CSU, etc.)
+    and optional constituency information. Pattern varies by electoral term.
+    """
     parties = [
         r"(?:Gast|-)?(?:\s*C\s*[DSMU]\s*S?[DU]\s*(?:\s*[/,':!.-]?)*\s*(?:\s*C+\s*[DSs]?\s*[UÙ]?\s*)?)(?:-?Hosp\.|-Gast|1)?",
         r"\s*'?S(?:PD|DP)(?:\.|-Gast)?",
@@ -55,37 +133,24 @@ def process_period(folder_path: Path):
         "DBP",
         "NR",
     ]
-    if not folder_path.is_dir():
-        return
 
-    term_number = regex.search(r"(?<=electoral_term_pp)\d{2}", folder_path.stem)
-    print(term_number)
-    if term_number is None:
-        return
+    faction_speaker_pattern_str = r"{3}(?P<name_raw>[A-ZÄÖÜß][^:([{{}}\]\)\n]+?)(\s*{0}(?P<constituency>[^:(){{}}[\]\n]+){1})*\s*{0}(?P<position_raw>{2}){1}(\s*{0}(?P<constituency>[^:(){{}}[\]\n]+){1})*\s?:\s?"
 
-    term_number = int(term_number.group(0))
-
-    if term_number <= 10:
-        open_brackets = r"[({\[]"
-        close_brackets = r"[)}\]]"
-        prefix = r"(?<=\n)"
-    elif 10 < term_number <= 19:
-        open_brackets = r"[(]"
-        close_brackets = r"[)]"
-        prefix = r"(?<=\n)"
-    else:
-        raise ValueError("You should not land here.")
-
-    faction_speaker_pattern = regex.compile(
+    return regex.compile(
         faction_speaker_pattern_str.format(
             open_brackets, close_brackets, "|".join(parties), prefix
         )
     )
-    president_pattern = regex.compile(president_pattern_str)
-    minister_pattern = regex.compile(
-        minister_pattern_str.format(prefix, open_brackets, close_brackets)
-    )
 
+
+def process_period(
+    folder_path: Path, president_pattern, faction_speaker_pattern, minister_pattern
+):
+    """
+    Process all parliamentary sessions within an electoral term period.
+    Uses multithreading to process sessions in parallel, applying regex patterns
+    to extract speaker information and save results as pickle files.
+    """
     patterns = [president_pattern, faction_speaker_pattern, minister_pattern]
 
     save_path = SPEECH_CONTENT_OUTPUT / folder_path.stem
@@ -107,6 +172,12 @@ def process_period(folder_path: Path):
 
 
 def process_session(session_path: Path, patterns: list[regex.Pattern], save_path: Path):
+    """
+    Extract speaker information and speech content from a single parliamentary session.
+    Applies regex patterns to session transcript, sorts speakers chronologically,
+    and saves structured data including names, positions, and speech content.
+    """
+
     # Skip e.g. the .DS_Store file.
     if not session_path.is_dir():
         return
