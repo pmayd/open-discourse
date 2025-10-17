@@ -1,10 +1,9 @@
 from pathlib import Path
 
+import pyparsing as pp
 import pytest
 
-from open_discourse.helper_functions.utils import get_term_from_path
-import pyparsing as pp
-
+from open_discourse.helper.utils import get_term_from_path
 
 term_number_parser = pp.Literal("electoral_term") + "_" + pp.Word(pp.nums, exact=2)
 
@@ -18,6 +17,7 @@ term_number_parser = pp.Literal("electoral_term") + "_" + pp.Word(pp.nums, exact
         (Path("/12_electoral_term/path"), None),
         (Path("/path/electoral_term_pp03"), 3),
         (Path("/path/electoral_term_pp56/another_term_pp78"), 56),
+        (Path("/path/electoral_term_pp04"), 4),
     ],
 )
 def test_get_term_from_path(folder_path, expected):
