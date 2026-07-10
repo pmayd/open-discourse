@@ -3,17 +3,23 @@ from xml.etree.ElementTree import ElementTree
 import regex
 from pydantic import BaseModel
 
-# Improved pattern that handles newlines and alternative opening words
-# More permissive: allows any characters except parentheses between components
+# A gap inside a single (possibly line-wrapped) statement: length-capped,
+# may cross one line break but never a blank line, and stops at sentence
+# boundaries. A period only counts as a sentence boundary when it follows
+# an ordinary word (>= 4 lowercase letters) and precedes an uppercase
+# letter — abbreviations ("Dr.", "D.", "h. c."), numbers ("2. Wahlperiode")
+# and OCR noise ("Minuten. durch") pass through.
+_GAP = r"(?:[^.!?\n]|(?<!\p{Ll}{4})\.|\.(?!\s*\p{Lu})|\n(?!\s*\n)){0,200}?"
+# A gap inside a single-line parenthetical.
+_PAREN_GAP = r"[^)\n]{0,200}?"
+
 BEGIN_PATTERN = regex.compile(
-    r"Die[^(]*?Sitzung[^(]*?wird[^(]*?\d{1,2}[^(]*?Uhr[^(]*?"
-    r"(durch[^(]*?den.*?)?(eröffnet|eingeleitet|wieder\s*aufgenommen)",
-    regex.V0 | regex.DOTALL
+    rf"Die\b{_GAP}\bSitzung{_GAP}wird{_GAP}\d{{1,2}}{_GAP}Uhr{_GAP}"
+    rf"(?:eröffnet|eingeleitet|wieder\s?aufgenommen)"
 )
 
-# Pattern for session endings (including alternative spelling)
 APPENDIX_PATTERN = regex.compile(
-    r"\((?:Schluß|Schluss)[^)]*?Sitzung[^)]*?Uhr[^)]*?\)"
+    rf"\((?:Schluß|Schluss){_PAREN_GAP}Sitzung{_PAREN_GAP}Uhr{_PAREN_GAP}\)"
 )
 
 
@@ -26,11 +32,14 @@ def get_session_content(text_corpus: str) -> str:
     """
     Extracts the spoken content from the text corpus.
 
-    Improved version that handles:
-    - Newlines in session opening statements
-    - Alternative opening words (eröffnet, eingeleitet, wieder aufgenommen)
-    - Session interruptions and resumptions
-    - Sessions without formal endings
+    Session openings ("Die Sitzung wird um ... Uhr eröffnet/eingeleitet/
+    wieder aufgenommen", possibly wrapped across a line break) and endings
+    ("(Schluß/Schluss der Sitzung: ... Uhr ...)") are paired positionally:
+    each ending consumes the first opening that follows the previous ending,
+    so the table of contents and appendix between an ending and the next
+    day's opening of an interrupted session are excluded. An opening with no
+    ending after it (session without a formal ending) is sliced to the end
+    of the corpus, or to an "END OF FILE" marker if the caller appended one.
 
     Args:
         text_corpus (str): The text corpus to extract the spoken content from.
@@ -41,60 +50,34 @@ def get_session_content(text_corpus: str) -> str:
     find_beginnings = list(BEGIN_PATTERN.finditer(text_corpus))
     find_endings = list(APPENDIX_PATTERN.finditer(text_corpus))
 
-    # Detect interruptions in the session
-    interruption_pattern = regex.compile(
-        r"\(Unterbrechung[^)]*?Sitzung[^)]*?\)",
-        regex.V0 | regex.DOTALL
-    )
-    find_interruptions = list(interruption_pattern.finditer(text_corpus))
-
-    session_content = ""
-
-    if not find_beginnings:
-        print(
-            f"No session content found. Beginnings: {len(find_beginnings)}, Endings: {len(find_endings)}"
+    segments = []
+    last_end = 0
+    for ending in find_endings:
+        begin = next(
+            (b for b in find_beginnings if last_end < b.end() <= ending.start()),
+            None,
         )
-        return ""
+        if begin is None:
+            # Ending without a new opening before it (duplicate or false match).
+            continue
+        segments.append(text_corpus[begin.end() : ending.start()])
+        last_end = ending.end()
 
-    # Strategy 1: If there are interruptions, extract from first beginning to last ending
-    if find_interruptions and find_endings:
-        session_content = text_corpus[
-            find_beginnings[0].span()[1] : find_endings[-1].span()[0]
-        ]
+    # Unterminated tail: an opening after the last paired ending.
+    tail = next((b for b in find_beginnings if b.start() >= last_end), None)
+    if tail is not None:
+        eof_pos = text_corpus.find("END OF FILE", tail.end())
+        stop = eof_pos if eof_pos != -1 else len(text_corpus)
+        segments.append(text_corpus[tail.end() : stop])
 
-    # Strategy 2: More beginnings than endings with multiple endings (handle interruptions)
-    elif len(find_beginnings) > len(find_endings) and len(find_endings) > 1:
-        # Extract from first beginning to last ending
-        session_content = text_corpus[
-            find_beginnings[0].span()[1] : find_endings[-1].span()[0]
-        ]
+    session_content = "".join(segments)
 
-    # Strategy 3: More beginnings than endings with exactly one ending
-    elif len(find_beginnings) > len(find_endings) and len(find_endings) == 1:
-        session_content = text_corpus[
-            find_beginnings[0].span()[1] : find_endings[0].span()[0]
-        ]
-
-    # Strategy 4: Equal beginnings and endings - pair them up
-    elif len(find_beginnings) == len(find_endings) and find_endings:
-        for begin, end in zip(find_beginnings, find_endings):
-            session_content += text_corpus[begin.span()[1] : end.span()[0]]
-
-    # Strategy 5: Beginnings but no endings - use EOF marker if available
-    elif find_beginnings and not find_endings:
-        eof_pos = text_corpus.find("END OF FILE")
-        if eof_pos > 0:
-            session_content = text_corpus[find_beginnings[0].span()[1] : eof_pos]
-        else:
-            print(
-                f"No session content found. Beginnings: {len(find_beginnings)}, Endings: {len(find_endings)}"
-            )
-    else:
+    if not session_content:
         print(
             f"No session content found. Beginnings: {len(find_beginnings)}, Endings: {len(find_endings)}"
         )
 
-    return session_content.strip() if session_content else ""
+    return session_content
 
 
 def get_doc_metadata(tree: ElementTree) -> Metadata:
